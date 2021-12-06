@@ -1,0 +1,12 @@
+#+TITLE: Org Mode Example Site
+
+* Overview
+
+Hello there. Look at this source code:
+
+#+BEGIN_SRC rust
+  fn main() {
+      let input = "hello, world!";
+      println("{}", input);
+  }
+#+END_SRC
