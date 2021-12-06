@@ -1,0 +1,20 @@
+body {
+  margin: 0 auto;
+  max-width: 60em;
+  font-family: "Helvetica", "Arial", sans-serif;
+  line-height: 1.5;
+}
+
+code,
+pre {
+  background: #eee;
+}
+
+code {
+  padding: 2px 4px;
+  vertical-align: text-bottom;
+}
+
+pre {
+  padding: 1em;
+}
