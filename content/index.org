@@ -16,6 +16,14 @@ Hello there. This is my website. Here's some source code:
   }
 #+END_SRC
 
+Which is kinda nice.
+
+| Bit(s) | Value            |
+|    0-7 | ASCII code point |
+|   8-11 | Foreground color |
+|  12-14 | Background color |
+|     15 | Blink            |
+
 * How to fix simple bug?
 
-In order to fix simple bug, you need to fix it.
+In order to fix =simple= bug, you need to fix it.

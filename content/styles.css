@@ -2,17 +2,23 @@ body {
     margin: 0 auto;
     padding: 0 2rem;
     max-width: 54rem;
-    font-family: "Helvetica", "Arial", sans-serif;
     overflow-y: scroll;
+    font-family: "Helvetica", "Arial", sans-serif;
 }
 
-a { color: black; }
 pre { padding: 1em; }
-a:hover { color: #587e72; }
-pre { border-left: 4px solid #587e72; }
-code, pre, p, a, li { font-size: 1.25rem; }
+p, tr, th { color: #515151; }
+a:hover { text-decoration: underline; }
+p { margin-top: 0; margin-bottom: 16px; }
 #knarkzel { text-align: center; border: 0; }
-#nav > a { padding-right: 0.25rem; font-size: 1.5rem; }
-code { padding: 2px 4px; vertical-align: text-bottom; }
-code, pre { border-bottom: 1px solid #ddd; overflow: auto; }
-h2, h3, h4, h5, h6 { color: #587e72; border-bottom: 1px solid #ddd; }
+a { color: #268bd2; text-decoration: none; }
+code, pre, p, a, li, tr, th { font-size: 1.25rem; }
+tr, td { padding: 0.5rem 0.75rem; border: 1px solid #e5e5e5 }
+tbody tr:first-child { text-align: center; font-weight: bold; }
+code, pre { font-size: 85%; overflow: auto; background: #F9F9F9; }
+code { color: #BF616A; padding: 2px 4px; vertical-align: text-bottom; }
+h1, h2, h3, h4, h5, h6 { color: #313131; margin-top: 16px; margin-bottom: 8px; }
+#nav > a { padding-right: 0.25rem; font-size: 1.5rem; text-decoration: underline; }
+#nav { text-align: center; }
+tbody tr:nth-child(even) td,tbody tr:nth-child(even) th { background-color: #F9F9F9; }
+table { margin-bottom: 1rem; width: 100%; border: 1px solid #e5e5e5; border-collapse: collapse; }

@@ -29,7 +29,7 @@
   ;; Writing block contents to the file.
   (with-temp-file temp-source-file (insert (org-element-property :value code)))
   ;; Executing the shell-command and reading output
-  (shell-command-to-string (format "%s -i '%s' --syntax '%s' --out-format html --inline-css --fragment --stdout --enclose-pre -K 15 --force -J 1000"
+  (shell-command-to-string (format "%s -i '%s' --syntax '%s' --out-format html --inline-css --fragment --stdout --enclose-pre -K 15 --force -J 1000 --style zenburn"
 				   highlight-path
                    temp-source-file
 				   (or (org-element-property :language code)
@@ -68,7 +68,9 @@
       org-html-head-include-default-style nil ;; Use our own styles
       org-html-html5-fancy nil
       org-html-doctype "html5"
-      org-html-head "<title>knarkzel.github.io</title><link rel='stylesheet' href='/styles.css'/><link rel='icon' type='image/x-icon' href='/favicon.ico'>")
+      org-html-head "<title>knarkzel.github.io</title>
+                     <link rel='stylesheet' href='/styles.css'/>
+                     <link rel='icon' type='image/x-icon' href='/favicon.ico'>")
 
 ;; Header
 (setq org-html-preamble "
