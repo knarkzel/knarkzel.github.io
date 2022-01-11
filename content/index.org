@@ -1,7 +1,6 @@
-#+TITLE: Rust for rustaceans
-#+AUTHOR: Knarkzel
+#+TITLE: Home
 
-Hello there. Look at this source code:
+Hello there. This is my website. Here's some source code:
 
 #+BEGIN_SRC rust
   fn main() {
