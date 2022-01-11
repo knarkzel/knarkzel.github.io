@@ -22,6 +22,9 @@ jobs:
       - name: Install highlight
         run: apk add highlight
 
+      - name: Install rsync
+        run: apk add rsync
+
       - name: Build the site
         run: ./build.sh
 
