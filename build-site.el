@@ -29,7 +29,7 @@
   ;; Writing block contents to the file.
   (with-temp-file temp-source-file (insert (org-element-property :value code)))
   ;; Executing the shell-command and reading output
-  (shell-command-to-string (format "%s -i '%s' --syntax '%s' --out-format html --inline-css --fragment --stdout --enclose-pre -K 15"
+  (shell-command-to-string (format "%s -i '%s' --syntax '%s' --out-format html --inline-css --fragment --stdout --enclose-pre -K 15 --force"
 				   highlight-path
                    temp-source-file
 				   (or (org-element-property :language code)

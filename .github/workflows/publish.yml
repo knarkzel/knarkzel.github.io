@@ -7,16 +7,20 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+
+    container:
+        image: alpine/git
+
     steps:
       - name: Check out
         uses: actions/checkout@v1
 
       - name: Install Emacs
-        run: sudo apt install emacs-nox --yes
+        run: sudo apk add emacs-nox
 
       - name: Install highlight
-        run: sudo apt install highlight --yes
+        run: sudo apk add highlight
 
       - name: Build the site
         run: ./build.sh
