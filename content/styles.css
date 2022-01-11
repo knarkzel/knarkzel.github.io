@@ -1,0 +1,18 @@
+body {
+    margin: 0 auto;
+    padding: 0 2rem;
+    max-width: 50rem;
+    font-family: "Helvetica", "Arial", sans-serif;
+    overflow-y: scroll;
+}
+
+a { color: black; }
+pre { padding: 1em; }
+a:hover { color: #587e72; }
+pre { border-left: 4px solid #587e72; }
+code, pre, p, a, li { font-size: 1.25rem; }
+#knarkzel { text-align: center; border: 0; }
+#nav > a { padding-right: 0.25rem; font-size: 1.5rem; }
+code { padding: 2px 4px; vertical-align: text-bottom; }
+h2, h3, h4, h5, h6 { color: #587e72; border-bottom: 1px solid #ddd; }
+code, pre { background: #2b303b; color: #fff; border-bottom: 1px solid #ddd; overflow: auto; }

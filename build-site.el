@@ -26,7 +26,7 @@
              :publishing-directory "./public"
              :with-author nil           ;; Don't include author name
              :with-creator nil          ;; Include Emacs and Org versions in footer
-             :with-toc nil              ;; Include a table of contents
+             :with-toc t                ;; Include a table of contents
              :section-numbers nil       ;; Don't include section numbers
              :time-stamp-file nil)))    ;; Don't include time stamp in file
 
@@ -34,10 +34,11 @@
 (setq org-html-validation-link nil            ;; Don't show validation link
       org-html-head-include-scripts nil       ;; Use our own scripts
       org-html-head-include-default-style nil ;; Use our own styles
-      org-html-head "<link rel=\"stylesheet\" href=\"styles.css\" />")
+      org-html-head "<title>knarkzel.github.io</title><link rel='stylesheet' href='styles.css'/><link rel='icon' type='image/x-icon' href='favicon.ico'>")
 
 ;; Header
 (setq org-html-preamble "
+<h1 id='knarkzel'>knarkzel.github.io</h1>
 <div id='nav'>
   <a href='/'>home</a>
   <a href='/blog'>blog</a>

@@ -1,4 +1,5 @@
 #+TITLE: Home
+#+OPTIONS: toc:nil
 
 Hello there. This is my website. Here's some source code:
 
@@ -8,3 +9,7 @@ Hello there. This is my website. Here's some source code:
       println("{}", input);
   }
 #+END_SRC
+
+* How to fix simple bug?
+
+In order to fix simple bug, you need to fix it.
