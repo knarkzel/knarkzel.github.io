@@ -66,7 +66,7 @@
 (setq org-html-validation-link nil            ;; Don't show validation link
       org-html-head-include-scripts nil       ;; Use our own scripts
       org-html-head-include-default-style nil ;; Use our own styles
-      org-html-head "<title>knarkzel.github.io</title><link rel='stylesheet' href='styles.css'/><link rel='icon' type='image/x-icon' href='favicon.ico'>")
+      org-html-head "<title>knarkzel.github.io</title><link rel='stylesheet' href='/styles.css'/><link rel='icon' type='image/x-icon' href='/favicon.ico'>")
 
 ;; Header
 (setq org-html-preamble "
