@@ -15,6 +15,38 @@
 
 ;; Load the publishing system
 (require 'ox-publish)
+(require 'org)
+(require 'ox)
+(require 'ox-html)
+
+;; Syntax highlight
+(defvar highlight-path "highlight")
+
+(defun highlight-org-html-code (code contents info)
+  ;; Generating tmp file path.
+  ;; Current date and time hash will ideally pass our needs.
+  (setq temp-source-file (format "/tmp/highlight-%s.txt"(md5 (current-time-string))))
+  ;; Writing block contents to the file.
+  (with-temp-file temp-source-file (insert (org-element-property :value code)))
+  ;; Executing the shell-command and reading output
+  (shell-command-to-string (format "%s -i '%s' --syntax '%s' --out-format html --inline-css --fragment --stdout --enclose-pre -K 15"
+				   highlight-path
+                   temp-source-file
+				   (or (org-element-property :language code)
+				       ""))))
+
+(org-export-define-derived-backend 'pelican-html 'html
+  :translate-alist '((src-block .  highlight-org-html-code)
+		             (example-block . highlight-org-html-code)))
+
+(defun org-html-publish-to-html (plist filename pub-dir)
+  "Publish an org file to HTML, using the FILENAME as the output directory."
+  (org-publish-org-to 'pelican-html filename
+		      (concat (when (> (length org-html-extension) 0) ".")
+			      (or (plist-get plist :html-extension)
+				  org-html-extension
+				  "html"))
+		      plist pub-dir))
 
 ;; Define the publishing project
 (setq org-publish-project-alist
