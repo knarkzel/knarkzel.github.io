@@ -36,6 +36,15 @@
       org-html-head-include-default-style nil ;; Use our own styles
       org-html-head "<link rel=\"stylesheet\" href=\"styles.css\" />")
 
+;; Header
+(setq org-html-preamble "
+<div id='nav'>
+  <a href='/'>home</a>
+  <a href='/blog'>blog</a>
+  <a href='/projects'>projects</a>
+</div>
+")
+
 ;; Generate the site output
 (org-publish-all t)
 

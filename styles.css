@@ -1,20 +1,14 @@
 body {
-  margin: 0 auto;
-  max-width: 60em;
-  font-family: "Helvetica", "Arial", sans-serif;
-  line-height: 1.5;
+    margin: 0;
+    padding: 2rem;
+    font-family: "Helvetica", "Arial", sans-serif;
 }
 
-code,
-pre {
-  background: #eee;
-}
-
-code {
-  padding: 2px 4px;
-  vertical-align: text-bottom;
-}
-
-pre {
-  padding: 1em;
-}
+a { color: #e81c4f; }
+pre { padding: 1em; }
+pre { border-left: 4px solid #69c; }
+code, pre, p, a { font-size: 1.25rem; }
+code, pre { border-bottom: 1px solid #d8dee9; }
+code, pre { background: #2b303b; color: #ffffff; }
+#nav > a { padding-right: 0.25rem; font-size: 1.5rem; }
+code { padding: 2px 4px; vertical-align: text-bottom; }
