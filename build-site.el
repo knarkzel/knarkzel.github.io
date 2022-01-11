@@ -68,7 +68,7 @@
       org-html-head-include-default-style nil ;; Use our own styles
       org-html-html5-fancy nil
       org-html-doctype "html5"
-      org-html-head "<title>knarkzel.github.io</title><link rel='stylesheet' href='styles.css'/><link rel='icon' type='image/x-icon' href='favicon.ico'>")
+      org-html-head "<title>knarkzel.github.io</title><link rel='stylesheet' href='/styles.css'/><link rel='icon' type='image/x-icon' href='/favicon.ico'>")
 
 ;; Header
 (setq org-html-preamble "
