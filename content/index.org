@@ -6,12 +6,6 @@ Hello there. This is my website. Here's some source code:
 #+BEGIN_SRC rust
   fn main() {
       let input = "hello, world!";
-      println("{}", input); println("{}", input); println("{}", input); println("{}", input); println("{}", input);
-      println("{}", input);
-      println("{}", input);
-      println("{}", input);
-      println("{}", input);
-      println("{}", input);
       println("{}", input);
   }
 #+END_SRC
