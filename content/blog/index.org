@@ -1,5 +1,3 @@
 #+TITLE: Blog
-#+DATE: <2022-01-11 Tue>
-#+OPTIONS: toc:nil
 
 This is my blog.

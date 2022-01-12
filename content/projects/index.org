@@ -1,5 +1,13 @@
 #+TITLE: Projects
 
-- Project 1
-- Project 2
-- Project 3
+These are my projects.
+
+- Item 1
+- Item 2
+- Item 3
+
+As well as following:
+
+1. Item 1
+2. Item 2
+3. Item 3
