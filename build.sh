@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-set -euf -o pipefail
+set -euf
 
 # build site
 emacs -Q --script build-site.el

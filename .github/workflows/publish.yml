@@ -25,12 +25,6 @@ jobs:
       - name: Install rsync
         run: apk add rsync
 
-      - name: Test 1
-        run: pwd
-        
-      - name: Test 2
-        run: ls
-
       - name: Build the site
         run: ./build.sh
 
