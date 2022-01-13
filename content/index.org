@@ -10,7 +10,7 @@ Hello there. This is my website. Here's some source code:
   }
 #+END_SRC
 
-Which is kinda nice.
+Which is kinda nice. Here's what a table looks like:
 
 | Bit(s) | Value            |
 |    0-7 | ASCII code point |

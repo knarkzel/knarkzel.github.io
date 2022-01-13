@@ -3,6 +3,7 @@
 (require 'package)
 (setq package-user-dir (expand-file-name "./.packages"))
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")
                          ("elpa" . "https://elpa.gnu.org/packages/")))
 
 ;; Initialize the package system
@@ -10,14 +11,46 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-;; Install dependencies
-(package-install 'htmlize)
+;; Install use-package
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+(require 'use-package)
 
 ;; Load the publishing system
-(require 'ox-publish)
 (require 'org)
 (require 'ox)
 (require 'ox-html)
+(require 'ox-publish)
+
+;; Install other dependencies
+(use-package esxml
+  :pin melpa-stable
+  :ensure t)
+
+(use-package htmlize
+  :ensure t)
+
+;; HTML template
+(defun odd/org-html-template (contents info)
+  (concat
+   "<!DOCTYPE html>"
+   (sxml-to-xml
+    `(html (@ (lang "en"))
+           (head
+            (meta (@ (charset "utf-8")))
+            (meta (@ (name "viewport")
+                     (content "width=device-width, initial-scale=1, shrink-to-fit=no")))
+            (link (@ (rel "stylesheet")
+                     (href "/styles.css")))
+            (title ,(concat (org-export-data (plist-get info :title) info) " - knarkzel.github.io")))
+           (body 
+            (div (@ (id "header"))
+             (h1 (@ (id "knarkzel")) "knarkzel.github.io")
+             (div (@ (id "nav"))
+                  (a (@ (href "/")) "home")
+                  (a (@ (href "/blog")) "blog")
+                  (a (@ (href "/projects")) "projects")))
+            ,contents)))))
 
 ;; Syntax highlight
 (defvar highlight-path "highlight")
@@ -37,7 +70,8 @@
 
 (org-export-define-derived-backend 'pelican-html 'html
   :translate-alist '((src-block .  highlight-org-html-code)
-		             (example-block . highlight-org-html-code)))
+		             (example-block . highlight-org-html-code)
+		             (template . odd/org-html-template)))
 
 (defun org-html-publish-to-html (plist filename pub-dir)
   "Publish an org file to HTML, using the FILENAME as the output directory."
