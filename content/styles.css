@@ -19,4 +19,4 @@ code { color: #BF616A; padding: 2px 4px; vertical-align: text-bottom; }
 h1, h2, h3, h4, h5, h6 { color: #313131; margin-top: 16px; margin-bottom: 8px; }
 tbody tr:nth-child(even) td,tbody tr:nth-child(even) th { background: #fff1bf; }
 #nav > a { padding-right: 0.5rem; font-size: 1.5rem; text-decoration: underline; }
-table { margin-bottom: 1rem; width: 100%; border: 1px solid #e5e5e5; border-collapse: collapse; max-width: 70rem; }
+table { margin-bottom: 1rem; width: 100%; border: 1px solid #e5e5e5; border-collapse: collapse; }
