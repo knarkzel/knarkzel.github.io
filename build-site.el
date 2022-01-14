@@ -49,7 +49,8 @@
              (div (@ (id "nav"))
                   (a (@ (href "/")) "home")
                   (a (@ (href "/blog")) "blog")
-                  (a (@ (href "/projects")) "projects")))
+                  (a (@ (href "/projects")) "projects")
+                  (a (@ (href "/recipes")) "recipes")))
             ,contents)))))
 
 ;; Syntax highlight
