@@ -1,18 +1,15 @@
 body {
-    margin: 0 auto;
-    padding: 0 2rem;
-    max-width: 54rem;
+    margin: 0;
+    padding: 1rem;
     overflow-y: scroll;
-    font-family: "Helvetica", "Arial", sans-serif;
+    background: #fff5d1;
 }
 
 pre { padding: 1em; }
-#nav { text-align: center; }
 #header { margin-bottom: 1rem; }
-p, li, tr, th { color: #515151; }
+#knarkzel { margin: 0 0 0.5rem 0; }
 a:hover { text-decoration: underline; }
 p { margin-top: 0; margin-bottom: 16px; }
-#knarkzel { text-align: center; border: 0; }
 a { color: #268bd2; text-decoration: none; }
 code, pre, p, a, li, tr, th { font-size: 1.25rem; }
 tr, td { padding: 0.5rem 0.75rem; border: 1px solid #e5e5e5 }
@@ -20,6 +17,6 @@ tbody tr:first-child { text-align: center; font-weight: bold; }
 code, pre { font-size: 85%; overflow: auto; background: #F9F9F9; }
 code { color: #BF616A; padding: 2px 4px; vertical-align: text-bottom; }
 h1, h2, h3, h4, h5, h6 { color: #313131; margin-top: 16px; margin-bottom: 8px; }
+tbody tr:nth-child(even) td,tbody tr:nth-child(even) th { background: #fff1bf; }
 #nav > a { padding-right: 0.5rem; font-size: 1.5rem; text-decoration: underline; }
-tbody tr:nth-child(even) td,tbody tr:nth-child(even) th { background-color: #F9F9F9; }
-table { margin-bottom: 1rem; width: 100%; border: 1px solid #e5e5e5; border-collapse: collapse; }
+table { margin-bottom: 1rem; width: 100%; border: 1px solid #e5e5e5; border-collapse: collapse; max-width: 70rem; }

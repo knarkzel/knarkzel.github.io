@@ -51,7 +51,7 @@
                   (a (@ (href "/blog")) "blog")
                   (a (@ (href "/projects")) "projects")
                   (a (@ (href "/recipes")) "recipes")))
-            ,contents)))))
+            (div (@ (id "content")) ,contents))))))
 
 ;; Syntax highlight
 (defvar highlight-path "highlight")
