@@ -1,5 +1,4 @@
-#+TITLE: Home
-#+OPTIONS: toc:nil
+#+title: Home
 
 Hello there. This is my website. Here's some source code:
 

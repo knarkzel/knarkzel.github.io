@@ -45,12 +45,13 @@
             (title ,(concat (org-export-data (plist-get info :title) info) " - knarkzel.github.io")))
            (body 
             (div (@ (id "header"))
-             (h1 (@ (id "knarkzel")) "knarkzel.github.io")
-             (div (@ (id "nav"))
-                  (a (@ (href "/")) "home")
-                  (a (@ (href "/blog")) "blog")
-                  (a (@ (href "/projects")) "projects")
-                  (a (@ (href "/recipes")) "recipes")))
+                 (h1 (@ (id "knarkzel")) "knarkzel.github.io")
+                 (div (@ (id "nav"))
+                      (a (@ (href "/")) "home")
+                      (a (@ (href "/blog")) "blog")
+                      (a (@ (href "/projects")) "projects")
+                      (a (@ (href "/recipes")) "recipes")))
+            (h1 ,(org-export-data (plist-get info :title) info))
             (div (@ (id "content")) ,contents))))))
 
 ;; Syntax highlight
@@ -64,24 +65,26 @@
   (with-temp-file temp-source-file (insert (org-element-property :value code)))
   ;; Executing the shell-command and reading output
   (shell-command-to-string (format "%s -i '%s' --syntax '%s' --out-format html --inline-css --fragment --stdout --enclose-pre -K 15 --force -J 1000 --style zenburn"
-				   highlight-path
-                   temp-source-file
-				   (or (org-element-property :language code)
-				       ""))))
+				                   highlight-path
+                                   temp-source-file
+				                   (or (org-element-property :language code)
+				                       ""))))
 
 (org-export-define-derived-backend 'pelican-html 'html
-  :translate-alist '((src-block .  highlight-org-html-code)
-		             (example-block . highlight-org-html-code)
-		             (template . odd/org-html-template)))
+                                   :translate-alist '((template . odd/org-html-template)
+                                                      (src-block .  highlight-org-html-code)
+		                                              (example-block . highlight-org-html-code)))
 
 (defun org-html-publish-to-html (plist filename pub-dir)
   "Publish an org file to HTML, using the FILENAME as the output directory."
   (org-publish-org-to 'pelican-html filename
-		      (concat (when (> (length org-html-extension) 0) ".")
-			      (or (plist-get plist :html-extension)
-				  org-html-extension
-				  "html"))
-		      plist pub-dir))
+		              (concat (when (> (length org-html-extension) 0) ".")
+			                  (or (plist-get plist :html-extension)
+				                  org-html-extension
+				                  "html"))
+		              plist pub-dir))
+
+
 
 ;; Define the publishing project
 (setq org-publish-project-alist
@@ -93,7 +96,8 @@
              :publishing-directory "./public"
              :with-author nil           ;; Don't include author name
              :with-creator nil          ;; Include Emacs and Org versions in footer
-             :with-toc t                ;; Include a table of contents
+             :with-toc nil              ;; Include a table of contents
+             :with-drawers t
              :section-numbers nil       ;; Don't include section numbers
              :time-stamp-file nil)))    ;; Don't include time stamp in file
 
@@ -116,6 +120,12 @@
   <a href='/projects'>projects</a>
 </div>
 ")
+
+(defun odd/org-export-format-drawer (name content)
+  (concat "<div class='drawer'>"
+          "<p>" content "</p>"
+          "</div>"))
+(setq org-html-format-drawer-function 'odd/org-export-format-drawer)
 
 ;; Generate the site output
 (org-publish-all t)

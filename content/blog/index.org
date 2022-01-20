@@ -1,3 +1,3 @@
-#+TITLE: Blog
+#+title: Blog
 
-This is my blog.
+- [[../blog/dream_language/index.org][Dream language]]

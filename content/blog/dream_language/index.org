@@ -1,0 +1,49 @@
+#+title: Dream language
+
+* Syntax like V
+
+For my dream language I want syntax like V. Language should remain simple while
+providing powerful semantics.  Something I wish V would implement is proper
+metaprogramming. Something like =comptime= in Zig or =macros= in
+Lisp. Supposedly Racket2 (placeholder name) have an idea for how to implement
+=macros= like in Lisp without sexps, aka =(((())))=. Memory should be managed
+automatically, with ability to being manually freed. Something like V's upcoming
+=-autofree=. If not, just =Rc<T>= everything.
+
+* Metaprogramming like Zig or Lisp
+
+The reason I want proper metaprogramming is to allow both compiler developers
+and users to implement powerful syntax such as the [[https://github.com/vlang/v/blob/master/doc/docs.md#orm][ORM]] feature in V, without
+resorting to being compiler built in. I'm not sure if this could be achieved
+with only comptime from Zig, although it would disallow abusing macros and
+making the language less readable. If I were to implement =macros= from Lisp,
+I'd definitely allow the grave/comma combination (for instance =`(let
+((something ,another)))=).
+
+* Functional programming like V
+
+I also like the way V does it for =filter= and =map=, where they use =it= as a
+name for the item. This avoids the unnecessary closure syntax, such as =map(|it|
+<code>)= or =map((it) <code>)=. In V this is =map(<code>)=, which I
+love. Hopefully I could implement =filter=, =map= and friends as zero-overhead
+without resorting to iterators, such turn it into arrays. For simplicity.  No
+tuples allowed in this language, just use struct. Therefore =it= syntax should
+just work. Won't need =a > b= syntax either (see [[https://github.com/vlang/v/blob/master/doc/docs.md#sorting-arrays][sorting syntax]]).
+
+* Traits like Rust
+
+For cohesiveness I would take inspiration from Rust, and implement
+=traits=. This way implementing operators becomes just another trait
+([[https://doc.rust-lang.org/std/ops/trait.Add.html][std::ops::Add]]). Maybe move semantics? Who knows. For async I would want the
+colorblind async feature that Zig has. For concurrency, probably go-routines
+like V. Or =par_iter()=, or the parallell =#pragma= from C. Not sure yet.
+
+* Result and Option like Rust, Zig, V
+
+Obviously I would want both =Result= and =Option= types, which would look like a
+combination of Zig and V (with =?= and =!=). Although it's nice to just treat
+everything as something you can return. =?= should allow returning both =Result=
+and =Option=, turning =Option= into none error or something like that, while =!=
+should just allow returning =Option=. No wrappers like =Some<T>= or the like,
+just return if good, otherwise =return none= or =return err(<custom error type
+or easy way, just text>)=.
