@@ -1,22 +1,26 @@
 #+title: Home
 
-Hello there. This is my website. Here's some source code:
+Hello there. This is my website. Here's some source code in Rust:
 
 #+BEGIN_SRC rust
   fn main() {
-      let input = "hello, world!";
-      println("{}", input);
+      let input = "Hello, world!";
+      println!("{input}");
   }
 #+END_SRC
 
-Which is kinda nice. Here's what a table looks like:
+* Programming languages
 
-| Bit(s) | Value            |
-|    0-7 | ASCII code point |
-|   8-11 | Foreground color |
-|  12-14 | Background color |
-|     15 | Blink            |
+Below is a list of programming languages I know, sorted by most liked:
 
-* How to fix simple bug?
+1. [[https://www.rust-lang.org/][Rust]]
+2. [[https://vlang.io/][V]]
+3. C
+4. Bash
+5. [[https://ziglang.org/][Zig]]
+6. Emacs Lisp
+7. C++
+8. JavaScript
 
-In order to fix =simple= bug, you need to fix it.
+I want to learn more Zig for low level, as well as languages with other
+paradigms like [[https://www.haskell.org/][Haskell]] (functional) and [[https://github.com/JohnEarnest/ok/blob/gh-pages/docs/Manual.md][K]] (APL).

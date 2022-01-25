@@ -1,13 +1,15 @@
 #+title: Projects
 
-These are my projects.
+Below are some projects I'm either working on or have done in the past:
 
-- Item 1
-- Item 2
-- Item 3
-
-As well as following:
-
-1. Item 1
-2. Item 2
-3. Item 3
+- [[https://github.com/knarkzel/vom][vom]]: a parser combinator framework in V
+- [[https://github.com/knarkzel/elixir][elixir]]: tiny reddit-like web application in Rust, powered by SQLite with just werks
+- [[https://github.com/knarkzel/ogc-engine][ogc-engine]]: game engine targeting the Wii in Rust, based on [[https://github.com/rust-wii/ogc-rs][ogc-rs]]
+- [[https://github.com/knarkzel/flappy-bird-bevy][flappy-bird-bevy]]: flappy bird using deep learning in Rust, works both natively and in the [[https://knarkzel.github.io/flappy-bird-bevy/][browser]]
+- [[https://github.com/knarkzel/chess-randomizer][chess-randomizer]]: chess opening randomizer in Rust, powered by Lichess API which I downloaded
+- [[https://github.com/knarkzel/groffer][groffer]]: markdown-to-groff transpiler because LaTeX is bloated
+- [[https://github.com/knarkzel/chip8][chip8]]: chip8 emulator in Rust
+- [[https://github.com/knarkzel/rrr][rrr]]: opinionated file-browser written in Rust for fun
+- [[https://github.com/knarkzel/red][red]]: basic vim-like editor in Rust for Redox OS
+- [[https://github.com/knarkzel/rmenu][rmenu]]: dmenu in Rust for Redox OS, currently doesn't work due to dependency issues
+- [[https://github.com/knarkzel/todomvc][TodoMVC]]: TodoMVC from scratch in Rust
