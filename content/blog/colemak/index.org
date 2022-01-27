@@ -1,0 +1,9 @@
+#+title: Switching to colemak
+
+Yesterday I switched to colemak. I'm currently typing with it now. It's going very slow, about 10-20 wpm.
+With QWERTY, I had peak speed of about 145 wpm. However, QWERTY is bad for your hands. I'll write down speed
+for a week here.
+
+| Day | Words per minute |
+|-----+------------------|
+|   1 |               15 |
