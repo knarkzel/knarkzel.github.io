@@ -6,4 +6,4 @@ for a week here.
 
 | Day | Words per minute |
 |-----+------------------|
-|   1 |               15 |
+|   1 |               13 |
