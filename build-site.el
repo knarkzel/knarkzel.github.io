@@ -50,7 +50,7 @@
                       (a (@ (href "/")) "home")
                       (a (@ (href "/blog")) "blog")
                       (a (@ (href "/projects")) "projects")
-                      (a (@ (href "/recipes")) "recipes")))
+                      (a (@ (href "/based")) "based")))
             (h1 ,(org-export-data (plist-get info :title) info))
             (div (@ (id "content")) ,contents))))))
 
