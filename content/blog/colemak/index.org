@@ -4,6 +4,14 @@ Yesterday I switched to colemak. I'm currently typing with it now. It's going ve
 With QWERTY, I had peak speed of about 145 wpm. However, QWERTY is bad for your hands. I'll write down speed
 for a week here.
 
-| Day | Words per minute |
-|-----+------------------|
-|   1 |               13 |
+* Using [[https://www.colemak.academy/][Colemak Academy]]
+
+| Day | Top speed (wpm) |
+|   1 |               8 |
+|   2 |              13 |
+|   3 |              25 |
+
+* Using [[https://www.keybr.com/][keybr]]
+
+| Day | Top speed (wpm) | Average speed (wpm) | Letters   |
+|   4 | 53.4            |                42.1 | ENITRLSAU |
