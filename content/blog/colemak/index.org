@@ -11,7 +11,7 @@ for a week here.
 |   2 |              13 |
 |   3 |              25 |
 
-* Using [[https://www.keybr.com/][keybr]]
+* Using [[https://www.keybr.com/profile/k2c7xkc][keybr]]
 
 | Day | Top speed (wpm) | Average speed (wpm) | Letters   |
 |   4 | 53.4            |                42.1 | ENITRLSAU |
