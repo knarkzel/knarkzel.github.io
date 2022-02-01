@@ -2,4 +2,10 @@
 
 Below are articles and videos I recommend:
 
+* Behaviour
+
 - [[https://www.youtube.com/watch?v=RuoMJPTMGZI][In-Cells are becoming a Big Problem!]]
+
+* Technology
+
+- [[https://github.com/Kindelia/HVM][High-order Virtual Machine: A massively parallel, optimal functional runtime in Rust]]
