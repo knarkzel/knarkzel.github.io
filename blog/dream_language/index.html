@@ -1,26 +1,26 @@
-<!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><link rel=stylesheet href=/styles.css><title>Dream language - knarkzel.github.io</title><div id=header><h1 id=knarkzel>knarkzel.github.io</h1><div id=nav><a href=/>home</a><a href=/blog>blog</a><a href=/projects>projects</a><a href=/based>based</a></div></div><h1>Dream language</h1><div id=content><div id=outline-container-org3aeec20 class=outline-2><h2 id=org3aeec20>Syntax like V</h2><div class=outline-text-2 id=text-org3aeec20><p>For my dream language I want syntax like V. Language should remain simple while
+<!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><link rel=stylesheet href=/styles.css><title>Dream language - knarkzel.github.io</title><div id=header><h1 id=knarkzel>knarkzel.github.io</h1><div id=nav><a href=/>home</a><a href=/blog>blog</a><a href=/projects>projects</a><a href=/based>based</a></div></div><h1>Dream language</h1><div id=content><div id=outline-container-orgb5c905a class=outline-2><h2 id=orgb5c905a>Syntax like V</h2><div class=outline-text-2 id=text-orgb5c905a><p>For my dream language I want syntax like V. Language should remain simple while
 providing powerful semantics. Something I wish V would implement is proper
 metaprogramming. Something like <code>comptime</code> in Zig or <code>macros</code> in
 Lisp. Supposedly Racket2 (placeholder name) have an idea for how to implement
 <code>macros</code> like in Lisp without sexps, aka <code>(((())))</code>. Memory should be managed
 automatically, with ability to being manually freed. Something like V's upcoming
-<code>-autofree</code>. If not, just <code>Rc&lt;T></code> everything.</div></div><div id=outline-container-org4f65dbc class=outline-2><h2 id=org4f65dbc>Metaprogramming like Zig or Lisp</h2><div class=outline-text-2 id=text-org4f65dbc><p>The reason I want proper metaprogramming is to allow both compiler developers
+<code>-autofree</code>. If not, just <code>Rc&lt;T></code> everything.</div></div><div id=outline-container-org8661a71 class=outline-2><h2 id=org8661a71>Metaprogramming like Zig or Lisp</h2><div class=outline-text-2 id=text-org8661a71><p>The reason I want proper metaprogramming is to allow both compiler developers
 and users to implement powerful syntax such as the <a href=https://github.com/vlang/v/blob/master/doc/docs.md#orm>ORM</a> feature in V, without
 resorting to being compiler built in. I'm not sure if this could be achieved
 with only comptime from Zig, although it would disallow abusing macros and
 making the language less readable. If I were to implement <code>macros</code> from Lisp,
 I'd definitely allow the grave/comma combination (for instance <code>`(let
-((something ,another)))</code>).</div></div><div id=outline-container-org77051a8 class=outline-2><h2 id=org77051a8>Functional programming like V</h2><div class=outline-text-2 id=text-org77051a8><p>I also like the way V does it for <code>filter</code> and <code>map</code>, where they use <code>it</code> as a
+((something ,another)))</code>).</div></div><div id=outline-container-org86d0366 class=outline-2><h2 id=org86d0366>Functional programming like V</h2><div class=outline-text-2 id=text-org86d0366><p>I also like the way V does it for <code>filter</code> and <code>map</code>, where they use <code>it</code> as a
 name for the item. This avoids the unnecessary closure syntax, such as <code>map(|it|
 &lt;code>)</code> or <code>map((it) &lt;code>)</code>. In V this is <code>map(&lt;code>)</code>, which I
 love. Hopefully I could implement <code>filter</code>, <code>map</code> and friends as zero-overhead
 without resorting to iterators, such turn it into arrays. For simplicity. No
 tuples allowed in this language, just use struct. Therefore <code>it</code> syntax should
-just work. Won't need <code>a > b</code> syntax either (see <a href=https://github.com/vlang/v/blob/master/doc/docs.md#sorting-arrays>sorting syntax</a>).</div></div><div id=outline-container-org4c30e3e class=outline-2><h2 id=org4c30e3e>Traits like Rust</h2><div class=outline-text-2 id=text-org4c30e3e><p>For cohesiveness I would take inspiration from Rust, and implement
+just work. Won't need <code>a > b</code> syntax either (see <a href=https://github.com/vlang/v/blob/master/doc/docs.md#sorting-arrays>sorting syntax</a>).</div></div><div id=outline-container-org0e244cb class=outline-2><h2 id=org0e244cb>Traits like Rust</h2><div class=outline-text-2 id=text-org0e244cb><p>For cohesiveness I would take inspiration from Rust, and implement
 <code>traits</code>. This way implementing operators becomes just another trait
 (<a href=https://doc.rust-lang.org/std/ops/trait.Add.html>std::ops::Add</a>). Maybe move semantics? Who knows. For async I would want the
 colorblind async feature that Zig has. For concurrency, probably go-routines
-like V. Or <code>par_iter()</code>, or the parallell <code>#pragma</code> from C. Not sure yet.</div></div><div id=outline-container-orgddb5f17 class=outline-2><h2 id=orgddb5f17>Result and Option like Rust, Zig, V</h2><div class=outline-text-2 id=text-orgddb5f17><p>Obviously I would want both <code>Result</code> and <code>Option</code> types, which would look like a
+like V. Or <code>par_iter()</code>, or the parallell <code>#pragma</code> from C. Not sure yet.</div></div><div id=outline-container-orgabb2f43 class=outline-2><h2 id=orgabb2f43>Result and Option like Rust, Zig, V</h2><div class=outline-text-2 id=text-orgabb2f43><p>Obviously I would want both <code>Result</code> and <code>Option</code> types, which would look like a
 combination of Zig and V (with <code>?</code> and <code>!</code>). Although it's nice to just treat
 everything as something you can return. <code>?</code> should allow returning both <code>Result</code>
 and <code>Option</code>, turning <code>Option</code> into none error or something like that, while <code>!</code>
