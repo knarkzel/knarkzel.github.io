@@ -1,0 +1,24 @@
+<!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><link rel=stylesheet href=/styles.css><title>Org-mode macros are awesome! - knarkzel.github.io</title><div id=header><h1 id=knarkzel>knarkzel.github.io</h1><div id=nav><a href=/>home</a><a href=/blog>blog</a><a href=/projects>projects</a><a href=/based>based</a></div></div><h1>Org-mode macros are awesome!</h1><div id=content><p>While setting up my projects page, I discovered that <code>org-mode</code> has macros.<div id=outline-container-orgdcb086b class=outline-2><h2 id=orgdcb086b>How to use macros</h2><div class=outline-text-2 id=text-orgdcb086b><p>Macros are defined like so:<pre style="color:#dcdccc;background-color:#1f1f1f;font-size:15pt;font-family:courier new,monospace">#+macro: &lt;name&gt; &lt;rest&gt;
+</pre><p>And invoked using <code>{{{&lt;macro>(&lt;args>)}}}</code>. For instance, a big macro could be created like so:<pre style="color:#dcdccc;background-color:#1f1f1f;font-size:15pt;font-family:courier new,monospace">#+macro: big &lt;h1&gt;$1&lt;/h1&gt;
+</pre><p>Which I could invoke with following:<pre style="color:#dcdccc;background-color:#1f1f1f;font-size:15pt;font-family:courier new,monospace">Big is {{{big(This is big)}}}
+</pre><p>Result: Big is &lt;h1>This is big&lt;/h1></div></div><div id=outline-container-orgdc7e397 class=outline-2><h2 id=orgdc7e397>Make it export to HTML</h2><div class=outline-text-2 id=text-orgdc7e397><p>To make it export to HTML you need to use <code>@@html:&lt;html>@@</code>. To fix the above macro I would write it like so:<pre style="color:#dcdccc;background-color:#1f1f1f;font-size:15pt;font-family:courier new,monospace">#+macro: big &#64;&#64;html:&lt;h1&gt;$1&lt;/h1&gt;&#64;&#64;
+</pre><p>Result: Big is<h1>This is big</h1></div></div><div id=outline-container-orgabd9cb5 class=outline-2><h2 id=orgabd9cb5>Example of org-mode macro usage</h2><div class=outline-text-2 id=text-orgabd9cb5><pre style="color:#dcdccc;background-color:#1f1f1f;font-size:15pt;font-family:courier new,monospace">#+macro: project &#64;&#64;html:&lt;div class=&quot;project&quot;&gt;&lt;b&gt;&lt;a href=&quot;https://github.com/knarkzel/$1&quot;&gt;$1&lt;/a&gt;&lt;/b&gt;&lt;p&gt;$2&lt;/p&gt;&lt;/div&gt;&#64;&#64;
+
+#+begin_export html
+&lt;div id=&quot;projects&quot;&gt;
+#+end_export
+{{{project(vom, parser combinator framework)}}}
+{{{project(elixir, tiny reddit-like web application)}}}
+{{{project(ogc-engine, game engine targeting the Wii)}}}
+{{{project(flappy-bird-bevy, flappy bird using deep learning)}}}
+{{{project(chess-randomizer, chess opening randomizer)}}}
+{{{project(groffer, markdown-to-groff transpiler)}}}
+{{{project(chip8, chip8 emulator)}}}
+{{{project(rrr, opinionated file-browser)}}}
+{{{project(red, basic vim-like editor for Redox OS)}}}
+{{{project(rmenu, dmenu for Redox OS)}}}
+{{{project(TodoMVC, TodoMVC from scratch)}}}
+#+begin_export html
+&lt;/div&gt;
+#+end_export
+</pre></div></div><div id=outline-container-org58a4dcb class=outline-2><h2 id=org58a4dcb>Caveats</h2><div class=outline-text-2 id=text-org58a4dcb><ul class=org-ul><li>Macros can't be redefined<li>Can't use names of in-built macros like <code>title</code>, <code>author</code>, etc&#8230;</ul></div></div></div>
