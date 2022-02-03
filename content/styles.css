@@ -2,26 +2,30 @@ body {
     padding: 1rem;
     margin: 0 auto;
     color: #515151;
-    max-width: 54em;
+    max-width: 56em;
     line-height: 1.5;
     overflow-y: scroll;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: sans-serif;
 }
 
-.drawer { margin: 1em 0; padding: 0.25em 0.5em; border: 1px solid #313131; background: #fafafa; }
+.project { text-overflow: ellipsis; overflow: hidden; padding: 0.5rem; background: #f8f9fa; }
+.project > p { border-left: 3px solid #aaa; padding-left: 0.5rem; }
+#projects { display: grid; grid-template-columns: 1fr 1fr; grid-gap: 1rem; }
 pre { padding: 1em; }
 ul, ol { margin: 0; }
-#knarkzel { margin: 0; }
+#knarkzel { margin: 0; border: 0; }
 a:hover { text-decoration: underline; }
+h1 { border-bottom: 1px solid #e9ecef; }
 p { margin-top: 0; margin-bottom: 8px; }
 a { color: #268bd2; text-decoration: none; }
 code, pre, p, a, li, tr, th { font-size: 1.25rem; }
 #header { margin-bottom: 1rem; text-align: center; }
+#nav > a { padding-right: 0.5rem; font-size: 1.5rem; }
 tr, td { padding: 0.5rem 0.75rem; border: 1px solid #e5e5e5 }
 tbody tr:first-child { text-align: center; font-weight: bold; }
 code, pre { font-size: 85%; overflow: auto; background: #F9F9F9; }
 code { color: #bf616a; padding: 2px 4px; vertical-align: text-bottom; }
 h1, h2, h3, h4, h5, h6 { color: #313131; margin-top: 16px; margin-bottom: 8px; }
 tbody tr:nth-child(even) td,tbody tr:nth-child(even) th { background: #f9f9f9; }
-#nav > a { padding-right: 0.5rem; font-size: 1.5rem; text-decoration: underline; }
 table { margin-bottom: 1rem; width: 100%; border: 1px solid #e5e5e5; border-collapse: collapse; }
+.drawer { margin: 1em 0; padding: 0.25em 0.5em; border: 1px solid #313131; background: #fafafa; }

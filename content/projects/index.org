@@ -1,15 +1,21 @@
 #+title: Projects
 
-Below are some projects I'm either working on or have done in the past:
+#+macro: project @@html:<div class="project"><b><a href="https://github.com/knarkzel/$1">$1</a></b><p>$2</p></div>@@
 
-- [[https://github.com/knarkzel/vom][vom]]: a parser combinator framework in V
-- [[https://github.com/knarkzel/elixir][elixir]]: tiny reddit-like web application in Rust, powered by SQLite with just werks
-- [[https://github.com/knarkzel/ogc-engine][ogc-engine]]: game engine targeting the Wii in Rust, based on [[https://github.com/rust-wii/ogc-rs][ogc-rs]]
-- [[https://github.com/knarkzel/flappy-bird-bevy][flappy-bird-bevy]]: flappy bird using deep learning in Rust, works both natively and in the [[https://knarkzel.github.io/flappy-bird-bevy/][browser]]
-- [[https://github.com/knarkzel/chess-randomizer][chess-randomizer]]: chess opening randomizer in Rust, powered by Lichess API which I downloaded
-- [[https://github.com/knarkzel/groffer][groffer]]: markdown-to-groff transpiler because LaTeX is bloated
-- [[https://github.com/knarkzel/chip8][chip8]]: chip8 emulator in Rust
-- [[https://github.com/knarkzel/rrr][rrr]]: opinionated file-browser written in Rust for fun
-- [[https://github.com/knarkzel/red][red]]: basic vim-like editor in Rust for Redox OS
-- [[https://github.com/knarkzel/rmenu][rmenu]]: dmenu in Rust for Redox OS, currently doesn't work due to dependency issues
-- [[https://github.com/knarkzel/todomvc][TodoMVC]]: TodoMVC from scratch in Rust
+#+begin_export html
+<div id="projects">
+#+end_export
+{{{project(vom, parser combinator framework)}}}
+{{{project(elixir, tiny reddit-like web application)}}}
+{{{project(ogc-engine, game engine targeting the Wii)}}}
+{{{project(flappy-bird-bevy, flappy bird using deep learning)}}}
+{{{project(chess-randomizer, chess opening randomizer)}}}
+{{{project(groffer, markdown-to-groff transpiler)}}}
+{{{project(chip8, chip8 emulator)}}}
+{{{project(rrr, opinionated file-browser)}}}
+{{{project(red, basic vim-like editor for Redox OS)}}}
+{{{project(rmenu, dmenu for Redox OS)}}}
+{{{project(TodoMVC, TodoMVC from scratch)}}}
+#+begin_export html
+</div>
+#+end_export

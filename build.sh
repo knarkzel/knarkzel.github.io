@@ -11,11 +11,12 @@ cp content/favicon.ico public/favicon.ico
 
 # remove pre-wrap for source-code and minify
 for f in $(find public/ -type f -name "*.html"); do
-    sed -i "s/white-space: pre-wrap;//g" $f
-    binaries/minify $f -o $f
+    sed -i "s/white-space: pre-wrap;//g" "$f"
+    if [ $f = "public/projects/index.html" ]; then sed -i "s/<p>$//;s/<\/p>$//" "$f"; fi
+    binaries/minify "$f" -o "$f"
 done
 
 # minify css
 for f in $(find public/ -type f -name "*.css"); do
-    binaries/minify $f -o $f
+    binaries/minify "$f" -o "$f"
 done

@@ -1,7 +1,5 @@
 #+title: Based
 
-Below are articles and videos I recommend:
-
 * Behaviour
 
 - [[https://www.youtube.com/watch?v=RuoMJPTMGZI][In-Cells are becoming a Big Problem!]]

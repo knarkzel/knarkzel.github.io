@@ -1,0 +1,68 @@
+#+title: Org-mode macros are awesome!
+
+While setting up my projects page, I discovered that =org-mode= has macros.
+
+* How to use macros
+
+Macros are defined like so:
+
+#+begin_src
+#+macro: <name> <rest>
+#+end_src
+
+And invoked using ={{{<macro>(<args>)}}}=. For instance, a big macro could be created like so:
+
+#+begin_src
+#+macro: big <h1>$1</h1>
+#+end_src
+
+Which I could invoke with following:
+
+#+begin_src
+Big is {{{big(This is big)}}}
+#+end_src
+
+#+macro: big <h1>$1</h1>
+
+Result: Big is {{{big(This is big)}}}
+
+* Make it export to HTML
+
+To make it export to HTML you need to use =@@html:<html>@@=. To fix the above macro I would write it like so:
+
+#+begin_src
+#+macro: big @@html:<h1>$1</h1>@@
+#+end_src
+
+#+macro: big_html @@html:<h1>$1</h1>@@
+
+Result: Big is {{{big_html(This is big)}}}
+
+* Example of org-mode macro usage
+
+#+begin_src
+#+macro: project @@html:<div class="project"><b><a href="https://github.com/knarkzel/$1">$1</a></b><p>$2</p></div>@@
+
+#+begin_export html
+<div id="projects">
+#+end_export
+{{{project(vom, parser combinator framework)}}}
+{{{project(elixir, tiny reddit-like web application)}}}
+{{{project(ogc-engine, game engine targeting the Wii)}}}
+{{{project(flappy-bird-bevy, flappy bird using deep learning)}}}
+{{{project(chess-randomizer, chess opening randomizer)}}}
+{{{project(groffer, markdown-to-groff transpiler)}}}
+{{{project(chip8, chip8 emulator)}}}
+{{{project(rrr, opinionated file-browser)}}}
+{{{project(red, basic vim-like editor for Redox OS)}}}
+{{{project(rmenu, dmenu for Redox OS)}}}
+{{{project(TodoMVC, TodoMVC from scratch)}}}
+#+begin_export html
+</div>
+#+end_export
+#+end_src
+
+* Caveats
+
+- Macros can't be redefined
+- Can't use names of in-built macros like =title=, =author=, etc...
