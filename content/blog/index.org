@@ -1,5 +1,6 @@
 #+title: Blog
 
-- [[../blog/org_macros/index.org][Org-mode macros are awesome!]]
-- [[../blog/colemak/index.org][Switching to colemak]]
-- [[../blog/dream_language/index.org][Dream language]]
+- [[../blog/colonization_egypt][Colonization of Egypt and Modernity]]
+- [[../blog/org_macros][Org-mode macros are awesome]]
+- [[../blog/colemak][Switching to colemak]]
+- [[../blog/dream_language][Dream language]]

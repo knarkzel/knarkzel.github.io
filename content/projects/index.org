@@ -5,6 +5,7 @@
 #+begin_export html
 <div id="projects">
 #+end_export
+{{{project(uemacs, micro emacs from scratch)}}}
 {{{project(vom, parser combinator framework)}}}
 {{{project(elixir, tiny reddit-like web application)}}}
 {{{project(ogc-engine, game engine targeting the Wii)}}}
@@ -16,6 +17,3 @@
 {{{project(red, basic vim-like editor for Redox OS)}}}
 {{{project(rmenu, dmenu for Redox OS)}}}
 {{{project(TodoMVC, TodoMVC from scratch)}}}
-#+begin_export html
-</div>
-#+end_export

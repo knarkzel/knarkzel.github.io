@@ -8,6 +8,7 @@ body {
     font-family: sans-serif;
 }
 
+blockquote { background: #EDEDED; border-left: 0.5em solid #78C0A8; padding: 1em; }
 .project { text-overflow: ellipsis; overflow: hidden; padding: 0.5rem; background: #f8f9fa; }
 .project > p { border-left: 3px solid #aaa; padding-left: 0.5rem; }
 #projects { display: grid; grid-template-columns: 1fr 1fr; grid-gap: 1rem; }

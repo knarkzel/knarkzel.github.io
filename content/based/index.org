@@ -7,3 +7,7 @@
 * Technology
 
 - [[https://github.com/Kindelia/HVM][High-order Virtual Machine: A massively parallel, optimal functional runtime in Rust]]
+
+* Emacs
+
+- [[http://xahlee.info/emacs/misc/ergoemacs_vi_mode.html][Xah Fly Keys]]

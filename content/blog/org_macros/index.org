@@ -1,4 +1,4 @@
-#+title: Org-mode macros are awesome!
+#+title: Org-mode macros are awesome
 
 While setting up my projects page, I discovered that =org-mode= has macros.
 
