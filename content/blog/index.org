@@ -1,5 +1,6 @@
 #+title: Blog
 
+- [[../blog/apuss_dialogue][Apuss Dialogue]]
 - [[../blog/colonization_egypt][Colonization of Egypt and Modernity]]
 - [[../blog/org_macros][Org-mode macros are awesome]]
 - [[../blog/colemak][Switching to colemak]]
