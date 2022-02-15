@@ -1,0 +1,19 @@
+#+TITLE: How to make Rust compile way faster
+
+First, install =clang=, =mold= and =nightly=:
+
+#+BEGIN_SRC bash
+  pacman -S clang mold rustup
+  rustup default nightly
+#+END_SRC
+
+Then paste following into =~/.cargo/config.toml=:
+
+#+BEGIN_SRC toml
+[target.x86_64-unknown-linux-gnu]
+linker = "/usr/bin/clang"
+rustflags = ["-Clink-arg=-fuse-ld=/usr/bin/mold", "-Zshare-generics=y", "-Ctarget-cpu=native"]
+
+[build]
+rustc-wrapper = "/usr/bin/sccache"
+#+END_SRC
