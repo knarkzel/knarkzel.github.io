@@ -1,5 +1,6 @@
 #+title: Blog
 
+- [[../blog/host_with_heroku][Host Rust web application for free]]
 - [[../blog/compile_rust_faster/index.org][How to make Rust compile way faster]]
 - [[../blog/org_macros][Org-mode macros are awesome]]
 - [[../blog/colemak][Switching to colemak]]

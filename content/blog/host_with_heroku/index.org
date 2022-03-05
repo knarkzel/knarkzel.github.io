@@ -1,0 +1,28 @@
+#+TITLE: Host Rust web application for free
+
+First, create an account on [[https://signup.heroku.com/][Heroku]]
+
+Second, install =heroku-cli=. On Arch Linux: =paru -S heroku-cli-bin=
+
+Third, =cd= into your Rust project, then create a file named =Procfile= in root. Minimal is following (replace =$PROJECT_NAME_HERE=):
+
+   #+BEGIN_SRC
+     web: ./target/release/$PROJECT_NAME_HERE
+   #+END_SRC
+
+For Rocket I use following:
+
+   #+BEGIN_SRC
+     web: ROCKET_ADDRESS=0.0.0.0 ROCKET_PORT=$PORT ROCKET_KEEP_ALIVE=0 ./target/release/elixir
+   #+END_SRC
+
+Finally, deploy with following:
+
+   #+BEGIN_SRC bash
+     heroku create --buildpack emk/rust
+     git push heroku master
+   #+END_SRC
+
+* Resources
+
+- [[https://github.com/emk/heroku-buildpack-rust][heroku-buildpack-rust]]

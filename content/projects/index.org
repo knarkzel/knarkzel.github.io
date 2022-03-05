@@ -5,7 +5,7 @@
 #+begin_export html
 <div id="projects">
 #+end_export
-{{{project(uemacs, micro emacs from scratch)}}}
+{{{project(crispmacs, emacs-like editor from scratch)}}}
 {{{project(vom, parser combinator framework)}}}
 {{{project(elixir, tiny reddit-like web application)}}}
 {{{project(ogc-engine, game engine targeting the Wii)}}}

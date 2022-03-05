@@ -1,6 +1,7 @@
 #+title: Home
 
-Hello there. This is my website. 
+Hello there. I like Rust. On this website I write blog posts useful for
+Rust and Emacs users. Maybe other stuff too.
 
 * Programming languages
 
