@@ -1,13 +1,6 @@
 #+title: Home
 
-Hello there. This is my website. Here's some source code in Rust:
-
-#+BEGIN_SRC rust
-  fn main() {
-      let input = "Hello, world!";
-      println!("{input}");
-  }
-#+END_SRC
+Hello there. This is my website. 
 
 * Programming languages
 

@@ -1,8 +1,6 @@
 #+title: Blog
 
 - [[../blog/compile_rust_faster/index.org][How to make Rust compile way faster]]
-- [[../blog/apuss_dialogue][Apuss Dialogue]]
-- [[../blog/colonization_egypt][Colonization of Egypt and Modernity]]
 - [[../blog/org_macros][Org-mode macros are awesome]]
 - [[../blog/colemak][Switching to colemak]]
 - [[../blog/dream_language][Dream language]]
