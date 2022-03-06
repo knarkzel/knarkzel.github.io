@@ -32,6 +32,10 @@ Size Name
 Finally, install =mame=. On Arch Linux, it's =pacman -S mame=. Then launch either
 of the games with following command: =mame cdimono1 -cdrom <PATH TO GAME>=.
 
+To configure your controller (such as Gamecube Controller), start your game with =mame=, then press
+=<tab>= to enter the menu. Open =Input (this machine)=, then set up your controller there. To
+troubleshoot, make sure the controller works online: [[https://gamepad-tester.com/][Gamepad Tester]].
+
 #+begin_export html
 <video width="100%" controls="controls" preload="none">
   <source src="/assets/cdi_zelda.webm" type="video/webm">
