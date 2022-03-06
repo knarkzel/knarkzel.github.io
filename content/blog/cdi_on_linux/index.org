@@ -2,7 +2,8 @@
 
 I enjoy playing both Link: The Faces of Evil and Zelda: The Wand of Gamelon.
 To emulate these games on Linux, you need following bios files (which you
-can get by looking up =cdimono1.zip= and =cdi910.zip=):
+can get by looking up =cdimono1.zip= and =cdi910.zip=, for instance, [[https://www.emurom.net/us/emulation/mame-roms/detail-92047-cd-i.mono-i.pal.html][cdimono1.zip]] and
+[[https://www.emurom.net/us/emulation/mame-roms/detail-92046-cd-i.910-17p.mini-mmc.pal.html][cdi910.zip]])
 
 #+BEGIN_SRC bash
 Size Name
