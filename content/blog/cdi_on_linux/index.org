@@ -2,7 +2,7 @@
 
 I enjoy playing both Link: The Faces of Evil and Zelda: The Wand of Gamelon.
 To emulate these games on Linux, you need following bios files (which you
-can get by looking up =cdimono1.zip= and =cdi910.zip=, for instance, [[https://www.emurom.net/us/emulation/mame-roms/detail-92047-cd-i.mono-i.pal.html][cdimono1.zip]] and
+can get by looking up =cdimono1.zip= and =cdi910.zip=, for instance [[https://www.emurom.net/us/emulation/mame-roms/detail-92047-cd-i.mono-i.pal.html][cdimono1.zip]] and
 [[https://www.emurom.net/us/emulation/mame-roms/detail-92046-cd-i.910-17p.mini-mmc.pal.html][cdi910.zip]])
 
 #+BEGIN_SRC bash
@@ -30,7 +30,11 @@ Size Name
 #+END_SRC
 
 Finally, install =mame=. On Arch Linux, it's =pacman -S mame=. Then launch either
-of the games with following command: =mame cdimono1 -cdrom <PATH TO GAME>=.
+of the games with following command:
+
+#+BEGIN_SRC bash
+mame cdimono1 -cdrom <PATH TO GAME>
+#+END_SRC
 
 To configure your controller (such as Gamecube Controller), start your game with =mame=, then press
 =<tab>= to enter the menu. Open =Input (this machine)=, then set up your controller there. To
