@@ -1,0 +1,16 @@
+<!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><link rel=stylesheet href=/styles.css><title>How to play CD-i games on Linux - knarkzel.github.io</title><div id=header><h1 id=knarkzel>knarkzel.github.io</h1><div id=nav><a href=/>home</a><a href=/blog>blog</a><a href=/projects>projects</a></div></div><h1>How to play CD-i games on Linux</h1><div id=content><p>I enjoy playing both Link: The Faces of Evil and Zelda: The Wand of Gamelon.
+To emulate these games on Linux, you need following bios files (which you
+can get by looking up <code>cdimono1.zip</code> and <code>cdi910.zip</code>):<pre style="color:#dcdccc;background-color:#1f1f1f;font-size:15pt;font-family:courier new,monospace">Size Name
+<span style=color:#dca3a3;font-weight:700>524</span>k cdi200.rom
+<span style=color:#dca3a3;font-weight:700>524</span>k cdi220.rom
+<span style=color:#dca3a3;font-weight:700>524</span>k cdi220b.rom
+<span style=color:#dca3a3;font-weight:700>8.2</span>k zx405037p__cdi_servo_2.1__b43t__llek9215.mc68hc705c8a_withtestrom<span style=color:#dca3a3;font-weight:700>.7201</span>
+<span style=color:#dca3a3;font-weight:700>8.2</span>k zx405042p__cdi_slave_2.0__b43t__zzmk9213.mc68hc705c8a_withtestrom<span style=color:#dca3a3;font-weight:700>.7206</span>
+</pre><p>Put them inside the <code>$HOME/.mame/roms/cdimono1</code> folder:<pre style="color:#dcdccc;background-color:#1f1f1f;font-size:15pt;font-family:courier new,monospace"><span style=color:#aae3b2>mkdir</span> <span style=color:#dfdfbf;font-weight:700>-p</span> <span style=color:#aabfe3>$HOME</span><span style=color:#dcdccc>/</span>.mame<span style=color:#dcdccc>/</span>roms<span style=color:#dcdccc>/</span>cdimono
+<span style=color:#aae3b2>mv</span> <span style=color:#dcdccc>&lt;</span>PATH TO ROM FILES<span style=color:#dcdccc>&gt;</span> <span style=color:#aabfe3>$HOME</span><span style=color:#dcdccc>/</span>.mame<span style=color:#dcdccc>/</span>roms<span style=color:#dcdccc>/</span>cdimono
+</pre><p>Next, get the rom files for the games (just look them up, for instance <a href=https://edgeemu.net/browse-cdi.htm>edgeemulation</a>):<pre style="color:#dcdccc;background-color:#1f1f1f;font-size:15pt;font-family:courier new,monospace">Size Name
+<span style=color:#dca3a3;font-weight:700>117</span>M link<span style=color:#dfdfbf;font-weight:700>-the-faces-of-evil</span>.chd
+<span style=color:#dca3a3;font-weight:700>115</span>M zelda<span style=color:#dfdfbf;font-weight:700>-wand-of-gamelon</span>.chd
+</pre><p>Finally, install <code>mame</code>. On Arch Linux, it's <code>pacman -S mame</code>. Then launch either
+of the games with following command: <code>mame cdimono1 -cdrom &lt;PATH TO GAME></code>.</p><video width=100% controls preload=none>
+<source src=/assets/cdi_zelda.webm type=video/webm></video></div>
