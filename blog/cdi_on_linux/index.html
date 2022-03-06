@@ -1,6 +1,6 @@
 <!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><link rel=stylesheet href=/styles.css><title>How to play CD-i games on Linux - knarkzel.github.io</title><div id=header><h1 id=knarkzel>knarkzel.github.io</h1><div id=nav><a href=/>home</a><a href=/blog>blog</a><a href=/projects>projects</a></div></div><h1>How to play CD-i games on Linux</h1><div id=content><p>I enjoy playing both Link: The Faces of Evil and Zelda: The Wand of Gamelon.
 To emulate these games on Linux, you need following bios files (which you
-can get by looking up <code>cdimono1.zip</code> and <code>cdi910.zip</code>, for instance, <a href=https://www.emurom.net/us/emulation/mame-roms/detail-92047-cd-i.mono-i.pal.html>cdimono1.zip</a> and
+can get by looking up <code>cdimono1.zip</code> and <code>cdi910.zip</code>, for instance <a href=https://www.emurom.net/us/emulation/mame-roms/detail-92047-cd-i.mono-i.pal.html>cdimono1.zip</a> and
 <a href=https://www.emurom.net/us/emulation/mame-roms/detail-92046-cd-i.910-17p.mini-mmc.pal.html>cdi910.zip</a>)<pre style="color:#dcdccc;background-color:#1f1f1f;font-size:15pt;font-family:courier new,monospace">Size Name
 <span style=color:#dca3a3;font-weight:700>524</span>k cdi200.rom
 <span style=color:#dca3a3;font-weight:700>524</span>k cdi220.rom
@@ -13,7 +13,8 @@ can get by looking up <code>cdimono1.zip</code> and <code>cdi910.zip</code>, for
 <span style=color:#dca3a3;font-weight:700>117</span>M link<span style=color:#dfdfbf;font-weight:700>-the-faces-of-evil</span>.chd
 <span style=color:#dca3a3;font-weight:700>115</span>M zelda<span style=color:#dfdfbf;font-weight:700>-wand-of-gamelon</span>.chd
 </pre><p>Finally, install <code>mame</code>. On Arch Linux, it's <code>pacman -S mame</code>. Then launch either
-of the games with following command: <code>mame cdimono1 -cdrom &lt;PATH TO GAME></code>.<p>To configure your controller (such as Gamecube Controller), start your game with <code>mame</code>, then press
+of the games with following command:<pre style="color:#dcdccc;background-color:#1f1f1f;font-size:15pt;font-family:courier new,monospace">mame cdimono1 <span style=color:#dfdfbf;font-weight:700>-cdrom</span> <span style=color:#dcdccc>&lt;</span>PATH TO GAME<span style=color:#dcdccc>&gt;</span>
+</pre><p>To configure your controller (such as Gamecube Controller), start your game with <code>mame</code>, then press
 <code>&lt;tab></code> to enter the menu. Open <code>Input (this machine)</code>, then set up your controller there. To
 troubleshoot, make sure the controller works online: <a href=https://gamepad-tester.com/>Gamepad Tester</a>.</p><video width=100% controls preload=none>
 <source src=/assets/cdi_zelda.webm type=video/webm></video></div>
