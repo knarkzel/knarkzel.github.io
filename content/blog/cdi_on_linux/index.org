@@ -1,0 +1,38 @@
+#+TITLE: How to play CD-i games on Linux
+
+I enjoy playing both Link: The Faces of Evil and Zelda: The Wand of Gamelon.
+To emulate these games on Linux, you need following bios files (which you
+can get by looking up =cdimono1.zip= and =cdi910.zip=):
+
+#+BEGIN_SRC bash
+Size Name
+524k cdi200.rom
+524k cdi220.rom
+524k cdi220b.rom
+8.2k zx405037p__cdi_servo_2.1__b43t__llek9215.mc68hc705c8a_withtestrom.7201
+8.2k zx405042p__cdi_slave_2.0__b43t__zzmk9213.mc68hc705c8a_withtestrom.7206
+#+END_SRC
+
+Put them inside the =$HOME/.mame/roms/cdimono1= folder:
+
+#+BEGIN_SRC bash
+mkdir -p $HOME/.mame/roms/cdimono
+mv <PATH TO ROM FILES> $HOME/.mame/roms/cdimono
+#+END_SRC
+
+Next, get the rom files for the games (just look them up, for instance [[https://edgeemu.net/browse-cdi.htm][edgeemulation]]):
+
+#+BEGIN_SRC bash
+Size Name
+117M link-the-faces-of-evil.chd
+115M zelda-wand-of-gamelon.chd
+#+END_SRC
+
+Finally, install =mame=. On Arch Linux, it's =pacman -S mame=. Then launch either
+of the games with following command: =mame cdimono1 -cdrom <PATH TO GAME>=.
+
+#+begin_export html
+<video width="100%" controls="controls" preload="none">
+  <source src="/assets/cdi_zelda.webm" type="video/webm">
+</video>
+#+end_export

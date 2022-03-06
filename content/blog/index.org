@@ -1,7 +1,8 @@
 #+title: Blog
 
+- [[../blog/cdi_on_linux][How to play CD-i games on Linux]]
 - [[../blog/host_with_heroku][Host Rust web application for free]]
-- [[../blog/compile_rust_faster/index.org][How to make Rust compile way faster]]
+- [[../blog/compile_rust_faster][How to make Rust compile way faster]]
 - [[../blog/org_macros][Org-mode macros are awesome]]
 - [[../blog/colemak][Switching to colemak]]
 - [[../blog/dream_language][Dream language]]
