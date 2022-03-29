@@ -6,8 +6,9 @@
 <div id="projects">
 #+end_export
 {{{project(crispmacs, emacs-like editor from scratch)}}}
+{{{project(crispmacs-website, modern website for crispmacs)}}}
 {{{project(vom, parser combinator framework)}}}
-{{{project(elixir, tiny reddit-like web application)}}}
+{{{project(elixir, tiny hacker-news like web application)}}}
 {{{project(ogc-engine, game engine targeting the Wii)}}}
 {{{project(flappy-bird-bevy, flappy bird using deep learning)}}}
 {{{project(chess-randomizer, chess opening randomizer)}}}

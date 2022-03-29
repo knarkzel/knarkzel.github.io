@@ -49,7 +49,8 @@
                  (div (@ (id "nav"))
                       (a (@ (href "/")) "home")
                       (a (@ (href "/blog")) "blog")
-                      (a (@ (href "/projects")) "projects")))
+                      (a (@ (href "/projects")) "projects")
+                      (a (@ (href "/crustyahh")) "crustyahh")))
             (h1 ,(org-export-data (plist-get info :title) info))
             (div (@ (id "content")) ,contents))))))
 
@@ -109,16 +110,6 @@
       org-html-head "<title>knarkzel.github.io</title>
                      <link rel='stylesheet' href='/styles.css'/>
                      <link rel='icon' type='image/x-icon' href='/favicon.ico'>")
-
-;; Header
-(setq org-html-preamble "
-<h1 id='knarkzel'>knarkzel.github.io</h1>
-<div id='nav'>
-  <a href='/'>home</a>
-  <a href='/blog'>blog</a>
-  <a href='/projects'>projects</a>
-</div>
-")
 
 (defun odd/org-export-format-drawer (name content)
   (concat "<div class='drawer'>"
