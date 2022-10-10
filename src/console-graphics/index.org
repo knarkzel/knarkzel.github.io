@@ -21,14 +21,16 @@ The framebuffer is basically an array of 16-bit words. The upper 8-bits
 represent foreground and background color. The lower 8-bits represent character
 in ASCII. Visually, it has following layout:
 
-#+BEGIN_SRC
+#+BEGIN_EXPORT html
+<pre>
 16           12   11          8   7                             0
 +---------------+---------------+-------------------------------+
 |               |               |                               |
 |  Background   |  Foreground   |           Character           |
 |               |               |                               |
 +---------------+---------------+-------------------------------+
-#+END_SRC
+</pre>
+#+END_EXPORT
 
 4-bits for color code give us 16 possible colors: 
 
