@@ -1,0 +1,70 @@
+#+TITLE: Console graphics
+
+Now that we have a kernel that can run and display "Hello, world", it's
+time to create a Console abstraction so that we can easily interact with
+the screen.
+
+* Theory
+
+The kernel gets booted by GRUB in text mode. In this mode, we have access
+to a framebuffer (area of memory) that controls a screen of characters
+which is 80 wide and 25 high. This is also known as "VGA mode 3". There
+are other video modes we can enter with [[https://wiki.osdev.org/VESA_Video_Modes][VESA]], which we might use later
+on.
+
+The area of memory known as the framebuffer is accessible just like normal
+RAM, at address 0xB8000. This is not actually RAM however, but a part of
+the VGA controller's dedicated video memory that has been memory-mapped
+via hardware into our linear address space.
+
+The framebuffer is basically an array of 16-bit words. The upper 8-bits
+represent foreground and background color. The lower 8-bits represent character
+in ASCII. Visually, it has following layout:
+
+#+BEGIN_EXAMPLE
+16           12   11          8   7                             0
++---------------+---------------+-------------------------------+
+|               |               |                               |
+|  Background   |  Foreground   |           Character           |
+|               |               |                               |
++---------------+---------------+-------------------------------+
+#+END_EXAMPLE
+
+4-bits for color code give us 16 possible colors: 
+
+| Color        | Value |
+|--------------+-------|
+| Black        |     0 |
+| Blue         |     1 |
+| Green        |     2 |
+| Cyan         |     3 |
+| Red          |     4 |
+| Magenta      |     5 |
+| Brown        |     6 |
+| LightGrey    |     7 |
+| DarkGrey     |     8 |
+| LightBlue    |     9 |
+| LightGreen   |    10 |
+| LightCyan    |    11 |
+| LightRed     |    12 |
+| LightMagenta |    13 |
+| LightBrown   |    14 |
+| White        |    15 |
+
+The VGA controller also has some ports on the main I/O bus, which we can
+use to send it specific instructions. We will use the control register
+at 0x3D4 and data register at 0x3D5 to update state and location of the
+cursor.
+
+* The practice
+
+#+BEGIN_EXPORT html
+<hr>
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <td align="left">
+    <a href="/hello-world"><- Hello, world</a>
+  </td>
+  <td align="right">
+  </td>
+</table>
+#+END_EXPORT

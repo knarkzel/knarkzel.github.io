@@ -2,6 +2,10 @@ pre {
     background: #F9F9F9;
 }
 
+.example {
+    background: #FFFFFF;
+}
+
 code {
     color: #0086B3;
 }
