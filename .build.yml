@@ -1,7 +1,8 @@
 image: alpine/edge
 oauth: pages.sr.ht/PAGES:RW
 packages:
-- emacs-nox
+  - hut
+  - emacs-nox
 environment:
   repo: os-in-zig
   site: knarkzel.srht.site
