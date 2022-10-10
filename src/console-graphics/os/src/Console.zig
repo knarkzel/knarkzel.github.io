@@ -7,15 +7,15 @@ var column: u16 = 0;
 var color: u16 = 0x0F;
 var buffer = @intToPtr([*]volatile u16, 0xB8000);
 
-fn new_line() void {
+fn newLine() void {
     row += 1;
     column = 0;
 }
 
-fn increment_cursor() void {
+fn incrementCursor() void {
     column += 1;
     if (column >= 80)
-        new_line();
+        newLine();
 }
 
 const Color = enum(u8) {
@@ -46,11 +46,11 @@ pub fn init() void {
 pub fn write(text: []const u8) void {
     for (text) |byte| {
         if (byte == '\n')
-            new_line()
+            newLine()
         else {
             const i = row * 80 + column;
             buffer[i] = color << 8 | @as(u16, byte);
-            increment_cursor();
+            incrementCursor();
         }
     }
     moveCursor(row, column);
@@ -58,18 +58,6 @@ pub fn write(text: []const u8) void {
 
 pub fn setColor(foreground: Color, background: Color) void {
     color = @enumToInt(background) << 4 | @enumToInt(foreground);
-}
-
-pub fn disableCursor() void {
-    outb(0x3D4, 0x0A);
-    outb(0x3D5, 0x20);
-}
-
-pub fn enableCursor(cursor_start: u8, cursor_end: u8) void {
-    outb(0x3D4, 0x0A);
-    outb(0x3D5, (inb(0x3D5) & 0xC0) | cursor_start);
-    outb(0x3D4, 0x0B);
-    outb(0x3D5, (inb(0x3D5) & 0xE0) | cursor_end);
 }
 
 pub fn moveCursor(cursor_row: u16, cursor_column: u16) void {

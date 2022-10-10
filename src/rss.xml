@@ -10,5 +10,11 @@
     <link>https://knarkzel.srht.site/hello-world</link>
     <pubDate>Sun, 09 Oct 2022 19:55:39 +0200</pubDate>
   </item>
+  <item>
+    <title>Console graphics</title>
+    <description>Implementing console to manipulate the screen easier</description>
+    <link>https://knarkzel.srht.site/console-graphics</link>
+    <pubDate>Mon, 10 Oct 2022 20:35:48 +0200</pubDate>
+  </item>
 </channel>
 </rss>

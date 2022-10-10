@@ -1,4 +1,5 @@
 #+TITLE: Hello, world
+#+OPTIONS: toc:t
 
 To get started, we need two dependencies: zig (0.9.1) for building the
 OS and qemu (7.0.0) for emulating it.

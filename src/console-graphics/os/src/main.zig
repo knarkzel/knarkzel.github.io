@@ -22,7 +22,6 @@ export fn _start() callconv(.Naked) noreturn {
     while (true) asm volatile ("hlt");
 }
 
-// Kernel code
 const Console = @import("Console.zig");
 
 fn main() void {
@@ -31,6 +30,4 @@ fn main() void {
     Console.write("kernel ");
     Console.setColor(.light_blue, .black);
     Console.write("> ");
-    Console.setColor(.white, .black);
-    Console.write("vim");
 }
