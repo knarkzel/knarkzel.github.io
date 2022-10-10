@@ -1,2 +1,6 @@
-/public
-/.packages
+public
+.packages
+.direnv
+.envrc
+zig-out
+zig-cache
