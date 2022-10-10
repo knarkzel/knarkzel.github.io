@@ -1,0 +1,17 @@
+pre {
+    background: #F9F9F9;
+}
+
+code {
+    color: #0086B3;
+}
+
+img {
+    width: 50%;
+    display: block;
+    margin: 0 auto;
+}
+
+.figure > p {
+    text-align: center;
+}

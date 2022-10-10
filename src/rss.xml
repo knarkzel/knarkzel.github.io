@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+  <title>Writing an OS in Zig</title>
+  <description>Blogpost series on how to create a small x86 operating system</description>
+  <link>https://knarkzel.srht.site</link>
+  <item>
+    <title>Hello, world</title>
+    <description>Getting started with x86 operating system development</description>
+    <link>https://knarkzel.srht.site/hello-world</link>
+    <pubDate>Sun, 09 Oct 2022 19:55:39 +0200</pubDate>
+  </item>
+</channel>
+</rss>
