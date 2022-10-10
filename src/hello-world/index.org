@@ -1,75 +1,7 @@
 #+TITLE: Hello, world
 
 To get started, we need two dependencies: zig (0.9.1) for building the
-OS and qemu (7.0.0) for emulating it. Install these dependencies manually
-or use following flake:
-
-#+BEGIN_EXPORT html
-<details>
-<summary><code>flake.nix</code></summary>
-<pre>{
-inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
-
-  outputs = { self, nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (
-      system: let
-        pkgs = import nixpkgs { inherit system; };
-      in {
-        devShell = pkgs.mkShell {
-          buildInputs = [pkgs.zig pkgs.qemu];
-        };
-      }
-    );
-}</pre>
-</details>
-<details>
-<summary><code>flake.lock</code></summary>
-<pre style="background: #F9F9F9">{
-  "nodes": {
-    "flake-utils": {
-      "locked": {
-        "lastModified": 1659877975,
-        "narHash": "sha256-zllb8aq3YO3h8B/U0/J1WBgAL8EX5yWf5pMj3G0NAmc=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "c0e246b9b83f637f4681389ecabcb2681b4f3af0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
-    "nixpkgs": {
-      "locked": {
-        "lastModified": 1665066044,
-        "narHash": "sha256-mkO0LMHVunMFRWLcJhHT0fBf2v6RlH3vg7EVpfSIAFc=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "ed9b904c5eba055a6d6f5c1ccb89ba8f0a056dc6",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-22.05",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "root": {
-      "inputs": {
-        "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs"
-      }
-    }
-  },
-  "root": "root",
-  "version": 7
-}</pre>
-</details>
-#+END_EXPORT
+OS and qemu (7.0.0) for emulating it.
 
 * Initialize project
 
@@ -205,7 +137,7 @@ fn main() void {}
 We can finally run the kernel with =zig build run=: 
 
 #+CAPTION: Booting into blank screen
-[[./blank.webp]]
+[[../hello-world/blank.webp]]
 
 The fact that qemu is not crashing is a sign that our kernel is working!
 Since a blank screen is quite boring to look at, lets add some text by
@@ -222,27 +154,15 @@ fn main() void {
 I will explain how this works in the next part of this series. For now, take a look at this beauty: 
 
 #+CAPTION: Kernel that prints "Hello, world"
-[[./hello-world.webp]]
-
-* Final code
+[[../hello-world/hello-world.webp]]
 
 #+BEGIN_EXPORT html
+<hr>
 <pre>
 os
 ├── src
-│   └── <a href="./os/src/main.zig">main.zig</a>
-├── <a href="./os/build.zig">build.zig</a>
-├── <a href="./os/flake.lock">flake.lock</a>
-├── <a href="./os/flake.nix">flake.nix</a>
-└── <a href="./os/linker.ld">linker.ld</a>
+│   └── <a href="../hello-world/os/src/main.zig">main.zig</a>
+├── <a href="../hello-world/os/build.zig">build.zig</a>
+└── <a href="../hello-world/os/linker.ld">linker.ld</a>
 </pre>
-
-<hr>
-<table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <td align="left">
-  </td>
-  <td align="right">
-    <a href="/console-graphics/">Console graphics -></a>          
-  </td>
-</table>
 #+END_EXPORT

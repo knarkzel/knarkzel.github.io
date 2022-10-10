@@ -21,35 +21,35 @@ The framebuffer is basically an array of 16-bit words. The upper 8-bits
 represent foreground and background color. The lower 8-bits represent character
 in ASCII. Visually, it has following layout:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SRC
 16           12   11          8   7                             0
 +---------------+---------------+-------------------------------+
 |               |               |                               |
 |  Background   |  Foreground   |           Character           |
 |               |               |                               |
 +---------------+---------------+-------------------------------+
-#+END_EXAMPLE
+#+END_SRC
 
 4-bits for color code give us 16 possible colors: 
 
 | Color        | Value |
 |--------------+-------|
-| Black        |     0 |
-| Blue         |     1 |
-| Green        |     2 |
-| Cyan         |     3 |
-| Red          |     4 |
-| Magenta      |     5 |
-| Brown        |     6 |
-| LightGrey    |     7 |
-| DarkGrey     |     8 |
-| LightBlue    |     9 |
-| LightGreen   |    10 |
-| LightCyan    |    11 |
-| LightRed     |    12 |
-| LightMagenta |    13 |
-| LightBrown   |    14 |
-| White        |    15 |
+| Black        | 0     |
+| Blue         | 1     |
+| Green        | 2     |
+| Cyan         | 3     |
+| Red          | 4     |
+| Magenta      | 5     |
+| Brown        | 6     |
+| LightGrey    | 7     |
+| DarkGrey     | 8     |
+| LightBlue    | 9     |
+| LightGreen   | 10    |
+| LightCyan    | 11    |
+| LightRed     | 12    |
+| LightMagenta | 13    |
+| LightBrown   | 14    |
+| White        | 15    |
 
 The VGA controller also has some ports on the main I/O bus, which we can
 use to send it specific instructions. We will use the control register
@@ -58,13 +58,3 @@ cursor.
 
 * The practice
 
-#+BEGIN_EXPORT html
-<hr>
-<table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <td align="left">
-    <a href="/hello-world"><- Hello, world</a>
-  </td>
-  <td align="right">
-  </td>
-</table>
-#+END_EXPORT

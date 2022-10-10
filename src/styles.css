@@ -2,10 +2,6 @@ pre {
     background: #F9F9F9;
 }
 
-.example {
-    background: #FFFFFF;
-}
-
 code {
     color: #0086B3;
 }
@@ -18,4 +14,8 @@ img {
 
 .figure > p {
     text-align: center;
+}
+
+.org-left {
+    text-align: left;
 }
