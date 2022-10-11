@@ -40,6 +40,6 @@ pub fn read() !u8 {
     return try stdin.readByte();
 }
 
-pub fn write(byte: u8) !void {
-    try stdout.writeByte(byte);
+pub fn write(bytes: []const u8) !void {
+    try stdout.writeAll(bytes);
 }

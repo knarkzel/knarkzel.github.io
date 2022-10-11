@@ -14,14 +14,10 @@ pub fn main() !void {
         try Terminal.clear();
         for (screen) |row| {
             for (row) |block| {
-                if (block) {
-                    for ("█") |byte|
-                        try Terminal.write(byte);
-                } else {
-                    try Terminal.write(' ');
-                }
+                const bytes = if (block) "█" else " ";
+                try Terminal.write(bytes);
             }
-            try Terminal.write('\n');
+            try Terminal.write("\n");
         }
         const key = try Terminal.read();
         if (key == ansi.CTRL_C) break;
