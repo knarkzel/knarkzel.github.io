@@ -13,9 +13,11 @@ for FILE in $(find src/ -type f -not -name "*.org"); do
     cp "src/${FILE:4}" "public/${FILE:4}"
 done
 
-# remove ./ from relative links, causes issues on srht pages
+# create absolute paths for srht pages
 for FILE in $(find public/ -type f -name "*.html"); do
-    sed -i "/Go back/! s/\.\///g" $FILE
+    ABSOLUTE=`dirname ${FILE:6}`
+    [[ "$ABSOLUTE" == "/" ]] && EXTRA="" || EXTRA="/"
+    sed -i "/Go back/! s|\.\/|$ABSOLUTE$EXTRA|g" "$FILE"
 done
 
 
