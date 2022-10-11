@@ -22,7 +22,7 @@ fn disableRawMode() !void {
         try os.tcsetattr(os.STDIN_FILENO, os.TCSA.FLUSH, raw);
 }
 
-fn clear() !void {
+pub fn clear() !void {
     try stdout.writeAll("\x1B[2J\x1B[H");
 }
 
