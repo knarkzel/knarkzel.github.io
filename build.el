@@ -26,6 +26,24 @@
   :pin melpa-stable
   :ensure t)
 
+(use-package htmlize
+  :ensure t)
+
+(use-package rainbow-delimiters
+  :ensure t
+  :init
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+
+;; Extra languages
+(use-package zig-mode
+  :ensure t)
+
+;; Theme
+(use-package doom-themes
+  :ensure t
+  :init
+  (load-theme 'doom-flatwhite t))
+
 ;; HTML template
 (defun html-template (contents info)
   (concat
@@ -37,7 +55,6 @@
        (title ,(org-export-data (plist-get info :title) info))
        (link (@ (rel "stylesheet") (href "/styles.css"))))
       (body
-       (tt
         (table
          (@ (width "100%") (cellpadding "0") (cellspacing "0") (border "0"))
          (td
@@ -48,8 +65,8 @@
          (td (@ (align "right"))
           "Written by "
           (a (@ (href "https://git.sr.ht/~knarkzel")) "~knarkzel")))
-        (hr)
-        ,contents))))))
+         (hr)
+         (main ,contents))))))
 
 (org-export-define-derived-backend 'pelican-html 'html :translate-alist '((template . html-template)))
 
@@ -78,11 +95,14 @@
              :time-stamp-file nil)))
 
 ;; Customize the HTML output
-(setq org-html-validation-link nil
+(setq org-html-validation-link t
       org-html-head-include-scripts nil
       org-html-head-include-default-style nil
       org-html-html5-fancy nil
-      org-html-doctype "html5")
+      org-html-doctype "html5"
+      org-html-htmlize-output-type 'css)
+
+(setq-default tab-width 4)
 
 ;; Generate the site output
 (org-publish-all t)

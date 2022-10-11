@@ -1,5 +1,5 @@
-.example {
-    background: #F9F9F9;
+html {
+    font-family: monospace;
 }
 
 code {
@@ -7,7 +7,7 @@ code {
 }
 
 img {
-    width: 50%;
+    width: 75%;
     display: block;
     margin: 0 auto;
 }
@@ -18,4 +18,54 @@ img {
 
 .org-left {
     text-align: left;
+}
+
+main {
+    margin: 0 auto;
+    max-width: 50em;
+}
+
+.src {
+    color: #605A52;
+    background: #F7F3EE;
+}
+
+.org-keyword {
+    color: #614C61;
+    background: #F1DDF1;
+}
+
+.org-builtin {
+    font-style: italic;
+}
+
+.org-rainbow-delimiters-depth-1 {
+    color: #7382A0;
+}
+
+.org-rainbow-delimiters-depth-2 {
+    color: #9C739C;
+}
+
+.org-rainbow-delimiters-depth-3 {
+    color: #81895D;
+}
+
+.org-rainbow-delimiters-depth-4 {
+    color: #957f5f;
+}
+
+.org-variable-name {
+    color: #4C5361;
+    background: #DDE4F2;
+}
+
+.org-string {
+    color: #525643;
+    background: #E2E9C1;
+}
+
+.org-constant {
+    color: #465953;
+    background: #D2EBE3;
 }
