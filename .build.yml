@@ -4,11 +4,10 @@ packages:
   - hut
   - emacs-nox
 environment:
-  repo: os-in-zig
   site: knarkzel.srht.site
 tasks:
 - package: |
-    cd $repo
+    cd $site
     ./build.sh
     cd public/
     tar -cvz . > ../../site.tar.gz
