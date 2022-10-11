@@ -12,6 +12,7 @@ done
 # create absolute paths for srht pages
 for FILE in $(find public/ -type f -name "*.html"); do
     ABSOLUTE=`dirname ${FILE:6}`
+    UP=`dirname $ABSOLUTE`
     [[ "$ABSOLUTE" == "/" ]] && EXTRA="" || EXTRA="/"
-    sed -i "/Go back/! s|\.\/|$ABSOLUTE$EXTRA|g" "$FILE"
+    sed -i "s|\.\.\/|$UP|;s|\.\/|$ABSOLUTE$EXTRA|g" "$FILE"
 done

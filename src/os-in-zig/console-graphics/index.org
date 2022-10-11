@@ -32,24 +32,24 @@ in ASCII. Visually, it has following layout:
 
 4-bits for color code give us 16 possible colors: 
 
-| Color        | Value |
-|--------------+-------|
-| Black        | 0     |
-| Blue         | 1     |
-| Green        | 2     |
-| Cyan         | 3     |
-| Red          | 4     |
-| Magenta      | 5     |
-| Brown        | 6     |
-| LightGrey    | 7     |
-| DarkGrey     | 8     |
-| LightBlue    | 9     |
-| LightGreen   | 10    |
-| LightCyan    | 11    |
-| LightRed     | 12    |
-| LightMagenta | 13    |
-| LightBrown   | 14    |
-| White        | 15    |
+| Color         | Value |
+|---------------+-------|
+| Black         |     0 |
+| Blue          |     1 |
+| Green         |     2 |
+| Cyan          |     3 |
+| Red           |     4 |
+| Magenta       |     5 |
+| Brown         |     6 |
+| Light grey    |     7 |
+| Dark grey     |     8 |
+| Light blue    |     9 |
+| Light green   |    10 |
+| Light cyan    |    11 |
+| Light red     |    12 |
+| Light magenta |    13 |
+| Light brown   |    14 |
+| White         |    15 |
 
 The VGA controller also has some ports on the main I/O bus, which we can
 use to send it specific instructions. We will use the control register
@@ -213,7 +213,6 @@ fn main() void {
 [[./prompt.webp]]
 
 #+BEGIN_EXPORT html
-<hr>
 <pre>
 os
 ├── src

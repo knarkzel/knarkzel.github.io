@@ -9,7 +9,6 @@ pub fn main() !void {
     screen[0][4] = true;
     screen[0][5] = true;
     try Terminal.init();
-
     while (true) {
         try Terminal.clear();
         for (screen) |row| {

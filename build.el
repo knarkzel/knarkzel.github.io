@@ -56,7 +56,7 @@
        (link (@ (rel "stylesheet") (href "/styles.css"))))
       (body
         (table
-         (@ (width "100%") (cellpadding "0") (cellspacing "0") (border "0"))
+         (@ (width "100%") (cellpadding "0") (cellspacing "0") (border "0") (id "header"))
          (td
           (@ (align "left"))
           (b ,(org-export-data (plist-get info :title) info))
@@ -65,8 +65,7 @@
          (td (@ (align "right"))
           "Written by "
           (a (@ (href "https://git.sr.ht/~knarkzel")) "~knarkzel")))
-         (hr)
-         (main ,contents))))))
+         ,contents)))))
 
 (org-export-define-derived-backend 'pelican-html 'html :translate-alist '((template . html-template)))
 

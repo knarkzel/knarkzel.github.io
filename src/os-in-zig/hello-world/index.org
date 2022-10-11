@@ -157,7 +157,6 @@ I will explain how this works in the next part of this series. For now, take a l
 [[./hello-world.webp]]
 
 #+BEGIN_EXPORT html
-<hr>
 <pre>
 os
 ├── src

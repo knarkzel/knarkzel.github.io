@@ -1,6 +1,9 @@
 html {
+    margin: 0 auto;
+    max-width: 50em;
     background: #F7F3EE;
     font-family: monospace;
+    font-size: 200%;
 }
 
 img {
@@ -14,11 +17,6 @@ figcaption {
     text-align: center;
 }
 
-main {
-    margin: 0 auto;
-    max-width: 50em;
-}
-
 a {
     color: #7382A0;
     font-weight: bold;
@@ -30,10 +28,6 @@ h1, h2, h3, h4, h5, h6 {
 
 table {
     margin: 0 auto;
-}
-
-th, td {
-    padding: 0.25em 1em;
 }
 
 .figure-number {
