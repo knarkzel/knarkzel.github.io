@@ -4,4 +4,3 @@ Welcome to my site! On this website I write tutorials for Zig and Rust,
 as well as archiving useful information.
 
 - [[./os-in-zig][Writing an OS in Zig]]
-- [[chip8-emulator-in-zig][Chip8 emulator in Zig]]
