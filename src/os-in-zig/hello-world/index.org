@@ -1,5 +1,4 @@
 #+TITLE: Hello, world
-#+OPTIONS: toc:t
 
 To get started, we need two dependencies: zig (0.9.1) for building the
 OS and qemu (7.0.0) for emulating it.
@@ -138,7 +137,7 @@ fn main() void {}
 We can finally run the kernel with =zig build run=: 
 
 #+CAPTION: Booting into blank screen
-[[../hello-world/blank.webp]]
+[[./blank.webp]]
 
 The fact that qemu is not crashing is a sign that our kernel is working!
 Since a blank screen is quite boring to look at, lets add some text by
@@ -155,15 +154,15 @@ fn main() void {
 I will explain how this works in the next part of this series. For now, take a look at this beauty: 
 
 #+CAPTION: Kernel that prints "Hello, world"
-[[../hello-world/hello-world.webp]]
+[[./hello-world.webp]]
 
 #+BEGIN_EXPORT html
 <hr>
 <pre>
 os
 ├── src
-│   └── <a href="../hello-world/os/src/main.zig">main.zig</a>
-├── <a href="../hello-world/os/build.zig">build.zig</a>
-└── <a href="../hello-world/os/linker.ld">linker.ld</a>
+│   └── <a href="./os/src/main.zig">main.zig</a>
+├── <a href="./os/build.zig">build.zig</a>
+└── <a href="./os/linker.ld">linker.ld</a>
 </pre>
 #+END_EXPORT

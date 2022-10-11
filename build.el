@@ -43,13 +43,11 @@
          (td
           (@ (align "left"))
           (b ,(org-export-data (plist-get info :title) info))
-          ,(unless (equal (org-export-data (plist-get info :title) info) "Writing an OS in Zig")
-             " | <a href=/>Go back</a>"))
+          ,(unless (equal (org-export-data (plist-get info :title) info) "knarkzel.srht.site")
+             " | <a href=../>Go back</a>"))
          (td (@ (align "right"))
           "Written by "
-          (a (@ (href "https://git.sr.ht/~knarkzel")) "~knarkzel")
-          " | "
-          (a (@ (href "/rss.xml")) "rss")))
+          (a (@ (href "https://git.sr.ht/~knarkzel")) "~knarkzel")))
         (hr)
         ,contents))))))
 

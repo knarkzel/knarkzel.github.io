@@ -1,0 +1,7 @@
+#+TITLE: Writing an OS in Zig
+
+In this blog series we create a small x86 operating system in the Zig programming
+language. Each post is a small tutorial and include all needed code with some theory. 
+
+1. [[./hello-world][Hello, world]]
+2. [[./console-graphics][Console graphics]]

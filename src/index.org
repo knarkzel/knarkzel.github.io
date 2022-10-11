@@ -1,7 +1,6 @@
-#+TITLE: Writing an OS in Zig
+#+TITLE: knarkzel.srht.site
 
-This blog series creates a small x86 operating system in the Zig programming
-language. Each post is a small tutorial and includes all needed code. 
+Welcome to my site! On this website I write tutorials using Zig and Rust,
+as well as archiving useful information.
 
-1. [[./hello-world][Hello, world]]
-2. [[./console-graphics][Console graphics]]
+- [[./os-in-zig][Writing an OS in Zig]]

@@ -1,5 +1,4 @@
 #+TITLE: Console graphics
-#+OPTIONS: toc:t
 
 Now that we have a kernel that can run and display "Hello, world", it's
 time to create a Console abstraction so that we can easily interact with
@@ -22,16 +21,14 @@ The framebuffer is basically an array of 16-bit words. The upper 8-bits
 represent foreground and background color. The lower 8-bits represent character
 in ASCII. Visually, it has following layout:
 
-#+BEGIN_EXPORT html
-<pre>
+#+BEGIN_SRC
 16           12   11          8   7                             0
 +---------------+---------------+-------------------------------+
 |               |               |                               |
 |  Background   |  Foreground   |           Character           |
 |               |               |                               |
 +---------------+---------------+-------------------------------+
-</pre>
-#+END_EXPORT
+#+END_SRC
 
 4-bits for color code give us 16 possible colors: 
 
@@ -213,17 +210,17 @@ fn main() void {
 #+END_SRC
 
 #+CAPTION: Kernel with a nice prompt
-[[../console-graphics/prompt.webp]]
+[[./prompt.webp]]
 
 #+BEGIN_EXPORT html
 <hr>
 <pre>
 os
 ├── src
-│   ├── <a href="../console-graphics/os/src/Console.zig">Console.zig</a>
-│   ├── <a href="../console-graphics/os/src/main.zig">main.zig</a>
-│   └── <a href="../console-graphics/os/src/utils.zig">utils.zig</a>
-├── <a href="../console-graphics/os/build.zig">build.zig</a>
-└── <a href="../console-graphics/os/linker.ld">linker.ld</a>
+│   ├── <a href="./os/src/Console.zig">Console.zig</a>
+│   ├── <a href="./os/src/main.zig">main.zig</a>
+│   └── <a href="./os/src/utils.zig">utils.zig</a>
+├── <a href="./os/build.zig">build.zig</a>
+└── <a href="./os/linker.ld">linker.ld</a>
 </pre>
 #+END_EXPORT
