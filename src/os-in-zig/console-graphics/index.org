@@ -58,20 +58,20 @@ cursor.
 
 * The practice
 
-Lets start by creating =src/Console.zig= and adding some variables:
+Lets start by creating src/Console.zig and adding some variables:
 
-#+BEGIN_SRC
+#+BEGIN_SRC zig
 var row: u16 = 0;
 var column: u16 = 0;
 var color: u16 = 0x0F;
 var buffer = @intToPtr([*]volatile u16, 0xB8000);
 #+END_SRC
 
-The =buffer= is similar to previous post. =row= and =column= will be used
-to store cursor position. =color= will be set to 0x0F, which is white
+The buffer is similar to previous post. row and column will be used
+to store cursor position. color will be set to 0x0F, which is white
 on black. Next, lets add a function to clear the screen:
 
-#+BEGIN_SRC
+#+BEGIN_SRC zig
 pub fn init() void {
     var i: usize = 0;
     while (i < 80 * 25) : (i += 1)
@@ -81,7 +81,7 @@ pub fn init() void {
 
 And another function to write to it:
 
-#+BEGIN_SRC
+#+BEGIN_SRC zig
 fn newLine() void {
     row += 1;
     column = 0;
@@ -107,18 +107,18 @@ pub fn write(text: []const u8) void {
 }
 #+END_SRC
 
-This is very straightforward. When writing a string (which is =[]const
-u8= in Zig), we check if the character is =\n=, and if it is, we reset
-=column= to 0 and increment =row= by one. Otherwise, we calculate the correct
+This is very straightforward. When writing a string (which is []const
+u8 in Zig), we check if the character is \n, and if it is, we reset column
+to 0 and increment row by one. Otherwise, we calculate the correct
 index, write the character to the buffer and increment the cursor.
 
-The =moveCursor(row, column)= function is missing, however. We need two
+The moveCursor(row, column) function is missing, however. We need two
 helper functions to write into memory-mapped IO. These helper functions
-are called =inb= and =outb= in assembly. =inb= is for reading a byte, while
-=outb= is for writing a byte to some port. We will define these functions
-in =src/utils.zig=:
+are called inb and outb in assembly. inb is for reading a byte, while outb
+is for writing a byte to some port. We will define these functions
+in src/utils.zig:
 
-#+BEGIN_SRC
+#+BEGIN_SRC zig
 pub inline fn inb(port: u16) u8 {
     return asm volatile ("inb %[port], %[result]"
         : [result] "={al}" (-> u8),
@@ -135,20 +135,20 @@ pub inline fn outb(port: u16, value: u8) void {
 }
 #+END_SRC
 
-=volatile= here means that the instruction will be run regardless of whether
+volatile here means that the instruction will be run regardless of whether
 the compiler notices that it does something or not.
 
-In order to use these functions in =src/Console.zig=, we add following at the top:
+In order to use these functions in src/Console.zig, we add following at the top:
 
-#+BEGIN_SRC
+#+BEGIN_SRC zig
 const utils = @import("utils.zig");
 const inb = utils.inb;
 const outb = utils.outb;
 #+END_SRC
 
-Now we're ready to create the =moveCursor(row, column)= function:
+Now we're ready to create the moveCursor(row, column) function:
 
-#+BEGIN_SRC
+#+BEGIN_SRC zig
 pub fn moveCursor(cursor_row: u16, cursor_column: u16) void {
     const position = cursor_row * 80 + cursor_column;
     outb(0x3D4, 0x0F);
@@ -159,14 +159,14 @@ pub fn moveCursor(cursor_row: u16, cursor_column: u16) void {
 #+END_SRC
 
 To move the cursor, we first calculate the index. Since we can only send one byte
-at a time, we write the position in two parts. =0x3D4= is the controller's command port, and
-=0x3D5= is where we send the byte. 0x0F tells the VGA board that we are setting the high cursor byte.
+at a time, we write the position in two parts. 0x3D4 is the controller's command port, and
+0x3D5 is where we send the byte. 0x0F tells the VGA board that we are setting the high cursor byte.
 0x0E does the same for the low cursor byte.
 
 The last thing we're missing is setting the color. From theory we know that colors are mapped to specific
 values. This can be represented with an enum:
 
-#+BEGIN_SRC
+#+BEGIN_SRC zig
 const Color = enum(u8) {
     black,
     blue,
@@ -187,17 +187,17 @@ const Color = enum(u8) {
 };
 #+END_SRC
 
-To set the color we use =@enumToInt= with some bit-shifting:
+To set the color we use @enumToInt with some bit-shifting:
 
-#+BEGIN_SRC
+#+BEGIN_SRC zig
 pub fn setColor(foreground: Color, background: Color) void {
     color = @enumToInt(background) << 4 | @enumToInt(foreground);
 }
 #+END_SRC
 
-Now that we're done with =src/Console.zig=, lets go back to =src/main.zig= and finish this:
+Now that we're done with src/Console.zig, lets go back to src/main.zig and finish this:
 
-#+BEGIN_SRC
+#+BEGIN_SRC zig
 const Console = @import("Console.zig");
 
 fn main() void {

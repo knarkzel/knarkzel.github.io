@@ -98,7 +98,7 @@
 (setq org-html-validation-link t
       org-html-head-include-scripts nil
       org-html-head-include-default-style nil
-      org-html-html5-fancy nil
+      org-html-html5-fancy t
       org-html-doctype "html5"
       org-html-htmlize-output-type 'css)
 

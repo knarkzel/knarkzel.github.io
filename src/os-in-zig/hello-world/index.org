@@ -5,7 +5,7 @@ OS and qemu (7.0.0) for emulating it.
 
 * Initialize project
 
-Create a new directory called =os=, enter it and initialize the project with =zig=:
+Create a new directory called os, enter it and initialize the project with zig:
 
 #+BEGIN_SRC shell
 $ mkdir os
@@ -19,10 +19,10 @@ info: Next, try `zig build --help` or `zig build run`
 * The boot code
 
 To be able to run our kernel, we must make it freestanding and compatible
-with multiboot. We will use a custom linker script with some code in =build.zig=
-and =src/main.zig= to achieve this.
+with multiboot. We will use a custom linker script with some code in build.zig
+and src/main.zig to achieve this.
 
-Create a file in the root of our project named =linker.ld= with following content:
+Create a file in the root of our project named linker.ld with following content:
 
 #+BEGIN_SRC ld-script
 ENTRY(_start)
@@ -51,19 +51,19 @@ SECTIONS {
 #+END_SRC
 
 This script tells the linker how to set up our kernel image. First it
-tells us that the start location of our binary is =_start=. It then tells
-the linker that the =.text= section (that's where all your code goes) should
-be first. The =.text= section starts at 1MB and contains the =.multiboot= code
-that we will specify in =main.zig=. Then we have the =.rodata= section which
-is for read-only initialised data, such as constants. The =.data= section
-is for initalised static data, and the =.bss= section is for uninitialised
-static data. 
+tells us that the start location of our binary is _start. It then tells
+the linker that the .text section (that's where all your code goes) should
+be first. The .text section starts at 1MB and contains the .multiboot code
+that we will specify in main.zig. Then we have the .rodata section which
+is for read-only initialised data, such as constants. The .data section
+is for initalised static data, and the .bss section is for uninitialised
+static data.
 
 * Build system
 
-Inside our =build.zig= we need to specify target (x86), make the binary
+Inside our build.zig we need to specify target (x86), make the binary
 freestanding and enable our custom linker script. We will also create a
-run command to start qemu with =zig build run=:
+run command to start qemu with "zig build run":
 
 #+BEGIN_SRC zig
 const std = @import("std");
@@ -103,7 +103,7 @@ system kernel. It is a way for the bootloader to:
 2. Allow the kernel to query the environment it is in
 
 To make our kernel multiboot compatible, we need to add a header structure
-in the first 4KB of the kernel. Lets add multiboot to =src/main.zig=:
+in the first 4KB of the kernel. Lets add multiboot to src/main.zig:
 
 #+BEGIN_SRC zig
 const ALIGN = 1 << 0;
@@ -134,7 +134,7 @@ export fn _start() callconv(.Naked) noreturn {
 fn main() void {}
 #+END_SRC
 
-We can finally run the kernel with =zig build run=: 
+We can finally run the kernel with "zig build run": 
 
 #+CAPTION: Booting into blank screen
 [[./blank.webp]]

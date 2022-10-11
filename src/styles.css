@@ -1,23 +1,17 @@
 html {
+    background: #F7F3EE;
     font-family: monospace;
 }
 
-code {
-    color: #0086B3;
-}
-
 img {
-    width: 75%;
+    max-width: 100%;
     display: block;
     margin: 0 auto;
 }
 
-.figure > p {
+figcaption {
+    margin-top: 1em;
     text-align: center;
-}
-
-.org-left {
-    text-align: left;
 }
 
 main {
@@ -25,11 +19,35 @@ main {
     max-width: 50em;
 }
 
-.src {
-    color: #605A52;
-    background: #F7F3EE;
+a {
+    color: #7382A0;
+    font-weight: bold;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    color: #955F5F;
+}
+
+table {
+    margin: 0 auto;
+}
+
+th, td {
+    padding: 0.25em 1em;
+}
+
+.figure-number {
+    display: none;
+}
+
+.example {
+    text-align: center;
+}
+
+.src {
+    color: #605A52;
+}
+    
 .org-keyword {
     color: #614C61;
     background: #F1DDF1;
@@ -55,6 +73,22 @@ main {
     color: #957f5f;
 }
 
+.org-rainbow-delimiters-depth-5 {
+    color: #5F8C7D;
+}
+
+.org-rainbow-delimiters-depth-6 {
+    color: #955F5F;
+}
+
+.org-rainbow-delimiters-depth-7 {
+    color: #81895D;
+}
+
+.org-rainbow-delimiters-depth-8 {
+    color: #81895D;
+}
+
 .org-variable-name {
     color: #4C5361;
     background: #DDE4F2;
@@ -68,4 +102,8 @@ main {
 .org-constant {
     color: #465953;
     background: #D2EBE3;
+}
+
+.org-left {
+    text-align: left;
 }
