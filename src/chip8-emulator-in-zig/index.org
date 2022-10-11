@@ -1,0 +1,6 @@
+#+TITLE: [[./chip8-emulator][Chip8 emulator in Zig]]
+
+In this blog series we create a Chip8 emulator in the Zig programming
+language. Each post is a small tutorial and include all needed code with some theory. 
+
+1. [[setting-up-sdl][Setting up SDL]]
