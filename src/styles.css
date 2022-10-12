@@ -15,6 +15,10 @@ pre {
     overflow-x: auto;
 }
 
+ul, ol {
+    margin: 0 0.5em;
+}
+
 table:not(#header) {
     min-width: 50%;
     border-collapse: collapse;
