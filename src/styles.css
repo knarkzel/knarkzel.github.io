@@ -1,9 +1,28 @@
 html {
+    color: #353535;
     margin: 0 auto;
     max-width: 50em;
     background: #F7F3EE;
-    font-family: monospace;
-    font-size: 200%;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+p {
+    margin: 0.5em 0;
+}
+
+pre {
+    font-size: 125%;
+    overflow-x: auto;
+}
+
+table:not(#header) {
+    min-width: 50%;
+    border-collapse: collapse;
+}
+
+table:not(#header) td, th {
+    padding: 0.25em 0.75em;
+    border: 1px solid #e5e5e5;
 }
 
 img {
@@ -24,6 +43,7 @@ a {
 
 h1, h2, h3, h4, h5, h6 {
     color: #955F5F;
+    margin: 0.25em 0;
 }
 
 table {
@@ -98,6 +118,6 @@ table {
     background: #D2EBE3;
 }
 
-.org-left {
-    text-align: left;
-}
+/* .org-left { */
+/*     text-align: left; */
+/* } */
