@@ -3,7 +3,7 @@ const Emulator = @import("Emulator.zig");
 const Terminal = @import("Terminal.zig");
 
 var running = true;
-var keyboard: [16]bool = undefined;
+var keys: [16]bool = undefined;
 var screen: [64 * 32]bool = undefined;
 
 fn handleInput() !void {
@@ -13,22 +13,22 @@ fn handleInput() !void {
         const key = try Terminal.read();
         switch (key) {
             CTRL_C, CTRL_Z => running = false,
-            '1' => keyboard[0] = true,
-            '2' => keyboard[1] = true,
-            '3' => keyboard[2] = true,
-            '4' => keyboard[3] = true,
-            'q' => keyboard[4] = true,
-            'w' => keyboard[5] = true,
-            'f' => keyboard[6] = true,
-            'p' => keyboard[7] = true,
-            'a' => keyboard[8] = true,
-            'r' => keyboard[9] = true,
-            's' => keyboard[10] = true,
-            't' => keyboard[11] = true,
-            'z' => keyboard[12] = true,
-            'x' => keyboard[13] = true,
-            'c' => keyboard[14] = true,
-            'v' => keyboard[15] = true,
+            '1' => keys[0] = true,
+            '2' => keys[1] = true,
+            '3' => keys[2] = true,
+            '4' => keys[3] = true,
+            'q' => keys[4] = true,
+            'w' => keys[5] = true,
+            'f' => keys[6] = true,
+            'p' => keys[7] = true,
+            'a' => keys[8] = true,
+            'r' => keys[9] = true,
+            's' => keys[10] = true,
+            't' => keys[11] = true,
+            'z' => keys[12] = true,
+            'x' => keys[13] = true,
+            'c' => keys[14] = true,
+            'v' => keys[15] = true,
             else => continue,
         }
     }
