@@ -38,11 +38,13 @@ pub fn clear() !void {
 pub fn init() !void {
     try enableRawMode();
     try hideCursor();
+    try clear();
 }
 
 pub fn deinit() !void {
     try disableRawMode();
     try showCursor();
+    try clear();
 }
 
 pub fn read() !u8 {
