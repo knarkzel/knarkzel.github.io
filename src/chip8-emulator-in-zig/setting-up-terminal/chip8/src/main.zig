@@ -46,8 +46,9 @@ pub fn main() !void {
     const input = try std.Thread.spawn(.{}, handleInput, .{});
     input.detach();
 
-    // Draw to screen
+    // Main loop
     while (true) {
+        Emulator.cycle(&keys, &screen);
         try Terminal.clear();
         for (screen) |byte, i| {
             const output = if (byte) "█" else " ";
