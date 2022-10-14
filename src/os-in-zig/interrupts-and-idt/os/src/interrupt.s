@@ -26,28 +26,10 @@ loadIdt:
 
 isrCommon:
     pusha            // Pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
-
-    mov %ds, %ax     // Lower 16-bits of eax = ds
-    push %eax        // Save the data segment descriptor
-
-    mov $0x10, %ax   // Load the kernel data segment descriptor
-    mov %ax, %ds
-    mov %ax, %es
-    mov %ax, %fs
-    mov %ax, %gs
-
-    call isrHandler
-
-    pop %eax         // Reload the original data segment descriptor
-    mov %ax, %ds
-    mov %ax, %es
-    mov %ax, %fs
-    mov %ax, %gs
-
+    call isrHandler  // Call custom isrHandler
     popa             // Pops edi, esi, ebp, esp, ebx, edx, ecx, eax
-    add 0x8, %esp    // Cleans up the pushed error code and pushed ISR number
-    sti
-    iret             // Pops cs, eip, eflags, ss, and esp
+    add 0x8, %esp    // Remove interrupt number and error code from stack
+    iret             // Return from function, pops eip, cs, eflags, esp, ss
 
 isrGenerate 0
 isrGenerate 1

@@ -14,8 +14,7 @@ pub inline fn outb(port: u16, value: u8) void {
 }
 
 pub const Registers = extern struct {
-    ds: u32, // Data segment selector
-    edi: u32, // Pushed by pusha
+    edi: u32,
     esi: u32,
     ebp: u32,
     esp: u32,
@@ -23,9 +22,9 @@ pub const Registers = extern struct {
     edx: u32,
     ecx: u32,
     eax: u32,
-    int_no: u32, // Interrupt number and error code (if applicable)
+    int_no: u32,
     err_no: u32,
-    eip: u32, // Pushed by the processor automatically
+    eip: u32,
     cs: u32,
     eflags: u32,
     useresp: u32,
