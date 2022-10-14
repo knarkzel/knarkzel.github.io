@@ -26,27 +26,27 @@ Create a file in the root of our project named linker.ld with following content:
 
 #+BEGIN_SRC ld-script
 ENTRY(_start)
- 
+
 SECTIONS {
-	. = 1M;
- 
-	.text : ALIGN(4K) {
-		KEEP(*(.multiboot))
-		*(.text)
-	}
- 
-	.rodata : ALIGN(4K) {
-		*(.rodata)
-	}
- 
-	.data : ALIGN(4K) {
-		*(.data)
-	}
- 
-	.bss : ALIGN(4K) {
-		*(COMMON)
-		*(.bss)
-	}
+    . = 1M;
+
+    .text : ALIGN(4K) {
+        KEEP(*(.multiboot))
+        ,*(.text)
+    }
+
+    .rodata : ALIGN(4K) {
+        ,*(.rodata)
+    }
+
+    .data : ALIGN(4K) {
+        ,*(.data)
+    }
+
+    .bss : ALIGN(4K) {
+        ,*(COMMON)
+        ,*(.bss)
+    }
 }
 #+END_SRC
 

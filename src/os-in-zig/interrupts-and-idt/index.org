@@ -7,6 +7,131 @@ to set up the [[https://wiki.osdev.org/Global_Descriptor_Table][Global Descripto
 
 * Theory
 
+There are times when we want to interrupt the processor. We want to stop
+the processor doing what it's doing, and force it to do something different,
+like keyboard input or a timer ticking. . The processor can register interrupt
+handlers that deal with the interrupt, then return to the code that it
+ran before. These interrupts can be fired externally, via interrupt requests
+(IRQ), or internally, via the "int $n" assembly instruction.
+
+The Interrupt Descriptor Table tells the processor where to find handlers
+for each interrupt. It is basically an array of entries, with each entry
+corresponding to an interrupt number. There are 256 possible interrupt
+numbers, so we need an array of 256 entries. If an interrupt occurs and
+there is no entry for it, the processor will panic and reset.
+
+There's a very good illustration of the entry layout on the [[https://wiki.osdev.org/Interrupt_Descriptor_Table#Gate_Descriptor][OSDEV Wiki]].
+Following is a high-level view:
+
+#+BEGIN_SRC
+63                           48   47         40   39           32
++-------------------------------+---------------+---------------+
+|                               |               |               |
+|         Offset high           |     Flags     |   Reserved    |
+|                               |               |               |
++-------------------------------+---------------+---------------+
+31                           16   15                            0
++-------------------------------+-------------------------------+
+|                               |                               |
+|       Segment Selector        |          Offset low           |
+|                               |                               |
++-------------------------------+-------------------------------+
+#+END_SRC
+
+There's also the Interrupt Descriptor Table Register which is needed for
+actually loading our interrupts with the "lidt" asm instruction. It has following
+layout:
+
+#+BEGIN_SRC
+47                                           16   15            0
++-----------------------------------------------+---------------+
+|                                               |               |
+|                    Offset                     |     Size      |
+|                                               |               |
++-----------------------------------------------+---------------+
+#+END_SRC
+
+** Faults, traps and exceptions
+
+The processor will sometimes need to send interrupts to our kernel. Something
+major may have happened, such as divide-by-zero. To do this, it uses the first
+32 interrupts. It is crucial that all of these are mapped and non-NULL. Otherwise,
+the CPU will triple-fault and reset.
+
+The special, CPU-dedicated interrupts are following:
+
+| Index | Name                                            |
+|-------+-------------------------------------------------+
+|     0 | Division by zero exception                      |
+|     1 | Debug exception                                 |
+|     2 | Non maskable interrupt                          |
+|     3 | Breakpoint exception                            |
+|     4 | 'Into detected overflow'                        |
+|     5 | Out of bounds exception                         |
+|     6 | Invalid opcode exception                        |
+|     7 | No coprocessor exception                        |
+|     8 | Double fault (pushes an error code)             |
+|     9 | Coprocessor segment overrun                     |
+|    10 | Bad TSS (pushes an error code)                  |
+|    11 | Segment not present (pushes an error code)      |
+|    12 | Stack fault (pushes an error code)              |
+|    13 | General protection fault (pushes an error code) |
+|    14 | Page fault (pushes an error code)               |
+|    15 | Unknown interrupt exception                     |
+|    16 | Coprocessor fault                               |
+|    17 | Alignment check exception                       |
+|    18 | Machine check exception                         |
+| 19-31 | Reserved                                        |
+
 * Practice
 
+The first thing we should do is to define the layout for the idt entry and create the array of
+256 entries. Create a new file in src/idt.zig with following:
 
+#+BEGIN_SRC zig
+const IdtEntry = packed struct {
+    offset_low: u16,
+    segment_selector: u16,
+    zero: u8,
+    flags: u8,
+    offset_high: u16,
+
+    fn init(handler: fn () callconv(.C) void, segment_selector: u16, flags: u8) IdtEntry {
+        const offset = @ptrToInt(handler);
+        return .{
+            .offset_low = @truncate(u16, offset & 0xFFFF),
+            .offset_high = @truncate(u16, (offset >> 16) & 0xFFFF),
+            .segment_selector = segment_selector,
+            .zero = 0,
+            .flags = flags,
+        };
+    }
+};
+
+var idt_table: [256]IdtEntry = undefined;
+#+END_SRC
+
+The init function takes the address of an interrupt handler function and converts it to u32, splits the
+u32 into two halves and sets the offset fields. If the address of the function is 0xFABC, offset_low will
+be set to 0xBC, and offset_high to 0xFA.
+
+Next we'll define the layout for the idt register:
+
+#+BEGIN_SRC zig
+const IdtRegister = packed struct {
+    limit: u16,
+    base: *[256]IdtEntry,
+
+    fn init(table: *[256]IdtEntry) IdtRegister {
+        return .{
+            .limit = @as(u16, @sizeOf(@TypeOf(table.*))) - 1,
+            .base = table,
+        };
+    }
+};
+
+var idt_register: IdtRegister = undefined;
+#+END_SRC
+
+Now is the time for us to leverage assembly for specifying how a interrupt should
+be handled before calling our custom handler functions.

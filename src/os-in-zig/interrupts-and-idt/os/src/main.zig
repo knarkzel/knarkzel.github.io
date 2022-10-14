@@ -28,7 +28,7 @@ const utils = @import("utils.zig");
 const Console = @import("Console.zig");
 
 export fn isrHandler(registers: utils.Registers) void {
-    Console.write("\nunhandled interrupt occurred: ");
+    Console.write("\nINTERRUPT OCCURRED: ");
     Console.write(&.{@intCast(u8, registers.int_no) + '0'});
 }
 
