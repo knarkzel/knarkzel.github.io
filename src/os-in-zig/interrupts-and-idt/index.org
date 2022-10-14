@@ -1,0 +1,12 @@
+#+TITLE: Interrupts and IDT
+
+After setting up the console, we are going to set up interrupts. With interrupts
+we unlock many things, such as keyboard input. To set up interrupts we need
+to initialize the [[https://wiki.osdev.org/Interrupt_Descriptor_Table][Interrupt Descriptor Table]]. Usually we would also need
+to set up the [[https://wiki.osdev.org/Global_Descriptor_Table][Global Descriptor Table]], but GRUB does this for us.
+
+* Theory
+
+* Practice
+
+

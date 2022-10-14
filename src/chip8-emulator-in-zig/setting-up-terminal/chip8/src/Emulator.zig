@@ -4,8 +4,8 @@ var ram: [4096]u8 = .{0} ** 4096;
 var stack: [16]u16 = .{0} ** 16;
 var v: [16]u16 = .{0} ** 16;
 var i: u16 = 0;
-var dt: u8 = 0;
-var st: u8 = 0;
+var dt: u16 = 0;
+var st: u16 = 0;
 var pc: u16 = 0;
 var sp: u16 = 0;
 
@@ -202,8 +202,8 @@ pub fn cycle(keys: *[16]bool, screen: *[64 * 32]bool) void {
                     const px = (v[x] + bit) % 64;
                     const color = if (ram[i + byte] >> (7 - bit) & 1 > 0) true else false;
                     const pixel = &screen[(py * 64) + px];
-                    pixel.* ^= color;
-                    v[0xF] |= color & pixel.*;
+                    pixel.* = pixel.* != color;
+                    v[0xF] |= if (color == pixel.*) @as(u16, 1) else @as(u16, 0);
                 }
             }
             pc += 2;
@@ -241,7 +241,7 @@ pub fn cycle(keys: *[16]bool, screen: *[64 * 32]bool) void {
                 loop: while (true) {
                     for (keys) |key, index| {
                         if (key) {
-                            v[x] = index;
+                            v[x] = @truncate(u16, index);
                             pc += 2;
                             break :loop;
                         }
