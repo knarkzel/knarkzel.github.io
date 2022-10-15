@@ -2,6 +2,7 @@ const std = @import("std");
 const Emulator = @import("Emulator.zig");
 const Terminal = @import("Terminal.zig");
 
+const step = 5 * std.time.ns_per_ms;
 var running = true;
 var keys: [16]u1 = undefined;
 var screens: [2][64 * 32]u1 = undefined;
@@ -31,7 +32,7 @@ fn drawDiff(allocator: std.mem.Allocator) !void {
 fn handleInput() !void {
     const CTRL_C = 3;
     const CTRL_Z = 26;
-    while (true) : (std.time.sleep(10 * std.time.ns_per_ms)) {
+    while (running) : (std.time.sleep(step)) {
         keys = .{0} ** 16;
         const key = try Terminal.read();
         switch (key) {
@@ -63,7 +64,7 @@ pub fn main() !void {
     const allocator = gpa.allocator();
 
     // Initialize emulator
-    Emulator.init(@embedFile("../roms/random.ch8"));
+    Emulator.init(@embedFile("../roms/tests.ch8"));
 
     // Initialize terminal
     try Terminal.init();
@@ -73,7 +74,7 @@ pub fn main() !void {
     input.detach();
 
     // Main loop
-    while (running) : (std.time.sleep(10 * std.time.ns_per_ms)) {
+    while (running) : (std.time.sleep(step)) {
         Emulator.cycle(&keys, screen);
         if (Emulator.update) {
             try drawDiff(allocator);

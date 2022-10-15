@@ -22,6 +22,8 @@ pub fn init(bytes: []const u8) void {
     for (font) |byte, index|
         ram[index] = byte;
 
+    ram[0x1FF] = 1;
+
     // Load bytes into memory
     for (bytes) |byte, index|
         ram[index + 0x200] = byte;
@@ -241,13 +243,10 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // Fx0A - LD Vx, K: All execution stops until a key is pressed, then
             // the value of that key is stored in Vx.
             0x000A => {
-                loop: while (true) {
-                    for (keys) |key, index| {
-                        if (key > 0) {
-                            v[x] = @truncate(u16, index);
-                            pc += 2;
-                            break :loop;
-                        }
+                for (keys) |key, index| {
+                    if (key > 0) {
+                        v[x] = @truncate(u16, index);
+                        pc += 2;
                     }
                 }
             },
