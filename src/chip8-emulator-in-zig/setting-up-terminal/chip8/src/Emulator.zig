@@ -22,6 +22,8 @@ pub fn init(bytes: []const u8) void {
     for (font) |byte, index|
         ram[index] = byte;
 
+    ram[0x1FF] = 2;
+
     // Load bytes into memory
     for (bytes) |byte, index|
         ram[index + 0x200] = byte;
@@ -299,6 +301,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
                 var index: u8 = 0;
                 while (index < x) : (index += 1)
                     ram[i + index] = v[index];
+                i += x + 1;
                 pc += 2;
             },
             // Fx65 - LD Vx, [I]: The interpreter reads values from memory
@@ -308,6 +311,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
                 var index: u8 = 0;
                 while (index <= x) : (index += 1)
                     v[index] = ram[i + index];
+                i += x + 1;
                 pc += 2;
             },
             else => @panic("Invalid opcode in 0xF000 branch"),
