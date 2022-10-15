@@ -28,6 +28,10 @@ pub fn init(bytes: []const u8) void {
 }
 
 pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
+    // Decrement timers
+    if (dt > 0) dt -= 1;
+    if (st > 0) st -= 1;
+
     const opcode = (ram[pc] << 8) | ram[pc + 1];
     const x = (opcode & 0x0F00) >> 8;
     const y = (opcode & 0x00F0) >> 4;
@@ -45,7 +49,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // 00EE - RET: The interpreter sets the program counter to the address at
             // the top of the stack, then subtracts 1 from the stack pointer.
             0x00EE => {
-                pc = stack[sp];
+                pc = stack[sp] + 2;
                 sp -= 1;
             },
             else => @panic("Invalid opcode in 0x0000 branch"),
