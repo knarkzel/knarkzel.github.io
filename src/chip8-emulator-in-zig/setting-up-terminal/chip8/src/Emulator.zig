@@ -22,6 +22,9 @@ pub fn init(bytes: []const u8) void {
     for (font) |byte, index|
         ram[index] = byte;
 
+    // Romset
+    ram[0x1FF] = 1;
+
     // Load bytes into memory
     for (bytes) |byte, index|
         ram[index + 0x200] = byte;
@@ -34,7 +37,6 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
     const n = (opcode & 0x000F);
     const nnn = (opcode & 0x0FFF);
     const kk = (opcode & 0x00FF);
-    // std.debug.print("pc: {x}, opcode: {x}\n", .{ pc, opcode });
     switch (opcode & 0xF000) {
         0x0000 => switch (opcode & 0x0FF) {
             // 00E0 - CLS: Clear the display.
@@ -196,16 +198,17 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
         // of the screen.
         0xD000 => {
             v[0xF] = 0;
-            var byte: u8 = 0;
-            while (byte < n) : (byte += 1) {
-                const py = (v[y] + byte) % 32;
-                var bit: u3 = 0;
-                while (bit < 7) : (bit += 1) {
-                    const px = (v[x] + bit) % 64;
-                    const color = @truncate(u1, ram[i + byte] >> (7 - bit));
-                    const pixel = &screen[(py * 64) + px];
-                    pixel.* ^= color;
-                    v[0xF] |= color & pixel.*;
+            var yline: u8 = 0;
+            while (yline < n) : (yline += 1) {
+                const pixel = ram[i + yline];
+                var xline: u8 = 0;
+                while (xline < 8) : (xline += 1) {
+                    const color = &screen[(v[x] + xline + (v[y] + yline) * 64)];
+                    if ((pixel & (@as(u8, 0x80) >> @intCast(u3, xline))) != 0) {
+                        if (color.* == 1)
+                            v[0xF] = 1;
+                        color.* ^= 1;
+                    }
                 }
             }
             update = true;
@@ -298,9 +301,9 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // I + X + 1 after operation.
             0x0065 => {
                 var index: u8 = 0;
-                while (index < x) : (index += 1)
+                while (index <= x) : (index += 1)
                     v[index] = ram[i + index];
-                i += x + 1;
+                i = i + x + 1;
                 pc += 2;
             },
             else => @panic("Invalid opcode in 0xF000 branch"),

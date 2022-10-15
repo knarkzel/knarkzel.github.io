@@ -37,7 +37,7 @@ fn handleInput() !void {
 
 pub fn main() !void {
     // Initialize emulator
-    const bytes = @embedFile("../roms/ibm.ch8");
+    const bytes = @embedFile("../roms/tests.ch8");
     Emulator.init(bytes);
 
     // Initialize terminal
