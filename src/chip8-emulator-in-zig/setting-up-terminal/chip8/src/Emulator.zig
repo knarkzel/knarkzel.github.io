@@ -132,7 +132,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // otherwise 0.
             0x0004 => {
                 if (v[x] + v[y] > 255) v[0xF] = 1 else v[0xF] = 0;
-                v[x] += v[y];
+                v[x] = (v[x] + v[y]) % 256;
                 pc += 2;
             },
             // 8xy5 - SUB Vx, Vy: If Vx > Vy, then VF is set to 1, otherwise
@@ -299,9 +299,9 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // to I + X + 1 after operation.
             0x0055 => {
                 var index: u8 = 0;
-                while (index < x) : (index += 1)
+                while (index <= x) : (index += 1)
                     ram[i + index] = v[index];
-                i += x + 1;
+                // i += x + 1;
                 pc += 2;
             },
             // Fx65 - LD Vx, [I]: The interpreter reads values from memory
@@ -311,7 +311,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
                 var index: u8 = 0;
                 while (index <= x) : (index += 1)
                     v[index] = ram[i + index];
-                i += x + 1;
+                // i += x + 1;
                 pc += 2;
             },
             else => @panic("Invalid opcode in 0xF000 branch"),
