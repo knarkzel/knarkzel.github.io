@@ -1,6 +1,6 @@
 const std = @import("std");
 
-var ram: [4096]u8 = .{0} ** 4096;
+var ram: [4096]u16 = .{0} ** 4096;
 var stack: [16]u16 = .{0} ** 16;
 var v: [16]u16 = .{0} ** 16;
 var i: u16 = 0;
@@ -26,8 +26,8 @@ pub fn init(bytes: []const u8) void {
         ram[index + 0x200] = byte;
 }
 
-pub fn cycle(keys: *[16]bool, screen: *[64 * 32]bool) void {
-    const opcode = @as(u16, ram[pc]) << 8 | ram[pc + 1];
+pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
+    const opcode = ram[pc] << 8 | ram[pc + 1];
     const x = (opcode & 0x0F00) >> 8;
     const y = (opcode & 0x00F0) >> 4;
     const n = (opcode & 0x000F);
@@ -38,7 +38,7 @@ pub fn cycle(keys: *[16]bool, screen: *[64 * 32]bool) void {
             // 00E0 - CLS: Clear the display.
             0x00E0 => {
                 for (screen) |*byte|
-                    byte.* = false;
+                    byte.* = 0;
                 pc += 2;
             },
             // 00EE - RET: The interpreter sets the program counter to the address at
@@ -144,8 +144,8 @@ pub fn cycle(keys: *[16]bool, screen: *[64 * 32]bool) void {
             // 8xy7 - SUBN Vx, Vy: If Vy > Vx, then VF is set to 1, otherwise
             // 0. Then Vx is subtracted from Vy, and the results stored in Vx.
             0x0007 => {
-                const overflow = @subWithOverflow(u16, v[y], v[x], &v[y]);
-                if (overflow) v[0xF] = 1 else v[0xF] = 0;
+                if (v[y] > v[x]) v[0xF] = 1 else v[0xF] = 0;
+                v[x] -%= v[y];
                 pc += 2;
             },
             // 8xyE - SHL Vx {, Vy}: If the most-significant bit of Vx is 1,
@@ -200,10 +200,10 @@ pub fn cycle(keys: *[16]bool, screen: *[64 * 32]bool) void {
                 var bit: u3 = 0;
                 while (bit < 8) : (bit += 1) {
                     const px = (v[x] + bit) % 64;
-                    const color = if (ram[i + byte] >> (7 - bit) & 1 > 0) true else false;
+                    const color = @truncate(u1, ram[i + byte] >> (7 - bit));
                     const pixel = &screen[(py * 64) + px];
-                    pixel.* = pixel.* != color;
-                    v[0xF] |= if (color == pixel.*) @as(u16, 1) else @as(u16, 0);
+                    pixel.* ^= color;
+                    v[0xF] |= color & pixel.*;
                 }
             }
             pc += 2;
@@ -213,7 +213,7 @@ pub fn cycle(keys: *[16]bool, screen: *[64 * 32]bool) void {
             // to the value of Vx is currently in the down position, PC is
             // increased by 2.
             0x0090 => {
-                if (keys[v[x]])
+                if (keys[v[x]] > 0)
                     pc += 4
                 else
                     pc += 2;
@@ -222,12 +222,12 @@ pub fn cycle(keys: *[16]bool, screen: *[64 * 32]bool) void {
             // to the value of Vx is currently in the up position, PC is
             // increased by 2.
             0x00A0 => {
-                if (!keys[v[x]])
+                if (keys[v[x]] == 0)
                     pc += 4
                 else
                     pc += 2;
             },
-            else => @panic("Invalid opcode in 0xE000 branch"),
+            else => {},
         },
         0xF000 => switch (opcode & 0x00FF) {
             // Fx07 - Ld Vx, DT: The value of DT is placed into Vx.
@@ -240,7 +240,7 @@ pub fn cycle(keys: *[16]bool, screen: *[64 * 32]bool) void {
             0x000A => {
                 loop: while (true) {
                     for (keys) |key, index| {
-                        if (key) {
+                        if (key > 0) {
                             v[x] = @truncate(u16, index);
                             pc += 2;
                             break :loop;
@@ -300,8 +300,8 @@ pub fn cycle(keys: *[16]bool, screen: *[64 * 32]bool) void {
                 i += x + 1;
                 pc += 2;
             },
-            else => @panic("Invalid opcode in 0xF000 branch"),
+            else => {},
         },
-        else => @panic("Invalid opcode found"),
+        else => {},
     }
 }

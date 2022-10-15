@@ -3,32 +3,33 @@ const Emulator = @import("Emulator.zig");
 const Terminal = @import("Terminal.zig");
 
 var running = true;
-var keys: [16]bool = undefined;
-var screen: [64 * 32]bool = undefined;
+var keys: [16]u1 = undefined;
+var screen: [64 * 32]u1 = undefined;
 
 fn handleInput() !void {
     const CTRL_C = 3;
     const CTRL_Z = 26;
     while (true) {
         const key = try Terminal.read();
+        keys = .{0} ** 16;
         switch (key) {
             CTRL_C, CTRL_Z => running = false,
-            '1' => keys[0] = true,
-            '2' => keys[1] = true,
-            '3' => keys[2] = true,
-            '4' => keys[3] = true,
-            'q' => keys[4] = true,
-            'w' => keys[5] = true,
-            'f' => keys[6] = true,
-            'p' => keys[7] = true,
-            'a' => keys[8] = true,
-            'r' => keys[9] = true,
-            's' => keys[10] = true,
-            't' => keys[11] = true,
-            'z' => keys[12] = true,
-            'x' => keys[13] = true,
-            'c' => keys[14] = true,
-            'v' => keys[15] = true,
+            '1' => keys[0] = 1,
+            '2' => keys[1] = 1,
+            '3' => keys[2] = 1,
+            '4' => keys[3] = 1,
+            'q' => keys[4] = 1,
+            'w' => keys[5] = 1,
+            'f' => keys[6] = 1,
+            'p' => keys[7] = 1,
+            'a' => keys[8] = 1,
+            'r' => keys[9] = 1,
+            's' => keys[10] = 1,
+            't' => keys[11] = 1,
+            'z' => keys[12] = 1,
+            'x' => keys[13] = 1,
+            'c' => keys[14] = 1,
+            'v' => keys[15] = 1,
             else => continue,
         }
     }
@@ -36,7 +37,7 @@ fn handleInput() !void {
 
 pub fn main() !void {
     // Initialize emulator
-    const bytes = @embedFile("../roms/opcode.ch8");
+    const bytes = @embedFile("../roms/ibm.ch8");
     Emulator.init(bytes);
 
     // Initialize terminal
@@ -51,10 +52,11 @@ pub fn main() !void {
         Emulator.cycle(&keys, &screen);
         try Terminal.clear();
         for (screen) |byte, i| {
-            const output = if (byte) "█" else " ";
+            const output = if (byte > 0) "█" else " ";
             try Terminal.write(output);
             if (i % 64 == 0) try Terminal.write("\n");
         }
+
         if (!running) break;
     }
     try Terminal.deinit();
