@@ -4,14 +4,36 @@ const Terminal = @import("Terminal.zig");
 
 var running = true;
 var keys: [16]u1 = undefined;
-var screen: [64 * 32]u1 = undefined;
+var screens: [2][64 * 32]u1 = undefined;
+var screen: *[64 * 32]u1 = &screens[0];
+var index: usize = 0;
+
+fn drawDiff(allocator: std.mem.Allocator) !void {
+    var commands = std.ArrayList(u8).init(allocator);
+    defer commands.clearAndFree();
+    const before = screens[(index + 1) % 2];
+    const after = screen.*;
+    var y: usize = 0;
+    while (y < 32) : (y += 1) {
+        var x: usize = 0;
+        while (x < 64) : (x += 1) {
+            const i = y * 64 + x;
+            if (after[i] != before[i]) {
+                const output = if (after[i] > 0) "█" else " ";
+                const command = try std.fmt.allocPrint(allocator, "\x1b[{d};{d}H{s}", .{ y + 1, x + 1, output });
+                try commands.appendSlice(command);
+            }
+        }
+    }
+    try Terminal.write(commands.items);
+}
 
 fn handleInput() !void {
     const CTRL_C = 3;
     const CTRL_Z = 26;
-    while (true) {
-        const key = try Terminal.read();
+    while (true) : (std.time.sleep(10 * std.time.ns_per_ms)) {
         keys = .{0} ** 16;
+        const key = try Terminal.read();
         switch (key) {
             CTRL_C, CTRL_Z => running = false,
             '1' => keys[0] = 1,
@@ -36,9 +58,12 @@ fn handleInput() !void {
 }
 
 pub fn main() !void {
+    // Allocator
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+
     // Initialize emulator
-    const bytes = @embedFile("../roms/tests.ch8");
-    Emulator.init(bytes);
+    Emulator.init(@embedFile("../roms/random.ch8"));
 
     // Initialize terminal
     try Terminal.init();
@@ -49,14 +74,12 @@ pub fn main() !void {
 
     // Main loop
     while (running) : (std.time.sleep(10 * std.time.ns_per_ms)) {
-        Emulator.cycle(&keys, &screen);
+        Emulator.cycle(&keys, screen);
         if (Emulator.update) {
-            try Terminal.clear();
-            for (screen) |byte, i| {
-                const output = if (byte > 0) "█" else " ";
-                try Terminal.write(output);
-                if (i % 64 == 0) try Terminal.write("\n");
-            }
+            try drawDiff(allocator);
+            index = (index + 1) % 2;
+            screens[index] = screen.*;
+            screen = &screens[index];
             Emulator.update = false;
         }
     }

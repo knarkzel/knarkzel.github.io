@@ -54,3 +54,8 @@ pub fn read() !u8 {
 pub fn write(bytes: []const u8) !void {
     try stdout.writeAll(bytes);
 }
+
+pub fn writeAt(bytes: []const u8, x: usize, y: usize) !void {
+    const command = try std.fmt.allocPrint(std.heap.page_allocator, "\x1b[{d};{d}H{s}", .{ y + 1, x + 1, bytes });
+    try write(command);
+}
