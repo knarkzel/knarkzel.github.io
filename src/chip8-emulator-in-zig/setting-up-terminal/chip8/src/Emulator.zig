@@ -202,7 +202,9 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
                 const pixel = ram[i + yline];
                 var xline: u8 = 0;
                 while (xline < 8) : (xline += 1) {
-                    const color = &screen[(v[x] + xline + (v[y] + yline) * 64)];
+                    const px = v[x] + xline;
+                    const py = v[y] + yline;
+                    const color = &screen[px % 64 + (py % 32) * 64];
                     if ((pixel & (@as(u8, 0x80) >> @intCast(u3, xline))) != 0) {
                         if (color.* == 1)
                             v[0xF] = 1;
