@@ -44,6 +44,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             0x00E0 => {
                 for (screen) |*byte|
                     byte.* = 0;
+                update = true;
                 pc += 2;
             },
             // 00EE - RET: The interpreter sets the program counter to the address at
@@ -142,8 +143,8 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // 8xy6 - SHR Vx {, Vy}: If the least-significant bit of Vx is 1,
             // then VF is set to 1, otherwise 0. Then Vx is divided by 2.
             0x0006 => {
-                v[0xF] = v[x] & 1;
-                v[x] /= 2;
+                v[x] = v[y] >> 1;
+                v[0xF] = v[y] & 1;
                 pc += 2;
             },
             // 8xy7 - SUBN Vx, Vy: If Vy > Vx, then VF is set to 1, otherwise
@@ -156,11 +157,8 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // 8xyE - SHL Vx {, Vy}: If the most-significant bit of Vx is 1,
             // then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
             0x000E => {
-                if (v[x] & (0b1000000) > 0)
-                    v[0xF] = 1
-                else
-                    v[0xF] = 0;
-                v[x] *= 2;
+                v[x] = v[y] << 1;
+                v[0xF] = v[y] & 0b1000000;
                 pc += 2;
             },
             else => @panic("Invalid opcode in 0x8000 branch"),
@@ -175,7 +173,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
         },
         // Annn - LD I, addr: The value of register I is set to nnn.
         0xA000 => {
-            i = opcode & 0x0FFF;
+            i = nnn;
             pc += 2;
         },
         // Bnnn - JP V0, addr: The program counter is set to nnn plus the
@@ -220,10 +218,10 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // to the value of Vx is currently in the down position, PC is
             // increased by 2.
             0x0090 => {
-                if (keys[v[x]] > 0)
-                    pc += 4
-                else
-                    pc += 2;
+                if (keys[v[x]] > 0) {
+                    pc += 4;
+                    keys[v[x]] = 0;
+                } else pc += 2;
             },
             // ExA1 - SKNP Vx: Checks the keyboard, and if the key corresponding
             // to the value of Vx is currently in the up position, PC is
@@ -231,8 +229,10 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             0x00A0 => {
                 if (keys[v[x]] == 0)
                     pc += 4
-                else
+                else {
+                    keys[v[x]] = 0;
                     pc += 2;
+                }
             },
             else => @panic("Invalid opcode in 0xE000 branch"),
         },
@@ -249,8 +249,10 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
                     if (key > 0) {
                         v[x] = @truncate(u16, index);
                         pc += 2;
+                        break;
                     }
                 }
+                keys[v[x]] = 0;
             },
             // Fx15 - LD DT, Vx: DT is set equal to the value of Vx.
             0x0015 => {
@@ -266,7 +268,6 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // results are stored in I.
             0x001E => {
                 i += v[x];
-                v[0xF] = if (i > 0x0FFF) 1 else 0;
                 pc += 2;
             },
             // Fx29 - LD F, Vx: The value of I is set to the location for the
@@ -291,7 +292,6 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
                 var index: u8 = 0;
                 while (index < x) : (index += 1)
                     ram[i + index] = v[index];
-                i += x + 1;
                 pc += 2;
             },
             // Fx65 - LD Vx, [I]: The interpreter reads values from memory
@@ -301,7 +301,6 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
                 var index: u8 = 0;
                 while (index <= x) : (index += 1)
                     v[index] = ram[i + index];
-                i = i + x + 1;
                 pc += 2;
             },
             else => @panic("Invalid opcode in 0xF000 branch"),

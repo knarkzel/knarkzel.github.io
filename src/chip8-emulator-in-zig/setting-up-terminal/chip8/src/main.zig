@@ -34,7 +34,6 @@ fn handleInput() !void {
     const CTRL_C = 3;
     const CTRL_Z = 26;
     while (running) : (std.time.sleep(step)) {
-        keys = .{0} ** 16;
         const key = try Terminal.read();
         switch (key) {
             CTRL_C, CTRL_Z => running = false,
