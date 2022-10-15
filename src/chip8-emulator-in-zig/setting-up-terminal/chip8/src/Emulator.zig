@@ -22,8 +22,6 @@ pub fn init(bytes: []const u8) void {
     for (font) |byte, index|
         ram[index] = byte;
 
-    ram[0x1FF] = 1;
-
     // Load bytes into memory
     for (bytes) |byte, index|
         ram[index + 0x200] = byte;

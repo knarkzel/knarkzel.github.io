@@ -11,7 +11,7 @@ var index: usize = 0;
 
 fn drawDiff(allocator: std.mem.Allocator) !void {
     var commands = std.ArrayList(u8).init(allocator);
-    defer commands.clearAndFree();
+    defer commands.deinit();
     const before = screens[(index + 1) % 2];
     const after = screen.*;
     var y: usize = 0;
@@ -22,6 +22,7 @@ fn drawDiff(allocator: std.mem.Allocator) !void {
             if (after[i] != before[i]) {
                 const output = if (after[i] > 0) "█" else " ";
                 const command = try std.fmt.allocPrint(allocator, "\x1b[{d};{d}H{s}", .{ y + 1, x + 1, output });
+                defer allocator.free(command);
                 try commands.appendSlice(command);
             }
         }
@@ -60,8 +61,9 @@ fn handleInput() !void {
 
 pub fn main() !void {
     // Allocator
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const allocator = gpa.allocator();
+    var buffer: [64 * 32 * 15]u8 = undefined;
+    var fba = std.heap.FixedBufferAllocator.init(&buffer);
+    const allocator = fba.allocator();
 
     // Initialize emulator
     Emulator.init(@embedFile("../roms/tests.ch8"));
@@ -78,6 +80,7 @@ pub fn main() !void {
         Emulator.cycle(&keys, screen);
         if (Emulator.update) {
             try drawDiff(allocator);
+            fba.reset();
             index = (index + 1) % 2;
             screens[index] = screen.*;
             screen = &screens[index];
