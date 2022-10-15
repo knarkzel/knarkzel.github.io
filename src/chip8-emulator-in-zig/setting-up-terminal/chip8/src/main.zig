@@ -2,7 +2,7 @@ const std = @import("std");
 const Emulator = @import("Emulator.zig");
 const Terminal = @import("Terminal.zig");
 
-const step = 5 * std.time.ns_per_ms;
+const step = 3 * std.time.ns_per_ms;
 var running = true;
 var keys: [16]u1 = undefined;
 var screens: [2][64 * 32]u1 = undefined;

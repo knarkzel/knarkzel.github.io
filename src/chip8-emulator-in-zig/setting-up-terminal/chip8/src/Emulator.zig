@@ -136,8 +136,13 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // 8xy5 - SUB Vx, Vy: If Vx > Vy, then VF is set to 1, otherwise
             // 0. Then Vy is subtracted from Vx, and the results stored in Vx.
             0x0005 => {
-                if (v[x] > v[y]) v[0xF] = 1 else v[0xF] = 0;
-                v[x] -= v[y];
+                if (v[x] > v[y]) {
+                    v[0xF] = 1;
+                    v[x] -= v[y];
+                } else {
+                    v[0xF] = 0;
+                    v[x] = 256 - (v[y] - v[x]);
+                }
                 pc += 2;
             },
             // 8xy6 - SHR Vx {, Vy}: If the least-significant bit of Vx is 1,
