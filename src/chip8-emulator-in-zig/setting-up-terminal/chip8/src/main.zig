@@ -48,16 +48,17 @@ pub fn main() !void {
     input.detach();
 
     // Main loop
-    while (true) {
+    while (running) : (std.time.sleep(10 * std.time.ns_per_ms)) {
         Emulator.cycle(&keys, &screen);
-        try Terminal.clear();
-        for (screen) |byte, i| {
-            const output = if (byte > 0) "█" else " ";
-            try Terminal.write(output);
-            if (i % 64 == 0) try Terminal.write("\n");
+        if (Emulator.update) {
+            try Terminal.clear();
+            for (screen) |byte, i| {
+                const output = if (byte > 0) "█" else " ";
+                try Terminal.write(output);
+                if (i % 64 == 0) try Terminal.write("\n");
+            }
+            Emulator.update = false;
         }
-
-        if (!running) break;
     }
     try Terminal.deinit();
 }

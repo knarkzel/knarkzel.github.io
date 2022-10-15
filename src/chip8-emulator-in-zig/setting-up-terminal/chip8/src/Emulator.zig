@@ -6,8 +6,9 @@ var v: [16]u16 = .{0} ** 16;
 var i: u16 = 0;
 var dt: u16 = 0;
 var st: u16 = 0;
-var pc: u16 = 0;
+var pc: u16 = 0x200;
 var sp: u16 = 0;
+pub var update: bool = false;
 
 pub fn init(bytes: []const u8) void {
     // Load font into memory
@@ -27,12 +28,13 @@ pub fn init(bytes: []const u8) void {
 }
 
 pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
-    const opcode = ram[pc] << 8 | ram[pc + 1];
+    const opcode = (ram[pc] << 8) | ram[pc + 1];
     const x = (opcode & 0x0F00) >> 8;
     const y = (opcode & 0x00F0) >> 4;
     const n = (opcode & 0x000F);
     const nnn = (opcode & 0x0FFF);
     const kk = (opcode & 0x00FF);
+    // std.debug.print("pc: {x}, opcode: {x}\n", .{ pc, opcode });
     switch (opcode & 0xF000) {
         0x0000 => switch (opcode & 0x0FF) {
             // 00E0 - CLS: Clear the display.
@@ -92,7 +94,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
         // 7xkk - ADD Vx, byte: Adds the value kk to the value of register
         // Vx, then stores the result in Vx.
         0x7000 => {
-            v[x] +%= kk;
+            v[x] = (v[x] + kk) % 256;
             pc += 2;
         },
         0x8000 => switch (opcode & 0x000F) {
@@ -123,15 +125,15 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // the result is greater than 8 bits (i.e., > 255,) VF is set to 1,
             // otherwise 0.
             0x0004 => {
-                const overflow = @addWithOverflow(u16, v[x], v[y], &v[x]);
-                if (overflow) v[0xF] = 1 else v[0xF] = 0;
+                if (v[x] + v[y] > 255) v[0xF] = 1 else v[0xF] = 0;
+                v[x] += v[y];
                 pc += 2;
             },
             // 8xy5 - SUB Vx, Vy: If Vx > Vy, then VF is set to 1, otherwise
             // 0. Then Vy is subtracted from Vx, and the results stored in Vx.
             0x0005 => {
-                const overflow = @subWithOverflow(u16, v[x], v[y], &v[x]);
-                if (overflow) v[0xF] = 1 else v[0xF] = 0;
+                if (v[x] > v[y]) v[0xF] = 1 else v[0xF] = 0;
+                v[x] -= v[y];
                 pc += 2;
             },
             // 8xy6 - SHR Vx {, Vy}: If the least-significant bit of Vx is 1,
@@ -145,7 +147,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             // 0. Then Vx is subtracted from Vy, and the results stored in Vx.
             0x0007 => {
                 if (v[y] > v[x]) v[0xF] = 1 else v[0xF] = 0;
-                v[x] -%= v[y];
+                v[x] = v[y] - v[x];
                 pc += 2;
             },
             // 8xyE - SHL Vx {, Vy}: If the most-significant bit of Vx is 1,
@@ -163,7 +165,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
         // 9xy0 - SNE Vx, Vy: The values of Vx and Vy are compared, and if
         // they are not equal, the program counter is increased by 2.
         0x9000 => {
-            if (v[x] == v[y])
+            if (v[x] != v[y])
                 pc += 4
             else
                 pc += 2;
@@ -198,7 +200,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
             while (byte < n) : (byte += 1) {
                 const py = (v[y] + byte) % 32;
                 var bit: u3 = 0;
-                while (bit < 8) : (bit += 1) {
+                while (bit < 7) : (bit += 1) {
                     const px = (v[x] + bit) % 64;
                     const color = @truncate(u1, ram[i + byte] >> (7 - bit));
                     const pixel = &screen[(py * 64) + px];
@@ -206,6 +208,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
                     v[0xF] |= color & pixel.*;
                 }
             }
+            update = true;
             pc += 2;
         },
         0xE000 => switch (opcode & 0x00F0) {
@@ -227,7 +230,7 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
                 else
                     pc += 2;
             },
-            else => {},
+            else => @panic("Invalid opcode in 0xE000 branch"),
         },
         0xF000 => switch (opcode & 0x00FF) {
             // Fx07 - Ld Vx, DT: The value of DT is placed into Vx.
@@ -300,8 +303,8 @@ pub fn cycle(keys: *[16]u1, screen: *[64 * 32]u1) void {
                 i += x + 1;
                 pc += 2;
             },
-            else => {},
+            else => @panic("Invalid opcode in 0xF000 branch"),
         },
-        else => {},
+        else => @panic("Invalid opcode in main branch"),
     }
 }
