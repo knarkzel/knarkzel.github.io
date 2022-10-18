@@ -1,4 +1,4 @@
-#+TITLE: knarkzel.srht.site
+#+TITLE: Knarkzel's website
 
 Welcome to my site! On this website I write tutorials for Zig and Rust,
 as well as archiving useful information.

@@ -23,7 +23,6 @@
 (require 'ox-publish)
 
 (use-package esxml
-  :pin melpa-stable
   :ensure t)
 
 (use-package htmlize
@@ -37,12 +36,6 @@
 ;; Extra languages
 (use-package zig-mode
   :ensure t)
-
-;; Theme
-(use-package doom-themes
-  :ensure t
-  :init
-  (load-theme 'doom-flatwhite t))
 
 ;; HTML template
 (defun html-template (contents info)
@@ -60,7 +53,7 @@
          (td
           (@ (align "left"))
           (b ,(org-export-data (plist-get info :title) info))
-          ,(unless (equal (org-export-data (plist-get info :title) info) "knarkzel.srht.site")
+          ,(unless (equal (org-export-data (plist-get info :title) info) "Knarkzel's website")
              " | <a href=../>Go back</a>"))
          (td (@ (align "right"))
           "Written by "

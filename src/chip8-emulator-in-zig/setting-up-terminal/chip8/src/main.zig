@@ -65,7 +65,7 @@ pub fn main() !void {
     const allocator = fba.allocator();
 
     // Initialize emulator
-    Emulator.init(@embedFile("../roms/tests.ch8"));
+    Emulator.init(@embedFile("../roms/pong.ch8"));
 
     // Initialize terminal
     try Terminal.init();
