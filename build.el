@@ -23,6 +23,7 @@
 (require 'ox-publish)
 
 (use-package esxml
+  :pin melpa-stable
   :ensure t)
 
 (use-package htmlize
