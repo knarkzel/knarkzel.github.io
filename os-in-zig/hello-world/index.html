@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Hello, world</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Hello, world</b> | <a href=/os-in-zig>Go back</a></td><td align="right">Written by <a href="https://git.sr.ht/~knarkzel">~knarkzel</a></td></table><p>
+To get started, we need two dependencies: zig (0.9.1) for building the
+OS and qemu (7.0.0) for emulating it.
+</p>
+
+<div id="outline-container-orge43c391" class="outline-2">
+<h2 id="orge43c391">Initialize project</h2>
+<div class="outline-text-2" id="text-orge43c391">
+<p>
+Create a new directory called os, enter it and initialize the project with zig:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">$ mkdir os
+$ cd os
+$ zig init-exe
+info: Created build.zig
+info: Created src/main.zig
+info: Next, try <span class="org-sh-quoted-exec">`zig build --help`</span> or <span class="org-sh-quoted-exec">`zig build run`</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org12dfb33" class="outline-2">
+<h2 id="org12dfb33">The boot code</h2>
+<div class="outline-text-2" id="text-org12dfb33">
+<p>
+To be able to run our kernel, we must make it freestanding and compatible
+with multiboot. We will use a custom linker script with some code in build.zig
+and src/main.zig to achieve this.
+</p>
+
+<p>
+Create a file in the root of our project named linker.ld with following content:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ld-script"><span class="org-keyword">ENTRY</span><span class="org-rainbow-delimiters-depth-1">(</span>_start<span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-keyword">SECTIONS</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-ld-script-location-counter">.</span> = 1M;
+
+    .text : <span class="org-builtin">ALIGN</span><span class="org-rainbow-delimiters-depth-2">(</span>4K<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">KEEP</span><span class="org-rainbow-delimiters-depth-3">(</span>*<span class="org-rainbow-delimiters-depth-4">(</span>.multiboot<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>
+        *<span class="org-rainbow-delimiters-depth-3">(</span>.text<span class="org-rainbow-delimiters-depth-3">)</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    .rodata : <span class="org-builtin">ALIGN</span><span class="org-rainbow-delimiters-depth-2">(</span>4K<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        *<span class="org-rainbow-delimiters-depth-3">(</span>.rodata<span class="org-rainbow-delimiters-depth-3">)</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    .data : <span class="org-builtin">ALIGN</span><span class="org-rainbow-delimiters-depth-2">(</span>4K<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        *<span class="org-rainbow-delimiters-depth-3">(</span>.data<span class="org-rainbow-delimiters-depth-3">)</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    .bss : <span class="org-builtin">ALIGN</span><span class="org-rainbow-delimiters-depth-2">(</span>4K<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        *<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">COMMON</span><span class="org-rainbow-delimiters-depth-3">)</span>
+        *<span class="org-rainbow-delimiters-depth-3">(</span>.bss<span class="org-rainbow-delimiters-depth-3">)</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+This script tells the linker how to set up our kernel image. First it
+tells us that the start location of our binary is _start. It then tells
+the linker that the .text section (that's where all your code goes) should
+be first. The .text section starts at 1MB and contains the .multiboot code
+that we will specify in main.zig. Then we have the .rodata section which
+is for read-only initialised data, such as constants. The .data section
+is for initalised static data, and the .bss section is for uninitialised
+static data.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga9cf6e2" class="outline-2">
+<h2 id="orga9cf6e2">Build system</h2>
+<div class="outline-text-2" id="text-orga9cf6e2">
+<p>
+Inside our build.zig we need to specify target (x86), make the binary
+freestanding and enable our custom linker script. We will also create a
+run command to start qemu with "zig build run":
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">std</span> = <span class="org-builtin">@import</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"std"</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">build</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">b</span>: *<span class="org-type">std</span>.build.Builder<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">const</span> <span class="org-variable-name">mode</span> = b.standardReleaseOptions<span class="org-rainbow-delimiters-depth-2">()</span>;
+    <span class="org-keyword">const</span> <span class="org-variable-name">target</span> = .<span class="org-rainbow-delimiters-depth-2">{</span> .cpu_arch = .i386, .os_tag = .freestanding <span class="org-rainbow-delimiters-depth-2">}</span>;
+
+    <span class="org-keyword">const</span> <span class="org-variable-name">os</span> = b.addExecutable<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"os.elf"</span>, <span class="org-string">"src/main.zig"</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    os.setLinkerScriptPath<span class="org-rainbow-delimiters-depth-2">(</span>.<span class="org-rainbow-delimiters-depth-3">{</span> .path = <span class="org-string">"linker.ld"</span> <span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    os.code_model = .kernel;
+    os.want_lto = <span class="org-constant">false</span>;
+    os.setBuildMode<span class="org-rainbow-delimiters-depth-2">(</span>mode<span class="org-rainbow-delimiters-depth-2">)</span>;
+    os.setTarget<span class="org-rainbow-delimiters-depth-2">(</span>target<span class="org-rainbow-delimiters-depth-2">)</span>;
+    os.install<span class="org-rainbow-delimiters-depth-2">()</span>;
+
+    <span class="org-keyword">const</span> <span class="org-variable-name">run_cmd</span> = b.addSystemCommand<span class="org-rainbow-delimiters-depth-2">(</span>&amp;.<span class="org-rainbow-delimiters-depth-3">{</span>
+        <span class="org-string">"qemu-system-i386"</span>,
+        <span class="org-string">"-kernel"</span>,
+        <span class="org-string">"zig-out/bin/os.elf"</span>,
+        <span class="org-string">"-display"</span>,
+        <span class="org-string">"gtk,zoom-to-fit=on"</span>,
+    <span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    run_cmd.step.dependOn<span class="org-rainbow-delimiters-depth-2">(</span>&amp;os.install_step.?.step<span class="org-rainbow-delimiters-depth-2">)</span>;
+
+    <span class="org-keyword">const</span> <span class="org-variable-name">run_step</span> = b.step<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"run"</span>, <span class="org-string">"Run the os"</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    run_step.dependOn<span class="org-rainbow-delimiters-depth-2">(</span>&amp;run_cmd.step<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4f79fc6" class="outline-2">
+<h2 id="org4f79fc6">Multiboot</h2>
+<div class="outline-text-2" id="text-org4f79fc6">
+<p>
+Multiboot is a standard describing how a bootloader can load an x86 operating
+system kernel. It is a way for the bootloader to:
+</p>
+
+<ol class="org-ol">
+<li>Know exactly what environment the kernel wants/needs when it boots</li>
+<li>Allow the kernel to query the environment it is in</li>
+</ol>
+
+<p>
+To make our kernel multiboot compatible, we need to add a header structure
+in the first 4KB of the kernel. Lets add multiboot to src/main.zig:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">ALIGN</span> = 1 &lt;&lt; 0;
+<span class="org-keyword">const</span> <span class="org-variable-name">MEMINFO</span> = 1 &lt;&lt; 1;
+<span class="org-keyword">const</span> <span class="org-variable-name">MAGIC</span> = 0x1BADB002;
+<span class="org-keyword">const</span> <span class="org-variable-name">FLAGS</span> = ALIGN | MEMINFO;
+
+<span class="org-keyword">const</span> <span class="org-variable-name">MultiBoot</span> = <span class="org-keyword">packed</span> <span class="org-keyword">struct</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-variable-name">magic</span>: <span class="org-type">i32</span>,
+    <span class="org-variable-name">flags</span>: <span class="org-type">i32</span>,
+    <span class="org-variable-name">checksum</span>: <span class="org-type">i32</span>,
+<span class="org-rainbow-delimiters-depth-1">}</span>;
+
+<span class="org-keyword">export</span> <span class="org-keyword">var</span> <span class="org-variable-name">multiboot</span> <span class="org-keyword">align</span><span class="org-rainbow-delimiters-depth-1">(</span>4<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">linksection</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">".multiboot"</span><span class="org-rainbow-delimiters-depth-1">)</span> = MultiBoot<span class="org-rainbow-delimiters-depth-1">{</span>
+    .magic = MAGIC,
+    .flags = FLAGS,
+    .checksum = -<span class="org-rainbow-delimiters-depth-2">(</span>MAGIC + FLAGS<span class="org-rainbow-delimiters-depth-2">)</span>,
+<span class="org-rainbow-delimiters-depth-1">}</span>;
+
+<span class="org-keyword">export</span> <span class="org-keyword">var</span> <span class="org-variable-name">stack</span>: <span class="org-rainbow-delimiters-depth-1">[</span>16 * 1024<span class="org-rainbow-delimiters-depth-1">]</span><span class="org-type">u8</span> <span class="org-keyword">align</span><span class="org-rainbow-delimiters-depth-1">(</span>16<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">linksection</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">".bss"</span><span class="org-rainbow-delimiters-depth-1">)</span> = <span class="org-constant">undefined</span>;
+
+<span class="org-keyword">export</span> <span class="org-keyword">fn</span> <span class="org-function-name">_start</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-keyword">callconv</span><span class="org-rainbow-delimiters-depth-1">(</span>.Naked<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-type">noreturn</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-builtin">@call</span><span class="org-rainbow-delimiters-depth-2">(</span>.<span class="org-rainbow-delimiters-depth-3">{</span> .stack = &amp;stack <span class="org-rainbow-delimiters-depth-3">}</span>, main, .<span class="org-rainbow-delimiters-depth-3">{}</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">true</span><span class="org-rainbow-delimiters-depth-2">)</span>
+        <span class="org-keyword">asm</span> <span class="org-keyword">volatile</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"hlt"</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">fn</span> <span class="org-function-name">main</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{}</span>
+</pre>
+</div>
+
+<p>
+We can finally run the kernel with "zig build run": 
+</p>
+
+<p>
+<a href="/os-in-zig/hello-world/blank.webp">/os-in-zig/hello-world/blank.webp</a>
+</p>
+
+<p>
+The fact that qemu is not crashing is a sign that our kernel is working!
+Since a blank screen is quite boring to look at, lets add some text by
+<a href="https://wiki.osdev.org/Printing_To_Screen">writing directly to video memory</a>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">fn</span> <span class="org-function-name">main</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">const</span> <span class="org-variable-name">vga_buffer</span> = <span class="org-builtin">@intToPtr</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">[</span>*<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-keyword">volatile</span> <span class="org-type">u16</span>, 0xB8000<span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">inline</span> <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"Hello, world"</span><span class="org-rainbow-delimiters-depth-2">)</span> |byte, i|
+        vga_buffer<span class="org-rainbow-delimiters-depth-2">[</span>i<span class="org-rainbow-delimiters-depth-2">]</span> = 0xF0 &lt;&lt; 8 | <span class="org-builtin">@as</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">u16</span>, byte<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+I will explain how this works in the next part of this series. For now, take a look at this beauty: 
+</p>
+
+<p>
+<a href="/os-in-zig/hello-world/hello-world.webp">/os-in-zig/hello-world/hello-world.webp</a>
+</p>
+
+<pre>
+os
+├── src
+│   └── <a href="/os-in-zig/hello-world/os/src/main.zig">main.zig</a>
+├── <a href="/os-in-zig/hello-world/os/build.zig">build.zig</a>
+└── <a href="/os-in-zig/hello-world/os/linker.ld">linker.ld</a>
+</pre>
+</div>
+</div>
+</body></html>

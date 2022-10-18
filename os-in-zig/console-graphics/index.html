@@ -1,0 +1,352 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Console graphics</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Console graphics</b> | <a href=/os-in-zig>Go back</a></td><td align="right">Written by <a href="https://git.sr.ht/~knarkzel">~knarkzel</a></td></table><p>
+Now that we have a kernel that can run and display "Hello, world", it's
+time to create a Console abstraction so that we can easily interact with
+the screen.
+</p>
+
+<div id="outline-container-orgd2d6d91" class="outline-2">
+<h2 id="orgd2d6d91">Theory</h2>
+<div class="outline-text-2" id="text-orgd2d6d91">
+<p>
+The kernel gets booted by GRUB in text mode. In this mode, we have access
+to a framebuffer (area of memory) that controls a screen of characters
+which is 80 wide and 25 high. This is also known as "VGA mode 3". There
+are other video modes we can enter with <a href="https://wiki.osdev.org/VESA_Video_Modes">VESA</a>, which we might use later
+on.
+</p>
+
+<p>
+The area of memory known as the framebuffer is accessible just like normal
+RAM, at address 0xB8000. This is not actually RAM however, but a part of
+the VGA controller's dedicated video memory that has been memory-mapped
+via hardware into our linear address space.
+</p>
+
+<p>
+The framebuffer is basically an array of 16-bit words. The upper 8-bits
+represent foreground and background color. The lower 8-bits represent character
+in ASCII. Visually, it has following layout:
+</p>
+
+<pre class="example">
+16           12   11          8   7                             0
++---------------+---------------+-------------------------------+
+|               |               |                               |
+|  Background   |  Foreground   |           Character           |
+|               |               |                               |
++---------------+---------------+-------------------------------+
+</pre>
+
+<p>
+4-bits for color code give us 16 possible colors: 
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Color</th>
+<th scope="col" class="org-right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Black</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-left">Blue</td>
+<td class="org-right">1</td>
+</tr>
+
+<tr>
+<td class="org-left">Green</td>
+<td class="org-right">2</td>
+</tr>
+
+<tr>
+<td class="org-left">Cyan</td>
+<td class="org-right">3</td>
+</tr>
+
+<tr>
+<td class="org-left">Red</td>
+<td class="org-right">4</td>
+</tr>
+
+<tr>
+<td class="org-left">Magenta</td>
+<td class="org-right">5</td>
+</tr>
+
+<tr>
+<td class="org-left">Brown</td>
+<td class="org-right">6</td>
+</tr>
+
+<tr>
+<td class="org-left">Light grey</td>
+<td class="org-right">7</td>
+</tr>
+
+<tr>
+<td class="org-left">Dark grey</td>
+<td class="org-right">8</td>
+</tr>
+
+<tr>
+<td class="org-left">Light blue</td>
+<td class="org-right">9</td>
+</tr>
+
+<tr>
+<td class="org-left">Light green</td>
+<td class="org-right">10</td>
+</tr>
+
+<tr>
+<td class="org-left">Light cyan</td>
+<td class="org-right">11</td>
+</tr>
+
+<tr>
+<td class="org-left">Light red</td>
+<td class="org-right">12</td>
+</tr>
+
+<tr>
+<td class="org-left">Light magenta</td>
+<td class="org-right">13</td>
+</tr>
+
+<tr>
+<td class="org-left">Light brown</td>
+<td class="org-right">14</td>
+</tr>
+
+<tr>
+<td class="org-left">White</td>
+<td class="org-right">15</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+The VGA controller also has some ports on the main I/O bus, which we can
+use to send it specific instructions. We will use the control register
+at 0x3D4 and data register at 0x3D5 to update state and location of the
+cursor.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org2a36467" class="outline-2">
+<h2 id="org2a36467">The practice</h2>
+<div class="outline-text-2" id="text-org2a36467">
+<p>
+Lets start by creating src/Console.zig and adding some variables:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">var</span> <span class="org-variable-name">row</span>: <span class="org-type">u16</span> = 0;
+<span class="org-keyword">var</span> <span class="org-variable-name">column</span>: <span class="org-type">u16</span> = 0;
+<span class="org-keyword">var</span> <span class="org-variable-name">color</span>: <span class="org-type">u16</span> = 0x0F;
+<span class="org-keyword">var</span> <span class="org-variable-name">buffer</span> = <span class="org-builtin">@intToPtr</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-rainbow-delimiters-depth-2">[</span>*<span class="org-rainbow-delimiters-depth-2">]</span><span class="org-keyword">volatile</span> <span class="org-type">u16</span>, 0xB8000<span class="org-rainbow-delimiters-depth-1">)</span>;
+</pre>
+</div>
+
+<p>
+The buffer is similar to previous post. row and column will be used
+to store cursor position. color will be set to 0x0F, which is white
+on black. Next, lets add a function to clear the screen:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">init</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">var</span> <span class="org-variable-name">i</span>: <span class="org-type">usize</span> = 0;
+    <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-2">(</span>i &lt; 80 * 25<span class="org-rainbow-delimiters-depth-2">)</span> : <span class="org-rainbow-delimiters-depth-2">(</span>i += 1<span class="org-rainbow-delimiters-depth-2">)</span>
+        buffer<span class="org-rainbow-delimiters-depth-2">[</span>i<span class="org-rainbow-delimiters-depth-2">]</span> = color &lt;&lt; 8 | <span class="org-string">' '</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+And another function to write to it:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">fn</span> <span class="org-function-name">newLine</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    row += 1;
+    column = 0;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">fn</span> <span class="org-function-name">incrementCursor</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    column += 1;
+    <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-2">(</span>column &gt;= 80<span class="org-rainbow-delimiters-depth-2">)</span>
+        new_line<span class="org-rainbow-delimiters-depth-2">()</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">write</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">text</span>: <span class="org-rainbow-delimiters-depth-2">[]</span><span class="org-keyword">const</span> <span class="org-type">u8</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span>text<span class="org-rainbow-delimiters-depth-2">)</span> |byte| <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>byte == <span class="org-string">'\n'</span><span class="org-rainbow-delimiters-depth-3">)</span>
+            newLine<span class="org-rainbow-delimiters-depth-3">()</span>
+        <span class="org-keyword">else</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">const</span> <span class="org-variable-name">i</span> = row * 80 + column;
+            buffer<span class="org-rainbow-delimiters-depth-4">[</span>i<span class="org-rainbow-delimiters-depth-4">]</span> = color &lt;&lt; 8 | <span class="org-builtin">@as</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">u16</span>, byte<span class="org-rainbow-delimiters-depth-4">)</span>;
+            incrementCursor<span class="org-rainbow-delimiters-depth-4">()</span>;
+        <span class="org-rainbow-delimiters-depth-3">}</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+    moveCursor<span class="org-rainbow-delimiters-depth-2">(</span>row, column<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+This is very straightforward. When writing a string (which is []const
+u8 in Zig), we check if the character is \n, and if it is, we reset column
+to 0 and increment row by one. Otherwise, we calculate the correct
+index, write the character to the buffer and increment the cursor.
+</p>
+
+<p>
+The moveCursor(row, column) function is missing, however. We need two
+helper functions to write into memory-mapped IO. These helper functions
+are called inb and outb in assembly. inb is for reading a byte, while outb
+is for writing a byte to some port. We will define these functions
+in src/utils.zig:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">pub</span> <span class="org-keyword">inline</span> <span class="org-keyword">fn</span> <span class="org-function-name">inb</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">port</span>: <span class="org-type">u16</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-type">u8</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">return</span> <span class="org-keyword">asm</span> <span class="org-keyword">volatile</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"inb %[port], %[result]"</span>
+        : <span class="org-rainbow-delimiters-depth-3">[</span>result<span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-string">"={al}"</span> <span class="org-rainbow-delimiters-depth-3">(</span>-&gt; <span class="org-type">u8</span><span class="org-rainbow-delimiters-depth-3">)</span>,
+        : <span class="org-rainbow-delimiters-depth-3">[</span>port<span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-string">"N{dx}"</span> <span class="org-rainbow-delimiters-depth-3">(</span>port<span class="org-rainbow-delimiters-depth-3">)</span>,
+    <span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">pub</span> <span class="org-keyword">inline</span> <span class="org-keyword">fn</span> <span class="org-function-name">outb</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">port</span>: <span class="org-type">u16</span>, <span class="org-variable-name">value</span>: <span class="org-type">u8</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">asm</span> <span class="org-keyword">volatile</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"outb %[value], %[port]"</span>
+        :
+        : <span class="org-rainbow-delimiters-depth-3">[</span>port<span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-string">"N{dx}"</span> <span class="org-rainbow-delimiters-depth-3">(</span>port<span class="org-rainbow-delimiters-depth-3">)</span>,
+          <span class="org-rainbow-delimiters-depth-3">[</span>value<span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-string">"{al}"</span> <span class="org-rainbow-delimiters-depth-3">(</span>value<span class="org-rainbow-delimiters-depth-3">)</span>,
+    <span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+volatile here means that the instruction will be run regardless of whether
+the compiler notices that it does something or not.
+</p>
+
+<p>
+In order to use these functions in src/Console.zig, we add following at the top:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">utils</span> = <span class="org-builtin">@import</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"utils.zig"</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">const</span> <span class="org-variable-name">inb</span> = utils.inb;
+<span class="org-keyword">const</span> <span class="org-variable-name">outb</span> = utils.outb;
+</pre>
+</div>
+
+<p>
+Now we're ready to create the moveCursor(row, column) function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">moveCursor</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">cursor_row</span>: <span class="org-type">u16</span>, <span class="org-variable-name">cursor_column</span>: <span class="org-type">u16</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">const</span> <span class="org-variable-name">position</span> = cursor_row * 80 + cursor_column;
+    outb<span class="org-rainbow-delimiters-depth-2">(</span>0x3D4, 0x0F<span class="org-rainbow-delimiters-depth-2">)</span>;
+    outb<span class="org-rainbow-delimiters-depth-2">(</span>0x3D5, <span class="org-builtin">@truncate</span><span class="org-rainbow-delimiters-depth-3">(</span><span class="org-type">u8</span>, position<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    outb<span class="org-rainbow-delimiters-depth-2">(</span>0x3D4, 0x0E<span class="org-rainbow-delimiters-depth-2">)</span>;
+    outb<span class="org-rainbow-delimiters-depth-2">(</span>0x3D5, <span class="org-builtin">@truncate</span><span class="org-rainbow-delimiters-depth-3">(</span><span class="org-type">u8</span>, position &gt;&gt; 8<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+To move the cursor, we first calculate the index. Since we can only send one byte
+at a time, we write the position in two parts. 0x3D4 is the controller's command port, and
+0x3D5 is where we send the byte. 0x0F tells the VGA board that we are setting the high cursor byte.
+0x0E does the same for the low cursor byte.
+</p>
+
+<p>
+The last thing we're missing is setting the color. From theory we know that colors are mapped to specific
+values. This can be represented with an enum:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">Color</span> = <span class="org-keyword">enum</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-type">u8</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    black,
+    blue,
+    green,
+    cyan,
+    red,
+    magenta,
+    brown,
+    light_grey,
+    dark_grey,
+    light_blue,
+    light_green,
+    light_cyan,
+    light_red,
+    light_magenta,
+    light_brown,
+    white,
+<span class="org-rainbow-delimiters-depth-1">}</span>;
+</pre>
+</div>
+
+<p>
+To set the color we use @enumToInt with some bit-shifting:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">setColor</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">foreground</span>: <span class="org-type">Color</span>, <span class="org-variable-name">background</span>: <span class="org-type">Color</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    color = <span class="org-builtin">@enumToInt</span><span class="org-rainbow-delimiters-depth-2">(</span>background<span class="org-rainbow-delimiters-depth-2">)</span> &lt;&lt; 4 | <span class="org-builtin">@enumToInt</span><span class="org-rainbow-delimiters-depth-2">(</span>foreground<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+Now that we're done with src/Console.zig, lets go back to src/main.zig and finish this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">Console</span> = <span class="org-builtin">@import</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"Console.zig"</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-keyword">fn</span> <span class="org-function-name">main</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    Console.init<span class="org-rainbow-delimiters-depth-2">()</span>;
+    Console.setColor<span class="org-rainbow-delimiters-depth-2">(</span>.green, .black<span class="org-rainbow-delimiters-depth-2">)</span>;
+    Console.write<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"kernel "</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    Console.setColor<span class="org-rainbow-delimiters-depth-2">(</span>.light_blue, .black<span class="org-rainbow-delimiters-depth-2">)</span>;
+    Console.write<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"&gt; "</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+<a href="/os-in-zig/console-graphics/prompt.webp">/os-in-zig/console-graphics/prompt.webp</a>
+</p>
+
+<pre>
+os
+├── src
+│   ├── <a href="/os-in-zig/console-graphics/os/src/Console.zig">Console.zig</a>
+│   ├── <a href="/os-in-zig/console-graphics/os/src/main.zig">main.zig</a>
+│   └── <a href="/os-in-zig/console-graphics/os/src/utils.zig">utils.zig</a>
+├── <a href="/os-in-zig/console-graphics/os/build.zig">build.zig</a>
+└── <a href="/os-in-zig/console-graphics/os/linker.ld">linker.ld</a>
+</pre>
+</div>
+</div>
+</body></html>

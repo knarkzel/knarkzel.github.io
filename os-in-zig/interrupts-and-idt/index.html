@@ -1,0 +1,263 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Interrupts and IDT</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Interrupts and IDT</b> | <a href=/os-in-zig>Go back</a></td><td align="right">Written by <a href="https://git.sr.ht/~knarkzel">~knarkzel</a></td></table><p>
+After setting up the console, we are going to set up interrupts. With interrupts
+we unlock many things, such as keyboard input. To set up interrupts we need
+to initialize the <a href="https://wiki.osdev.org/Interrupt_Descriptor_Table">Interrupt Descriptor Table</a>. Usually we would also need
+to set up the <a href="https://wiki.osdev.org/Global_Descriptor_Table">Global Descriptor Table</a>, but GRUB does this for us.
+</p>
+
+<div id="outline-container-org46d1541" class="outline-2">
+<h2 id="org46d1541">Theory</h2>
+<div class="outline-text-2" id="text-org46d1541">
+<p>
+There are times when we want to interrupt the processor. We want to stop
+the processor doing what it's doing, and force it to do something different,
+like keyboard input or a timer ticking. . The processor can register interrupt
+handlers that deal with the interrupt, then return to the code that it
+ran before. These interrupts can be fired externally, via interrupt requests
+(IRQ), or internally, via the "int $n" assembly instruction.
+</p>
+
+<p>
+The Interrupt Descriptor Table tells the processor where to find handlers
+for each interrupt. It is basically an array of entries, with each entry
+corresponding to an interrupt number. There are 256 possible interrupt
+numbers, so we need an array of 256 entries. If an interrupt occurs and
+there is no entry for it, the processor will panic and reset.
+</p>
+
+<p>
+There's a very good illustration of the entry layout on the <a href="https://wiki.osdev.org/Interrupt_Descriptor_Table#Gate_Descriptor">OSDEV Wiki</a>.
+Following is a high-level view:
+</p>
+
+<pre class="example">
+63                           48   47         40   39           32
++-------------------------------+---------------+---------------+
+|                               |               |               |
+|         Offset high           |     Flags     |   Reserved    |
+|                               |               |               |
++-------------------------------+---------------+---------------+
+31                           16   15                            0
++-------------------------------+-------------------------------+
+|                               |                               |
+|       Segment Selector        |          Offset low           |
+|                               |                               |
++-------------------------------+-------------------------------+
+</pre>
+
+<p>
+There's also the Interrupt Descriptor Table Register which is needed for
+actually loading our interrupts with the "lidt" asm instruction. It has following
+layout:
+</p>
+
+<pre class="example">
+47                                           16   15            0
++-----------------------------------------------+---------------+
+|                                               |               |
+|                    Offset                     |     Size      |
+|                                               |               |
++-----------------------------------------------+---------------+
+</pre>
+</div>
+
+<div id="outline-container-org35c54ee" class="outline-3">
+<h3 id="org35c54ee">Faults, traps and exceptions</h3>
+<div class="outline-text-3" id="text-org35c54ee">
+<p>
+The processor will sometimes need to send interrupts to our kernel. Something
+major may have happened, such as divide-by-zero. To do this, it uses the first
+32 interrupts. It is crucial that all of these are mapped and non-NULL. Otherwise,
+the CPU will triple-fault and reset.
+</p>
+
+<p>
+The special, CPU-dedicated interrupts are following:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">Index</th>
+<th scope="col" class="org-left">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">Division by zero exception</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">Debug exception</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">Non maskable interrupt</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">Breakpoint exception</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-left">'Into detected overflow'</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-left">Out of bounds exception</td>
+</tr>
+
+<tr>
+<td class="org-right">6</td>
+<td class="org-left">Invalid opcode exception</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-left">No coprocessor exception</td>
+</tr>
+
+<tr>
+<td class="org-right">8</td>
+<td class="org-left">Double fault (pushes an error code)</td>
+</tr>
+
+<tr>
+<td class="org-right">9</td>
+<td class="org-left">Coprocessor segment overrun</td>
+</tr>
+
+<tr>
+<td class="org-right">10</td>
+<td class="org-left">Bad TSS (pushes an error code)</td>
+</tr>
+
+<tr>
+<td class="org-right">11</td>
+<td class="org-left">Segment not present (pushes an error code)</td>
+</tr>
+
+<tr>
+<td class="org-right">12</td>
+<td class="org-left">Stack fault (pushes an error code)</td>
+</tr>
+
+<tr>
+<td class="org-right">13</td>
+<td class="org-left">General protection fault (pushes an error code)</td>
+</tr>
+
+<tr>
+<td class="org-right">14</td>
+<td class="org-left">Page fault (pushes an error code)</td>
+</tr>
+
+<tr>
+<td class="org-right">15</td>
+<td class="org-left">Unknown interrupt exception</td>
+</tr>
+
+<tr>
+<td class="org-right">16</td>
+<td class="org-left">Coprocessor fault</td>
+</tr>
+
+<tr>
+<td class="org-right">17</td>
+<td class="org-left">Alignment check exception</td>
+</tr>
+
+<tr>
+<td class="org-right">18</td>
+<td class="org-left">Machine check exception</td>
+</tr>
+
+<tr>
+<td class="org-right">19-31</td>
+<td class="org-left">Reserved</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org5225a4c" class="outline-2">
+<h2 id="org5225a4c">Practice</h2>
+<div class="outline-text-2" id="text-org5225a4c">
+<p>
+The first thing we should do is to define the layout for the idt entry and create the array of
+256 entries. Create a new file in src/idt.zig with following:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">IdtEntry</span> = <span class="org-keyword">packed</span> <span class="org-keyword">struct</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-variable-name">offset_low</span>: <span class="org-type">u16</span>,
+    <span class="org-variable-name">segment_selector</span>: <span class="org-type">u16</span>,
+    <span class="org-variable-name">zero</span>: <span class="org-type">u8</span>,
+    <span class="org-variable-name">flags</span>: <span class="org-type">u8</span>,
+    <span class="org-variable-name">offset_high</span>: <span class="org-type">u16</span>,
+
+    <span class="org-keyword">fn</span> <span class="org-function-name">init</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-variable-name">handler</span>: <span class="org-keyword">fn</span> <span class="org-rainbow-delimiters-depth-3">()</span> <span class="org-keyword">callconv</span><span class="org-rainbow-delimiters-depth-3">(</span>.C<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-type">void</span>, <span class="org-variable-name">segment_selector</span>: <span class="org-type">u16</span>, <span class="org-variable-name">flags</span>: <span class="org-type">u8</span><span class="org-rainbow-delimiters-depth-2">)</span> IdtEntry <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">const</span> <span class="org-variable-name">offset</span> = <span class="org-builtin">@ptrToInt</span><span class="org-rainbow-delimiters-depth-3">(</span>handler<span class="org-rainbow-delimiters-depth-3">)</span>;
+        <span class="org-keyword">return</span> .<span class="org-rainbow-delimiters-depth-3">{</span>
+            .offset_low = <span class="org-builtin">@truncate</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">u16</span>, offset &amp; 0xFFFF<span class="org-rainbow-delimiters-depth-4">)</span>,
+            .offset_high = <span class="org-builtin">@truncate</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">u16</span>, <span class="org-rainbow-delimiters-depth-5">(</span>offset &gt;&gt; 16<span class="org-rainbow-delimiters-depth-5">)</span> &amp; 0xFFFF<span class="org-rainbow-delimiters-depth-4">)</span>,
+            .segment_selector = segment_selector,
+            .zero = 0,
+            .flags = flags,
+        <span class="org-rainbow-delimiters-depth-3">}</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>;
+
+<span class="org-keyword">var</span> <span class="org-variable-name">idt_table</span>: <span class="org-rainbow-delimiters-depth-1">[</span>256<span class="org-rainbow-delimiters-depth-1">]</span><span class="org-type">IdtEntry</span> = <span class="org-constant">undefined</span>;
+</pre>
+</div>
+
+<p>
+The init function takes the address of an interrupt handler function and converts it to u32, splits the
+u32 into two halves and sets the offset fields. If the address of the function is 0xFABC, offset<sub>low</sub> will
+be set to 0xBC, and offset<sub>high</sub> to 0xFA.
+</p>
+
+<p>
+Next we'll define the layout for the idt register:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">IdtRegister</span> = <span class="org-keyword">packed</span> <span class="org-keyword">struct</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-variable-name">limit</span>: <span class="org-type">u16</span>,
+    <span class="org-variable-name">base</span>: *<span class="org-rainbow-delimiters-depth-2">[</span>256<span class="org-rainbow-delimiters-depth-2">]</span><span class="org-type">IdtEntry</span>,
+
+    <span class="org-keyword">fn</span> <span class="org-function-name">init</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-variable-name">table</span>: *<span class="org-rainbow-delimiters-depth-3">[</span>256<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-type">IdtEntry</span><span class="org-rainbow-delimiters-depth-2">)</span> IdtRegister <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">return</span> .<span class="org-rainbow-delimiters-depth-3">{</span>
+            .limit = <span class="org-builtin">@as</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">u16</span>, <span class="org-builtin">@sizeOf</span><span class="org-rainbow-delimiters-depth-5">(</span><span class="org-builtin">@TypeOf</span><span class="org-rainbow-delimiters-depth-6">(</span>table.*<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span> - 1,
+            .base = table,
+        <span class="org-rainbow-delimiters-depth-3">}</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>;
+
+<span class="org-keyword">var</span> <span class="org-variable-name">idt_register</span>: <span class="org-type">IdtRegister</span> = <span class="org-constant">undefined</span>;
+</pre>
+</div>
+
+<p>
+Now is the time for us to leverage assembly for specifying how a interrupt should
+be handled before calling our custom handler functions.
+</p>
+</div>
+</div>
+</body></html>

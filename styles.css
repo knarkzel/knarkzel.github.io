@@ -1,0 +1,125 @@
+html {
+    color: #353535;
+    margin: 0 auto;
+    max-width: 50em;
+    background: #F7F3EE;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+p {
+    margin: 0.5em 0;
+}
+
+pre {
+    font-size: 125%;
+    overflow-x: auto;
+}
+
+ul, ol {
+    margin: 0 0.5em;
+}
+
+table:not(#header) {
+    min-width: 50%;
+    margin-top: 1em;
+    margin-bottom: 0.75em;
+    border-collapse: collapse;
+}
+
+table:not(#header) td, th {
+    padding: 0.25em 0.75em;
+    border: 1px solid #e5e5e5;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+}
+
+figcaption {
+    margin-top: 1em;
+    text-align: center;
+}
+
+a {
+    color: #7382A0;
+    font-weight: bold;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #955F5F;
+    margin: 0.25em 0;
+}
+
+table {
+    margin: 0 auto;
+}
+
+.figure-number {
+    display: none;
+}
+
+.example {
+    text-align: center;
+}
+
+.src {
+    color: #605A52;
+}
+    
+.org-keyword {
+    color: #614C61;
+    background: #F1DDF1;
+}
+
+.org-builtin {
+    font-style: italic;
+}
+
+.org-rainbow-delimiters-depth-1 {
+    color: #7382A0;
+}
+
+.org-rainbow-delimiters-depth-2 {
+    color: #9C739C;
+}
+
+.org-rainbow-delimiters-depth-3 {
+    color: #81895D;
+}
+
+.org-rainbow-delimiters-depth-4 {
+    color: #957f5f;
+}
+
+.org-rainbow-delimiters-depth-5 {
+    color: #5F8C7D;
+}
+
+.org-rainbow-delimiters-depth-6 {
+    color: #955F5F;
+}
+
+.org-rainbow-delimiters-depth-7 {
+    color: #81895D;
+}
+
+.org-rainbow-delimiters-depth-8 {
+    color: #81895D;
+}
+
+.org-variable-name {
+    color: #4C5361;
+    background: #DDE4F2;
+}
+
+.org-string {
+    color: #525643;
+    background: #E2E9C1;
+}
+
+.org-constant {
+    color: #465953;
+    background: #D2EBE3;
+}
