@@ -25,7 +25,7 @@ and std.os.tcsetattr. By turning off echoing, we disable seeing keypresses
 from the user. Disabling canonical mode changes reading mode from line-by-line
 to byte-by-byte.
 
-** Disabling echoing and reading line-by-line
+** Disable echoing and reading line-by-line
 
 Create a file in src/Terminal.zig. We'll start by creating a init function
 to turn off echoing and canonical mode:
@@ -154,7 +154,8 @@ pub fn main() !void {
 <pre>
 os
 ├── src
-│   └── <a href="./chip8/src/main.zig">main.zig</a>
+│   ├── <a href="./chip8/src/main.zig">main.zig</a>
+│   └── <a href="./chip8/src/Terminal.zig">Terminal.zig</a>
 └── <a href="./chip8/build.zig">build.zig</a>
 </pre>
 #+END_EXPORT
