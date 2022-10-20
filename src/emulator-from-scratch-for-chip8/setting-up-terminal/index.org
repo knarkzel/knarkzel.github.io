@@ -1,0 +1,5 @@
+#+TITLE: Setting up terminal
+
+The first thing we want to set up is a 64x32 screen. We will use
+the terminal for this since it's lightweight and a good way to
+learn how terminals work.
