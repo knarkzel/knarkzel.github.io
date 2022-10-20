@@ -149,3 +149,12 @@ pub fn main() !void {
 
 #+CAPTION: Terminal that shows screen
 [[./terminal.webp]]
+
+#+BEGIN_EXPORT html
+<pre>
+os
+├── src
+│   └── <a href="./chip8/src/main.zig">main.zig</a>
+└── <a href="./chip8/build.zig">build.zig</a>
+</pre>
+#+END_EXPORT

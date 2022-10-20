@@ -5,4 +5,3 @@ language. Each post is a small tutorial and include all needed code with some th
 
 1. [[./hello-world][Hello, world]]
 2. [[./console-graphics][Console graphics]]
-3. [[./interrupts-and-idt][Interrupts and IDT]]
