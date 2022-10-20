@@ -1,5 +1,151 @@
 #+TITLE: Setting up terminal
 
-The first thing we want to set up is a 64x32 screen. We will use
-the terminal for this since it's lightweight and a good way to
-learn how terminals work.
+The first thing we want to set up is a monochrome 64x32 screen. We will
+use the terminal for this since it's lightweight and a good way to learn
+how terminals work.
+
+* Initialize project
+
+Create a new directory called chip8, enter it and initialize the project with zig:
+
+#+BEGIN_SRC shell
+$ mkdir chip8
+$ cd chip8
+$ zig init-exe
+info: Created build.zig
+info: Created src/main.zig
+info: Next, try `zig build --help` or `zig build run`
+#+END_SRC
+
+* Terminal abstraction
+
+To be able to manipulate the terminal, we need to modify some attributes
+like turning off echoing, canonical mode. This is done by using std.os.tcgetattr
+and std.os.tcsetattr. By turning off echoing, we disable seeing keypresses
+from the user. Disabling canonical mode changes reading mode from line-by-line
+to byte-by-byte.
+
+** Disabling echoing and reading line-by-line
+
+Create a file in src/Terminal.zig. We'll start by creating a init function
+to turn off echoing and canonical mode:
+
+#+BEGIN_SRC zig
+const std = @import("std");
+const os = std.os;
+
+const ICANON: u32 = 1 << 1;
+const ECHO: u32 = 1 << 3;
+
+pub fn init() !void {
+    var termios = try os.tcgetattr(os.STDIN_FILENO);
+    termios.lflag &= ~(ECHO | ICANON);
+    try os.tcsetattr(os.STDIN_FILENO, os.TCSA.FLUSH, termios);
+}
+#+END_SRC
+
+To disable echoing and canonical mode we use the tilde operator which flips ones and zeroes.
+=~(ECHO | ICANON)= becomes =~(0b1010)= which is =(0b0101)=. This keeps the old flags while also setting
+ECHO and ICANON to zero.
+
+Lets replace src/main.zig to see this in action:
+
+#+BEGIN_SRC zig
+const Terminal = @import("Terminal.zig");
+
+pub fn main() !void {
+    try Terminal.init();
+    while (true) {}
+}
+#+END_SRC
+
+** Clearing and writing to the screen
+
+After running with zig build run, we see that keypresses aren't displayed anymore. This is not quite
+interesting however, so lets create a 64x32 screen that we can write to the terminal. We need a clear
+function and a write function to achieve this. In src/Terminal.zig, lets create the write function:
+
+#+BEGIN_SRC zig
+const stdout = std.io.getStdOut().writer();
+
+pub fn write(bytes: []const u8) !void {
+    try stdout.writeAll(bytes);
+}
+#+END_SRC
+
+In the clear function we're gonna write an escape sequence to the terminal. Escape sequences
+always start with the escape character 27, followed by a [ character. Escape sequences
+instruct the terminal to do various text formatting tasks, such as coloring text, moving the
+cursor around and clearing the screen.
+
+The command for clearing the screen is \x1B[2J. \x1B is the escape sequence, [ is the
+delimiter, and 2J is the clear command. Lets add this to src/Terminal.zig:
+
+#+BEGIN_SRC zig
+pub fn clear() !void {
+    try write("\x1B[2J");
+}
+#+END_SRC
+
+After clearing we also want to reposition the cursor at the top-left corner. This is done
+withe the command \x1B[<row>;<column>H. The default with \x1B[H is to move the cursor to
+top-left, so lets use that:
+
+#+BEGIN_SRC zig
+pub fn clear() !void {
+    try write("\x1B[2J\x1B[H");
+}
+#+END_SRC
+
+Back in src/main.zig, lets define our 64x32 screen at the top:
+
+#+BEGIN_SRC zig
+var screen: [64 * 32]u1 = undefined;
+#+END_SRC
+
+If the value is 1, we want █ on the screen. Inside main, lets clear the
+terminal, modify the screen then show it:
+
+#+BEGIN_SRC zig
+pub fn main() !void {
+    try Terminal.init();
+
+    // Clear the terminal
+    try Terminal.clear();
+
+    // Modify screen
+    for (screen) |*bit, i| {
+        if ((i + 1) % 2 == 0) bit.* = 1;
+    }
+
+    // Show in terminal
+    for (screen) |bit, i| {
+        if (bit == 1) try Terminal.write("█") else try Terminal.write(" ");
+        if ((i + 1) % 64 == 0) try Terminal.write("\n");
+    }
+
+    while (true) {}
+}
+#+END_SRC
+
+** Hiding the cursor
+
+After running this, you should see the columns alternating between █ and space. However, we can still
+see the cursor. Lets add this last thing to src/Terminal.zig:
+
+#+BEGIN_SRC zig
+fn hideCursor() !void {
+    try write("\x1b[?25l");
+}
+#+END_SRC
+
+Call this function after Terminal.init() to finish this part:
+
+#+BEGIN_SRC zig
+pub fn main() !void {
+    try Terminal.init();
+    try Terminal.hideCursor();
+#+END_SRC
+
+#+CAPTION: Terminal that shows screen
+[[./terminal.webp]]
