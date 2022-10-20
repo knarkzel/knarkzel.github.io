@@ -1,0 +1,211 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Setting up terminal</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Setting up terminal</b> | <a href=/emulator-from-scratch-for-chip8>Go back</a></td><td align="right">Written by <a href="https://git.sr.ht/~knarkzel">~knarkzel</a></td></table><p>
+The first thing we want to set up is a monochrome 64x32 screen. We will
+use the terminal for this since it's lightweight and a good way to learn
+how terminals work.
+</p>
+
+<div id="outline-container-org868aa50" class="outline-2">
+<h2 id="org868aa50">Initialize project</h2>
+<div class="outline-text-2" id="text-org868aa50">
+<p>
+Create a new directory called chip8, enter it and initialize the project with zig:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">$ mkdir chip8
+$ cd chip8
+$ zig init-exe
+info: Created build.zig
+info: Created src/main.zig
+info: Next, try <span class="org-sh-quoted-exec">`zig build --help`</span> or <span class="org-sh-quoted-exec">`zig build run`</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org63d9afe" class="outline-2">
+<h2 id="org63d9afe">Terminal abstraction</h2>
+<div class="outline-text-2" id="text-org63d9afe">
+<p>
+To be able to manipulate the terminal, we need to modify some attributes
+like turning off echoing, canonical mode. This is done by using std.os.tcgetattr
+and std.os.tcsetattr. By turning off echoing, we disable seeing keypresses
+from the user. Disabling canonical mode changes reading mode from line-by-line
+to byte-by-byte.
+</p>
+</div>
+
+<div id="outline-container-orgc8de40c" class="outline-3">
+<h3 id="orgc8de40c">Disabling echoing and reading line-by-line</h3>
+<div class="outline-text-3" id="text-orgc8de40c">
+<p>
+Create a file in src/Terminal.zig. We'll start by creating a init function
+to turn off echoing and canonical mode:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">std</span> = <span class="org-builtin">@import</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"std"</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">const</span> <span class="org-variable-name">os</span> = std.os;
+
+<span class="org-keyword">const</span> <span class="org-variable-name">ICANON</span>: <span class="org-type">u32</span> = 1 &lt;&lt; 1;
+<span class="org-keyword">const</span> <span class="org-variable-name">ECHO</span>: <span class="org-type">u32</span> = 1 &lt;&lt; 3;
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">init</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">var</span> <span class="org-variable-name">termios</span> = <span class="org-keyword">try</span> os.tcgetattr<span class="org-rainbow-delimiters-depth-2">(</span>os.STDIN_FILENO<span class="org-rainbow-delimiters-depth-2">)</span>;
+    termios.lflag &amp;= ~<span class="org-rainbow-delimiters-depth-2">(</span>ECHO | ICANON<span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">try</span> os.tcsetattr<span class="org-rainbow-delimiters-depth-2">(</span>os.STDIN_FILENO, os.TCSA.FLUSH, termios<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+To disable echoing and canonical mode we use the tilde operator which flips ones and zeroes.
+<code>~(ECHO | ICANON)</code> becomes <code>~(0b1010)</code> which is <code>(0b0101)</code>. This keeps the old flags while also setting
+ECHO and ICANON to zero.
+</p>
+
+<p>
+Lets replace src/main.zig to see this in action:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">Terminal</span> = <span class="org-builtin">@import</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"Terminal.zig"</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">main</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> Terminal.init<span class="org-rainbow-delimiters-depth-2">()</span>;
+    <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">true</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{}</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org110cb74" class="outline-3">
+<h3 id="org110cb74">Clearing and writing to the screen</h3>
+<div class="outline-text-3" id="text-org110cb74">
+<p>
+After running with zig build run, we see that keypresses aren't displayed anymore. This is not quite
+interesting however, so lets create a 64x32 screen that we can write to the terminal. We need a clear
+function and a write function to achieve this. In src/Terminal.zig, lets create the write function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">stdout</span> = std.io.getStdOut<span class="org-rainbow-delimiters-depth-1">()</span>.writer<span class="org-rainbow-delimiters-depth-1">()</span>;
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">write</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">bytes</span>: <span class="org-rainbow-delimiters-depth-2">[]</span><span class="org-keyword">const</span> <span class="org-type">u8</span><span class="org-rainbow-delimiters-depth-1">)</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> stdout.writeAll<span class="org-rainbow-delimiters-depth-2">(</span>bytes<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+In the clear function we're gonna write an escape sequence to the terminal. Escape sequences
+always start with the escape character 27, followed by a [ character. Escape sequences
+instruct the terminal to do various text formatting tasks, such as coloring text, moving the
+cursor around and clearing the screen.
+</p>
+
+<p>
+The command for clearing the screen is \x1B[2J. \x1B is the escape sequence, [ is the
+delimiter, and 2J is the clear command. Lets add this to src/Terminal.zig:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">clear</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> write<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"\x1B[2J"</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+After clearing we also want to reposition the cursor at the top-left corner. This is done
+withe the command \x1B[&lt;row&gt;;&lt;column&gt;H. The default with \x1B[H is to move the cursor to
+top-left, so lets use that:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">clear</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> write<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"\x1B[2J\x1B[H"</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+Back in src/main.zig, lets define our 64x32 screen at the top:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">var</span> <span class="org-variable-name">screen</span>: <span class="org-rainbow-delimiters-depth-1">[</span>64 * 32<span class="org-rainbow-delimiters-depth-1">]</span><span class="org-type">u1</span> = <span class="org-constant">undefined</span>;
+</pre>
+</div>
+
+<p>
+If the value is 1, we want █ on the screen. Inside main, lets clear the
+terminal, modify the screen then show it:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">main</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> Terminal.init<span class="org-rainbow-delimiters-depth-2">()</span>;
+
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Clear the terminal</span>
+    <span class="org-keyword">try</span> Terminal.clear<span class="org-rainbow-delimiters-depth-2">()</span>;
+
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Modify screen</span>
+    <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span>screen<span class="org-rainbow-delimiters-depth-2">)</span> |*bit, i| <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-rainbow-delimiters-depth-4">(</span>i + 1<span class="org-rainbow-delimiters-depth-4">)</span> % 2 == 0<span class="org-rainbow-delimiters-depth-3">)</span> bit.* = 1;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Show in terminal</span>
+    <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span>screen<span class="org-rainbow-delimiters-depth-2">)</span> |bit, i| <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>bit == 1<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-keyword">try</span> Terminal.write<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"&#9608;"</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-keyword">else</span> <span class="org-keyword">try</span> Terminal.write<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">" "</span><span class="org-rainbow-delimiters-depth-3">)</span>;
+        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-rainbow-delimiters-depth-4">(</span>i + 1<span class="org-rainbow-delimiters-depth-4">)</span> % 64 == 0<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-keyword">try</span> Terminal.write<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"\n"</span><span class="org-rainbow-delimiters-depth-3">)</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+
+    <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-constant">true</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{}</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9846297" class="outline-3">
+<h3 id="org9846297">Hiding the cursor</h3>
+<div class="outline-text-3" id="text-org9846297">
+<p>
+After running this, you should see the columns alternating between █ and space. However, we can still
+see the cursor. Lets add this last thing to src/Terminal.zig:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">fn</span> <span class="org-function-name">hideCursor</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> write<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"\x1b[?25l"</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+Call this function after Terminal.init() to finish this part:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">main</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> Terminal.init<span class="org-rainbow-delimiters-depth-2">()</span>;
+    <span class="org-keyword">try</span> Terminal.hideCursor<span class="org-rainbow-delimiters-depth-2">()</span>;
+</pre>
+</div>
+
+<p>
+<a href="/emulator-from-scratch-for-chip8/setting-up-terminal/terminal.webp">/emulator-from-scratch-for-chip8/setting-up-terminal/terminal.webp</a>
+</p>
+
+<pre>
+os
+├── src
+│   └── <a href="/emulator-from-scratch-for-chip8/setting-up-terminal/chip8/src/main.zig">main.zig</a>
+└── <a href="/emulator-from-scratch-for-chip8/setting-up-terminal/chip8/build.zig">build.zig</a>
+</pre>
+</div>
+</div>
+</div>
+</body></html>
