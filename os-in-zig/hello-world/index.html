@@ -3,9 +3,9 @@ To get started, we need two dependencies: zig (0.9.1) for building the
 OS and qemu (7.0.0) for emulating it.
 </p>
 
-<div id="outline-container-orgfb74ca0" class="outline-2">
-<h2 id="orgfb74ca0">Initialize project</h2>
-<div class="outline-text-2" id="text-orgfb74ca0">
+<div id="outline-container-org01a9804" class="outline-2">
+<h2 id="org01a9804">Initialize project</h2>
+<div class="outline-text-2" id="text-org01a9804">
 <p>
 Create a new directory called os, enter it and initialize the project with zig:
 </p>
@@ -22,9 +22,9 @@ info: Next, try <span class="org-sh-quoted-exec">`zig build --help`</span> or <s
 </div>
 </div>
 
-<div id="outline-container-org8eaf664" class="outline-2">
-<h2 id="org8eaf664">The boot code</h2>
-<div class="outline-text-2" id="text-org8eaf664">
+<div id="outline-container-org147193b" class="outline-2">
+<h2 id="org147193b">The boot code</h2>
+<div class="outline-text-2" id="text-org147193b">
 <p>
 To be able to run our kernel, we must make it freestanding and compatible
 with multiboot. We will use a custom linker script with some code in build.zig
@@ -75,9 +75,9 @@ static data.
 </div>
 </div>
 
-<div id="outline-container-orge38ed79" class="outline-2">
-<h2 id="orge38ed79">Build system</h2>
-<div class="outline-text-2" id="text-orge38ed79">
+<div id="outline-container-orga63c15c" class="outline-2">
+<h2 id="orga63c15c">Build system</h2>
+<div class="outline-text-2" id="text-orga63c15c">
 <p>
 Inside our build.zig we need to specify target (x86), make the binary
 freestanding and enable our custom linker script. We will also create a
@@ -116,9 +116,9 @@ run command to start qemu with "zig build run":
 </div>
 </div>
 
-<div id="outline-container-orge92e36e" class="outline-2">
-<h2 id="orge92e36e">Multiboot</h2>
-<div class="outline-text-2" id="text-orge92e36e">
+<div id="outline-container-org87ca0bd" class="outline-2">
+<h2 id="org87ca0bd">Multiboot</h2>
+<div class="outline-text-2" id="text-org87ca0bd">
 <p>
 Multiboot is a standard describing how a bootloader can load an x86 operating
 system kernel. It is a way for the bootloader to:
@@ -168,9 +168,12 @@ in the first 4KB of the kernel. Lets add multiboot to src/main.zig:
 We can finally run the kernel with "zig build run": 
 </p>
 
-<p>
-<a href="./blank.webp">./blank.webp</a>
-</p>
+
+<figure id="org0dbd44e">
+<img src="./blank.webp" alt="blank.webp">
+
+<figcaption><span class="figure-number">Figure 1: </span>Booting into blank screen</figcaption>
+</figure>
 
 <p>
 The fact that qemu is not crashing is a sign that our kernel is working!
@@ -191,9 +194,12 @@ Since a blank screen is quite boring to look at, lets add some text by
 I will explain how this works in the next part of this series. For now, take a look at this beauty: 
 </p>
 
-<p>
-<a href="./hello-world.webp">./hello-world.webp</a>
-</p>
+
+<figure id="orga782982">
+<img src="./hello-world.webp" alt="hello-world.webp">
+
+<figcaption><span class="figure-number">Figure 2: </span>Kernel that prints "Hello, world"</figcaption>
+</figure>
 
 <pre>
 os

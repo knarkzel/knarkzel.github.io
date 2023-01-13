@@ -4,9 +4,9 @@ time to create a Console abstraction so that we can easily interact with
 the screen.
 </p>
 
-<div id="outline-container-org15f8c90" class="outline-2">
-<h2 id="org15f8c90">Theory</h2>
-<div class="outline-text-2" id="text-org15f8c90">
+<div id="outline-container-org600757c" class="outline-2">
+<h2 id="org600757c">Theory</h2>
+<div class="outline-text-2" id="text-org600757c">
 <p>
 The kernel gets booted by GRUB in text mode. In this mode, we have access
 to a framebuffer (area of memory) that controls a screen of characters
@@ -147,9 +147,9 @@ cursor.
 </div>
 </div>
 
-<div id="outline-container-orgc785a49" class="outline-2">
-<h2 id="orgc785a49">The practice</h2>
-<div class="outline-text-2" id="text-orgc785a49">
+<div id="outline-container-org4bb58ee" class="outline-2">
+<h2 id="org4bb58ee">The practice</h2>
+<div class="outline-text-2" id="text-org4bb58ee">
 <p>
 Lets start by creating src/Console.zig and adding some variables:
 </p>
@@ -334,9 +334,12 @@ Now that we're done with src/Console.zig, lets go back to src/main.zig and finis
 </pre>
 </div>
 
-<p>
-<a href="./prompt.webp">./prompt.webp</a>
-</p>
+
+<figure id="org3368d43">
+<img src="./prompt.webp" alt="prompt.webp">
+
+<figcaption><span class="figure-number">Figure 1: </span>Kernel with a nice prompt</figcaption>
+</figure>
 
 <pre>
 os
