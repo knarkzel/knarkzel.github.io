@@ -136,7 +136,6 @@ fn main() void {}
 
 We can finally run the kernel with "zig build run": 
 
-#+CAPTION: Booting into blank screen
 [[./blank.webp]]
 
 The fact that qemu is not crashing is a sign that our kernel is working!
@@ -153,7 +152,6 @@ fn main() void {
 
 I will explain how this works in the next part of this series. For now, take a look at this beauty: 
 
-#+CAPTION: Kernel that prints "Hello, world"
 [[./hello-world.webp]]
 
 #+BEGIN_EXPORT html

@@ -58,7 +58,7 @@
              " | <a href=../>Go back</a>"))
          (td (@ (align "right"))
           "Written by "
-          (a (@ (href "https://git.sr.ht/~knarkzel")) "~knarkzel")))
+          (a (@ (href "https://github.com/knarkzel")) "Knarkzel")))
          ,contents)))))
 
 (org-export-define-derived-backend 'pelican-html 'html :translate-alist '((template . html-template)))
@@ -88,10 +88,10 @@
              :time-stamp-file nil)))
 
 ;; Customize the HTML output
-(setq org-html-validation-link t
+(setq org-html-validation-link nil
       org-html-head-include-scripts nil
       org-html-head-include-default-style nil
-      org-html-html5-fancy t
+      org-html-html5-fancy nil
       org-html-doctype "html5"
       org-html-htmlize-output-type 'css)
 

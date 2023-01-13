@@ -209,7 +209,6 @@ fn main() void {
 }
 #+END_SRC
 
-#+CAPTION: Kernel with a nice prompt
 [[./prompt.webp]]
 
 #+BEGIN_EXPORT html

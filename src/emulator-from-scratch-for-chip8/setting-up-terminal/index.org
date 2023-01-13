@@ -147,7 +147,6 @@ pub fn main() !void {
     try Terminal.hideCursor();
 #+END_SRC
 
-#+CAPTION: Terminal that shows screen
 [[./terminal.webp]]
 
 #+BEGIN_EXPORT html
