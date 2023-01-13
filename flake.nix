@@ -20,7 +20,6 @@
     in {
       devShell = pkgs.mkShell {
         buildInputs = [
-          pkgs.git
           pkgs.just
           pkgs.entr
           pkgs.emacs-nox
