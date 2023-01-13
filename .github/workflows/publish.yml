@@ -10,13 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
-      - name: Install Just
-        uses: extractions/setup-just@v1
+      - name: Install Nix
+      - uses: cachix/install-nix-action@v18
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Emacs
-        run: sudo apt install emacs-nox --yes
+      - name: Get dependencies
+        run: nix develop
 
       - name: Build the site
         run: just build
