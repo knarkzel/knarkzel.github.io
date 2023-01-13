@@ -13,8 +13,7 @@ jobs:
       - uses: cachix/install-nix-action@v18
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
-      - run: nix develop
-      - run: just build
+      - run: nix develop --command just build
       - uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
