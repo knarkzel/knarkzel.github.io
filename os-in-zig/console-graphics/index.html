@@ -1,12 +1,12 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Console graphics</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Console graphics</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://git.sr.ht/~knarkzel">~knarkzel</a></td></table><p>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Console graphics</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Console graphics</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://github.com/knarkzel">Knarkzel</a></td></table><p>
 Now that we have a kernel that can run and display "Hello, world", it's
 time to create a Console abstraction so that we can easily interact with
 the screen.
 </p>
 
-<div id="outline-container-org600757c" class="outline-2">
-<h2 id="org600757c">Theory</h2>
-<div class="outline-text-2" id="text-org600757c">
+<div id="outline-container-orgaeed4f7" class="outline-2">
+<h2 id="orgaeed4f7">Theory</h2>
+<div class="outline-text-2" id="text-orgaeed4f7">
 <p>
 The kernel gets booted by GRUB in text mode. In this mode, we have access
 to a framebuffer (area of memory) that controls a screen of characters
@@ -147,9 +147,9 @@ cursor.
 </div>
 </div>
 
-<div id="outline-container-org4bb58ee" class="outline-2">
-<h2 id="org4bb58ee">The practice</h2>
-<div class="outline-text-2" id="text-org4bb58ee">
+<div id="outline-container-org3b0c071" class="outline-2">
+<h2 id="org3b0c071">The practice</h2>
+<div class="outline-text-2" id="text-org3b0c071">
 <p>
 Lets start by creating src/Console.zig and adding some variables:
 </p>
@@ -335,11 +335,10 @@ Now that we're done with src/Console.zig, lets go back to src/main.zig and finis
 </div>
 
 
-<figure id="org3368d43">
-<img src="./prompt.webp" alt="prompt.webp">
-
-<figcaption><span class="figure-number">Figure 1: </span>Kernel with a nice prompt</figcaption>
-</figure>
+<div id="org05717c9" class="figure">
+<p><img src="./prompt.webp" alt="prompt.webp">
+</p>
+</div>
 
 <pre>
 os
