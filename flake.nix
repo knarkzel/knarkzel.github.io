@@ -20,10 +20,10 @@
     in {
       devShell = pkgs.mkShell {
         buildInputs = [
-          git
-          just
-          entr
-          emacs-nox
+          pkgs.git
+          pkgs.just
+          pkgs.entr
+          pkgs.emacs-nox
         ];
       };
     });
