@@ -9,9 +9,6 @@ build:
     done    
 
 watch:
+    #!/usr/bin/env bash 
     find src/ -type f | entr just build &
-    pkill python >/dev/null || cd public/ && python -m http.server
-
-deploy:
-    git push origin master
-    git push github master
+    cd public/ && python -m http.server
