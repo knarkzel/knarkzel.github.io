@@ -1,12 +1,12 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Setting up terminal</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Setting up terminal</b> | <a href=/emulator-from-scratch-for-chip8>Go back</a></td><td align="right">Written by <a href="https://git.sr.ht/~knarkzel">~knarkzel</a></td></table><p>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Setting up terminal</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Setting up terminal</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://git.sr.ht/~knarkzel">~knarkzel</a></td></table><p>
 The first thing we want to set up is a monochrome 64x32 screen. We will
 use the terminal for this since it's lightweight and a good way to learn
 how terminals work.
 </p>
 
-<div id="outline-container-org1503109" class="outline-2">
-<h2 id="org1503109">Initialize project</h2>
-<div class="outline-text-2" id="text-org1503109">
+<div id="outline-container-org8cff48a" class="outline-2">
+<h2 id="org8cff48a">Initialize project</h2>
+<div class="outline-text-2" id="text-org8cff48a">
 <p>
 Create a new directory called chip8, enter it and initialize the project with zig:
 </p>
@@ -23,9 +23,9 @@ info: Next, try <span class="org-sh-quoted-exec">`zig build --help`</span> or <s
 </div>
 </div>
 
-<div id="outline-container-org0031e4d" class="outline-2">
-<h2 id="org0031e4d">Terminal abstraction</h2>
-<div class="outline-text-2" id="text-org0031e4d">
+<div id="outline-container-orgd3e1921" class="outline-2">
+<h2 id="orgd3e1921">Terminal abstraction</h2>
+<div class="outline-text-2" id="text-orgd3e1921">
 <p>
 To be able to manipulate the terminal, we need to modify some attributes
 like turning off echoing, canonical mode. This is done by using std.os.tcgetattr
@@ -35,9 +35,9 @@ to byte-by-byte.
 </p>
 </div>
 
-<div id="outline-container-orgcc7462d" class="outline-3">
-<h3 id="orgcc7462d">Disable echoing and reading line-by-line</h3>
-<div class="outline-text-3" id="text-orgcc7462d">
+<div id="outline-container-orga30710a" class="outline-3">
+<h3 id="orga30710a">Disable echoing and reading line-by-line</h3>
+<div class="outline-text-3" id="text-orga30710a">
 <p>
 Create a file in src/Terminal.zig. We'll start by creating a init function
 to turn off echoing and canonical mode:
@@ -80,9 +80,9 @@ Lets replace src/main.zig to see this in action:
 </div>
 </div>
 
-<div id="outline-container-orgeeb99ce" class="outline-3">
-<h3 id="orgeeb99ce">Clearing and writing to the screen</h3>
-<div class="outline-text-3" id="text-orgeeb99ce">
+<div id="outline-container-orgdfee513" class="outline-3">
+<h3 id="orgdfee513">Clearing and writing to the screen</h3>
+<div class="outline-text-3" id="text-orgdfee513">
 <p>
 After running with zig build run, we see that keypresses aren't displayed anymore. This is not quite
 interesting however, so lets create a 64x32 screen that we can write to the terminal. We need a clear
@@ -169,9 +169,9 @@ terminal, modify the screen then show it:
 </div>
 </div>
 
-<div id="outline-container-org2b55c06" class="outline-3">
-<h3 id="org2b55c06">Hiding the cursor</h3>
-<div class="outline-text-3" id="text-org2b55c06">
+<div id="outline-container-orgc6794d5" class="outline-3">
+<h3 id="orgc6794d5">Hiding the cursor</h3>
+<div class="outline-text-3" id="text-orgc6794d5">
 <p>
 After running this, you should see the columns alternating between █ and space. However, we can still
 see the cursor. Lets add this last thing to src/Terminal.zig:
@@ -196,15 +196,15 @@ Call this function after Terminal.init() to finish this part:
 </div>
 
 <p>
-<a href="/emulator-from-scratch-for-chip8/setting-up-terminal/terminal.webp">/emulator-from-scratch-for-chip8/setting-up-terminal/terminal.webp</a>
+<a href="./terminal.webp">./terminal.webp</a>
 </p>
 
 <pre>
 os
 ├── src
-│   ├── <a href="/emulator-from-scratch-for-chip8/setting-up-terminal/chip8/src/main.zig">main.zig</a>
-│   └── <a href="/emulator-from-scratch-for-chip8/setting-up-terminal/chip8/src/Terminal.zig">Terminal.zig</a>
-└── <a href="/emulator-from-scratch-for-chip8/setting-up-terminal/chip8/build.zig">build.zig</a>
+│   ├── <a href="./chip8/src/main.zig">main.zig</a>
+│   └── <a href="./chip8/src/Terminal.zig">Terminal.zig</a>
+└── <a href="./chip8/build.zig">build.zig</a>
 </pre>
 </div>
 </div>

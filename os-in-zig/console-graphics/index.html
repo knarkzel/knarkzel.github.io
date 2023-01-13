@@ -1,12 +1,12 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Console graphics</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Console graphics</b> | <a href=/os-in-zig>Go back</a></td><td align="right">Written by <a href="https://git.sr.ht/~knarkzel">~knarkzel</a></td></table><p>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Console graphics</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Console graphics</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://git.sr.ht/~knarkzel">~knarkzel</a></td></table><p>
 Now that we have a kernel that can run and display "Hello, world", it's
 time to create a Console abstraction so that we can easily interact with
 the screen.
 </p>
 
-<div id="outline-container-org8eff8db" class="outline-2">
-<h2 id="org8eff8db">Theory</h2>
-<div class="outline-text-2" id="text-org8eff8db">
+<div id="outline-container-org15f8c90" class="outline-2">
+<h2 id="org15f8c90">Theory</h2>
+<div class="outline-text-2" id="text-org15f8c90">
 <p>
 The kernel gets booted by GRUB in text mode. In this mode, we have access
 to a framebuffer (area of memory) that controls a screen of characters
@@ -147,9 +147,9 @@ cursor.
 </div>
 </div>
 
-<div id="outline-container-orgb8c68e1" class="outline-2">
-<h2 id="orgb8c68e1">The practice</h2>
-<div class="outline-text-2" id="text-orgb8c68e1">
+<div id="outline-container-orgc785a49" class="outline-2">
+<h2 id="orgc785a49">The practice</h2>
+<div class="outline-text-2" id="text-orgc785a49">
 <p>
 Lets start by creating src/Console.zig and adding some variables:
 </p>
@@ -335,17 +335,17 @@ Now that we're done with src/Console.zig, lets go back to src/main.zig and finis
 </div>
 
 <p>
-<a href="/os-in-zig/console-graphics/prompt.webp">/os-in-zig/console-graphics/prompt.webp</a>
+<a href="./prompt.webp">./prompt.webp</a>
 </p>
 
 <pre>
 os
 ├── src
-│   ├── <a href="/os-in-zig/console-graphics/os/src/Console.zig">Console.zig</a>
-│   ├── <a href="/os-in-zig/console-graphics/os/src/main.zig">main.zig</a>
-│   └── <a href="/os-in-zig/console-graphics/os/src/utils.zig">utils.zig</a>
-├── <a href="/os-in-zig/console-graphics/os/build.zig">build.zig</a>
-└── <a href="/os-in-zig/console-graphics/os/linker.ld">linker.ld</a>
+│   ├── <a href="./os/src/Console.zig">Console.zig</a>
+│   ├── <a href="./os/src/main.zig">main.zig</a>
+│   └── <a href="./os/src/utils.zig">utils.zig</a>
+├── <a href="./os/build.zig">build.zig</a>
+└── <a href="./os/linker.ld">linker.ld</a>
 </pre>
 </div>
 </div>
