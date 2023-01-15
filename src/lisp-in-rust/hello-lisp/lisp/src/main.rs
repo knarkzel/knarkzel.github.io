@@ -5,40 +5,32 @@ use nom::{
     character::complete::{digit1, multispace0},
     combinator::map,
     multi::many1,
-    sequence::{delimited, preceded},
+    sequence::delimited,
     IResult,
 };
 use rustyline::{error::ReadlineError, Editor};
-use std::fmt::Display;
 
 // Parser
 #[derive(Debug)]
-enum Atom {
+enum Operator {
     Plus,
     Minus,
     Divide,
     Multiply,
+}
+
+#[derive(Debug)]
+enum Atom {
     Number(isize),
+    Operator(Operator),
 }
 
-impl Display for Atom {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Atom::Plus => f.write_str("-"),
-            Atom::Minus => f.write_str("+"),
-            Atom::Divide => f.write_str("/"),
-            Atom::Multiply => f.write_str("*"),
-            Atom::Number(number) => f.write_fmt(format_args!("{number}")),
-        }
-    }
-}
-
-fn builtin(input: &str) -> IResult<&str, Atom> {
-    let plus = map(tag("+"), |_| Atom::Plus);
-    let minus = map(tag("-"), |_| Atom::Minus);
-    let divide = map(tag("/"), |_| Atom::Divide);
-    let multiply = map(tag("*"), |_| Atom::Multiply);
-    alt((plus, minus, divide, multiply))(input)
+fn operator(input: &str) -> IResult<&str, Atom> {
+    let plus = map(tag("+"), |_| Operator::Plus);
+    let minus = map(tag("-"), |_| Operator::Minus);
+    let divide = map(tag("/"), |_| Operator::Divide);
+    let multiply = map(tag("*"), |_| Operator::Multiply);
+    map(alt((plus, minus, divide, multiply)), Atom::Operator)(input)
 }
 
 fn number(input: &str) -> IResult<&str, Atom> {
@@ -48,12 +40,12 @@ fn number(input: &str) -> IResult<&str, Atom> {
 }
 
 fn atom(input: &str) -> IResult<&str, Atom> {
-    let options = alt((builtin, number));
+    let options = alt((operator, number));
     delimited(multispace0, options, multispace0)(input)
 }
 
 fn parse(input: &str) -> IResult<&str, Vec<Atom>> {
-    delimited(tag("("), preceded(multispace0, many1(atom)), tag(")"))(input)
+    delimited(tag("("), many1(atom), tag(")"))(input)
 }
 
 // Helpers
@@ -71,35 +63,16 @@ fn atoms_to_numbers(atoms: &[Atom]) -> Result<Vec<isize>> {
 // Evaluator
 fn eval(atoms: &[Atom]) -> Result<Atom> {
     match atoms {
-        [Atom::Plus, tail @ ..] => {
+        [Atom::Operator(operator), tail @ ..] => {
             let numbers = atoms_to_numbers(tail)?;
             let total = numbers
                 .into_iter()
-                .reduce(|acc, number| acc + number)
-                .ok_or_else(|| anyhow!("Tail is empty"))?;
-            Ok(Atom::Number(total))
-        }
-        [Atom::Minus, tail @ ..] => {
-            let numbers = atoms_to_numbers(tail)?;
-            let total = numbers
-                .into_iter()
-                .reduce(|acc, number| acc - number)
-                .ok_or_else(|| anyhow!("Tail is empty"))?;
-            Ok(Atom::Number(total))
-        }
-        [Atom::Divide, tail @ ..] => {
-            let numbers = atoms_to_numbers(tail)?;
-            let total = numbers
-                .into_iter()
-                .reduce(|acc, number| acc / number)
-                .ok_or_else(|| anyhow!("Tail is empty"))?;
-            Ok(Atom::Number(total))
-        }
-        [Atom::Multiply, tail @ ..] => {
-            let numbers = atoms_to_numbers(tail)?;
-            let total = numbers
-                .into_iter()
-                .reduce(|acc, number| acc * number)
+                .reduce(|total, number| match operator {
+                    Operator::Plus => total + number,
+                    Operator::Minus => total - number,
+                    Operator::Divide => total / number,
+                    Operator::Multiply => total * number,
+                })
                 .ok_or_else(|| anyhow!("Tail is empty"))?;
             Ok(Atom::Number(total))
         }
@@ -114,7 +87,7 @@ fn main() -> Result<()> {
             Ok(input) => match parse(&input) {
                 Ok((_, atoms)) => {
                     let output = eval(&atoms)?;
-                    println!("{output}");
+                    println!("{output:?}");
                 }
                 Err(error) => println!("{error}"),
             },
