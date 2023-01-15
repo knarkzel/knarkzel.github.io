@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use anyhow::{anyhow, Result};
 use nom::{
     branch::alt,
@@ -19,10 +21,30 @@ enum Operator {
     Multiply,
 }
 
+impl Display for Operator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Operator::Plus => f.write_str("+"),
+            Operator::Minus => f.write_str("-"),
+            Operator::Divide => f.write_str("/"),
+            Operator::Multiply => f.write_str("*"),
+        }
+    }
+}
+
 #[derive(Debug)]
 enum Atom {
     Number(isize),
     Operator(Operator),
+}
+
+impl Display for Atom {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Atom::Number(number) => number.fmt(f),
+            Atom::Operator(operator) => operator.fmt(f),
+        }
+    }
 }
 
 fn operator(input: &str) -> IResult<&str, Atom> {
@@ -87,7 +109,7 @@ fn main() -> Result<()> {
             Ok(input) => match parse(&input) {
                 Ok((_, atoms)) => {
                     let output = eval(&atoms)?;
-                    println!("{output:?}");
+                    println!("{output}");
                 }
                 Err(error) => println!("{error}"),
             },
