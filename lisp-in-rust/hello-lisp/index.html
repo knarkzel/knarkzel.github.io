@@ -1,0 +1,123 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Hello, Lisp</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Hello, Lisp</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://github.com/knarkzel">Knarkzel</a></td></table><p>
+To get started, lets create a new project named lisp:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">$ cargo new lisp
+     Created binary <span class="org-rainbow-delimiters-depth-1">(</span>application<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-sh-quoted-exec">`lisp`</span> package
+$ cd lisp
+$ cargo add nom anyhow
+</pre>
+</div>
+
+<div id="outline-container-org1c7b5cc" class="outline-2">
+<h2 id="org1c7b5cc">Final code</h2>
+<div class="outline-text-2" id="text-org1c7b5cc">
+<div class="org-src-container">
+<pre class="src src-rust">use anyhow::{anyhow, Result};
+use nom::{
+	branch::alt,
+	bytes::complete::tag,
+	character::complete::{digit1, multispace0},
+	combinator::map,
+	multi::many1,
+	sequence::{delimited, preceded},
+	IResult,
+};
+
+// Parser
+#[derive(Debug)]
+enum Atom {
+	Plus,
+	Minus,
+	Divide,
+	Multiply,
+	Number(isize),
+}
+
+fn builtin(input: &amp;str) -&gt; IResult&lt;&amp;str, Atom&gt; {
+	let plus = map(tag("+"), |_| Atom::Plus);
+	let minus = map(tag("-"), |_| Atom::Minus);
+	let divide = map(tag("/"), |_| Atom::Divide);
+	let multiply = map(tag("*"), |_| Atom::Multiply);
+	alt((plus, minus, divide, multiply))(input)
+}
+
+fn number(input: &amp;str) -&gt; IResult&lt;&amp;str, Atom&gt; {
+	map(digit1, |digits: &amp;str| {
+		Atom::Number(digits.parse::&lt;isize&gt;().unwrap())
+	})(input)
+}
+
+fn atom(input: &amp;str) -&gt; IResult&lt;&amp;str, Atom&gt; {
+	let options = alt((builtin, number));
+	delimited(multispace0, options, multispace0)(input)
+}
+
+fn parse(input: &amp;str) -&gt; IResult&lt;&amp;str, Vec&lt;Atom&gt;&gt; {
+	delimited(tag("("), preceded(multispace0, many1(atom)), tag(")"))(input)
+}
+
+// Helpers
+fn atoms_to_numbers(atoms: &amp;[Atom]) -&gt; Result&lt;Vec&lt;isize&gt;&gt; {
+	let numbers = atoms
+		.into_iter()
+		.map(|atom| match atom {
+			Atom::Number(number) =&gt; Ok(*number),
+			atom =&gt; Err(anyhow!("Expected number, got {atom:?}")),
+		})
+		.collect::&lt;Result&lt;Vec&lt;_&gt;, _&gt;&gt;()?;
+	Ok(numbers)
+}
+
+// Evaluator
+fn eval(atoms: &amp;[Atom]) -&gt; Result&lt;Atom&gt; {
+	match atoms {
+		[Atom::Plus, tail @ ..] =&gt; {
+			let numbers = atoms_to_numbers(tail)?;
+			let total = numbers
+				.into_iter()
+				.reduce(|acc, number| acc + number)
+				.ok_or(anyhow!("Tail is empty"))?;
+			Ok(Atom::Number(total))
+		}
+		[Atom::Minus, tail @ ..] =&gt; {
+			let numbers = atoms_to_numbers(tail)?;
+			let total = numbers
+				.into_iter()
+				.reduce(|acc, number| acc - number)
+				.ok_or(anyhow!("Tail is empty"))?;
+			Ok(Atom::Number(total))
+		}
+		[Atom::Divide, tail @ ..] =&gt; {
+			let numbers = atoms_to_numbers(tail)?;
+			let total = numbers
+				.into_iter()
+				.reduce(|acc, number| acc / number)
+				.ok_or(anyhow!("Tail is empty"))?;
+			Ok(Atom::Number(total))
+		}
+		[Atom::Multiply, tail @ ..] =&gt; {
+			let numbers = atoms_to_numbers(tail)?;
+			let total = numbers
+				.into_iter()
+				.reduce(|acc, number| acc * number)
+				.ok_or(anyhow!("Tail is empty"))?;
+			Ok(Atom::Number(total))
+		}
+		atoms =&gt; Err(anyhow!("Invalid pattern: {atoms:#?}")),
+	}
+}
+
+fn main() -&gt; Result&lt;()&gt; {
+	let input = "(+ 1 2 3 4 5)";
+	let (_, atoms) = parse(input)?;
+	let output = eval(&amp;atoms)?;
+	println!("{output:?}");
+	Ok(())
+}
+</pre>
+</div>
+</div>
+</div>
+</body></html>
