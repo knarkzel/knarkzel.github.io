@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 nom = "7.1.2"
 anyhow = "1.0.68"
+rustyline = "10.1.0"

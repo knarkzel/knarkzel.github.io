@@ -8,6 +8,8 @@ use nom::{
     sequence::{delimited, preceded},
     IResult,
 };
+use rustyline::{error::ReadlineError, Editor};
+use std::fmt::Display;
 
 // Parser
 #[derive(Debug)]
@@ -17,6 +19,18 @@ enum Atom {
     Divide,
     Multiply,
     Number(isize),
+}
+
+impl Display for Atom {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Atom::Plus => f.write_str("-"),
+            Atom::Minus => f.write_str("+"),
+            Atom::Divide => f.write_str("/"),
+            Atom::Multiply => f.write_str("*"),
+            Atom::Number(number) => f.write_fmt(format_args!("{number}")),
+        }
+    }
 }
 
 fn builtin(input: &str) -> IResult<&str, Atom> {
@@ -45,7 +59,7 @@ fn parse(input: &str) -> IResult<&str, Vec<Atom>> {
 // Helpers
 fn atoms_to_numbers(atoms: &[Atom]) -> Result<Vec<isize>> {
     let numbers = atoms
-        .into_iter()
+        .iter()
         .map(|atom| match atom {
             Atom::Number(number) => Ok(*number),
             atom => Err(anyhow!("Expected number, got {atom:?}")),
@@ -62,7 +76,7 @@ fn eval(atoms: &[Atom]) -> Result<Atom> {
             let total = numbers
                 .into_iter()
                 .reduce(|acc, number| acc + number)
-                .ok_or(anyhow!("Tail is empty"))?;
+                .ok_or_else(|| anyhow!("Tail is empty"))?;
             Ok(Atom::Number(total))
         }
         [Atom::Minus, tail @ ..] => {
@@ -70,7 +84,7 @@ fn eval(atoms: &[Atom]) -> Result<Atom> {
             let total = numbers
                 .into_iter()
                 .reduce(|acc, number| acc - number)
-                .ok_or(anyhow!("Tail is empty"))?;
+                .ok_or_else(|| anyhow!("Tail is empty"))?;
             Ok(Atom::Number(total))
         }
         [Atom::Divide, tail @ ..] => {
@@ -78,7 +92,7 @@ fn eval(atoms: &[Atom]) -> Result<Atom> {
             let total = numbers
                 .into_iter()
                 .reduce(|acc, number| acc / number)
-                .ok_or(anyhow!("Tail is empty"))?;
+                .ok_or_else(|| anyhow!("Tail is empty"))?;
             Ok(Atom::Number(total))
         }
         [Atom::Multiply, tail @ ..] => {
@@ -86,17 +100,30 @@ fn eval(atoms: &[Atom]) -> Result<Atom> {
             let total = numbers
                 .into_iter()
                 .reduce(|acc, number| acc * number)
-                .ok_or(anyhow!("Tail is empty"))?;
+                .ok_or_else(|| anyhow!("Tail is empty"))?;
             Ok(Atom::Number(total))
         }
-        atoms => Err(anyhow!("Invalid pattern: {atoms:#?}")),
+        atoms => Err(anyhow!("Invalid input: {atoms:#?}")),
     }
 }
 
 fn main() -> Result<()> {
-    let input = "(+ 1 2 3 4 5)";
-    let (_, atoms) = parse(input)?;
-    let output = eval(&atoms)?;
-    println!("{output:?}");
+    let mut editor = Editor::<()>::new()?;
+    loop {
+        match editor.readline(">> ") {
+            Ok(input) => match parse(&input) {
+                Ok((_, atoms)) => {
+                    let output = eval(&atoms)?;
+                    println!("{output}");
+                }
+                Err(error) => println!("{error}"),
+            },
+            Err(ReadlineError::Interrupted | ReadlineError::Eof) => break,
+            Err(error) => {
+                println!("Error: {error}");
+                break;
+            }
+        }
+    }
     Ok(())
 }
