@@ -38,6 +38,9 @@
 (use-package zig-mode
   :ensure t)
 
+(use-package rust-mode
+  :ensure t)
+
 ;; HTML template
 (defun html-template (contents info)
   (concat
