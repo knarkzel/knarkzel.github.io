@@ -4,6 +4,7 @@ html {
     max-width: 50em;
     background: #F7F3EE;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin-bottom: 20em;
 }
 
 p {
@@ -114,7 +115,7 @@ table {
     background: #DDE4F2;
 }
 
-.org-string {
+.org-string, .org-rust-string-interpolation {
     color: #525643;
     background: #E2E9C1;
 }
