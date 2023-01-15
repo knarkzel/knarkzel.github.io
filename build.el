@@ -35,6 +35,15 @@
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 ;; Extra languages
+(use-package tree-sitter-langs
+  :ensure t)
+
+(use-package tree-sitter
+  :ensure t
+  :init
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-mode-hook 'tree-sitter-hl-mode))
+
 (use-package zig-mode
   :ensure t)
 
