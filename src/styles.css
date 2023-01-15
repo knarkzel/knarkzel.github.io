@@ -5,6 +5,7 @@ html {
     background: #F7F3EE;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     margin-bottom: 20em;
+    overflow-y: scroll;
 }
 
 p {
