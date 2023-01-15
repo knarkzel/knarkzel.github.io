@@ -20,9 +20,9 @@ $ cargo add nom anyhow
 </pre>
 </div>
 
-<div id="outline-container-orgd263d0a" class="outline-2">
-<h2 id="orgd263d0a">Final code</h2>
-<div class="outline-text-2" id="text-orgd263d0a">
+<div id="outline-container-org19cf5e6" class="outline-2">
+<h2 id="org19cf5e6">Final code</h2>
+<div class="outline-text-2" id="text-org19cf5e6">
 <div class="org-src-container">
 <pre class="src src-rust"><span class="org-keyword">use</span> <span class="org-constant">anyhow</span>::<span class="org-rainbow-delimiters-depth-1">{</span>anyhow, <span class="org-type">Result</span><span class="org-rainbow-delimiters-depth-1">}</span>;
 <span class="org-keyword">use</span> <span class="org-constant">nom</span>::<span class="org-rainbow-delimiters-depth-1">{</span>
@@ -155,11 +155,26 @@ $ cargo add nom anyhow
 <span class="org-rainbow-delimiters-depth-1">}</span>
 </pre>
 </div>
+</div>
+</div>
 
-
-<div id="org72c68dc" class="figure">
-<p><img src="./interpreter.webp" alt="interpreter.webp">
-</p>
+<div id="outline-container-org1cc2d31" class="outline-2">
+<h2 id="org1cc2d31">Result</h2>
+<div class="outline-text-2" id="text-org1cc2d31">
+<div class="org-src-container">
+<pre class="src src-shell">lisp &#10095; cargo run
+    Finished dev <span class="org-rainbow-delimiters-depth-1">[</span>unoptimized + debuginfo<span class="org-rainbow-delimiters-depth-1">]</span> target<span class="org-rainbow-delimiters-depth-1">(</span>s<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">in</span> 0.02s
+     Running <span class="org-sh-quoted-exec">`target/debug/lisp`</span>
+&gt;&gt; <span class="org-rainbow-delimiters-depth-1">(</span>+ 1 2 3 4 5<span class="org-rainbow-delimiters-depth-1">)</span>
+15
+&gt;&gt; <span class="org-rainbow-delimiters-depth-1">(</span>* 10 5 3 2<span class="org-rainbow-delimiters-depth-1">)</span>
+300
+&gt;&gt; <span class="org-rainbow-delimiters-depth-1">(</span>/ 10 5<span class="org-rainbow-delimiters-depth-1">)</span>
+2
+&gt;&gt; <span class="org-rainbow-delimiters-depth-1">(</span>- 10 5 3<span class="org-rainbow-delimiters-depth-1">)</span>
+2
+&gt;&gt;
+</pre>
 </div>
 </div>
 </div>
