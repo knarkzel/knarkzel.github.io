@@ -69,15 +69,6 @@ table {
     color: #605A52;
 }
     
-.org-keyword {
-    color: #614C61;
-    background: #F1DDF1;
-}
-
-.org-builtin {
-    font-style: italic;
-}
-
 .org-rainbow-delimiters-depth-1 {
     color: #7382A0;
 }
@@ -110,12 +101,73 @@ table {
     color: #81895D;
 }
 
+.org-tree-sitter-hl-faceXcomment {
+    color: #B9A992;
+}
+
+.org-tree-sitter-hl-faceXtypeXbuiltin {
+    font-style: italic;
+}
+
+.org-tree-sitter-hl-faceXfunction {
+    font-weight: bold;
+}
+
+.org-tree-sitter-hl-faceXvariable {
+    color: #4C5361;
+    background: #DDE4F2;
+}
+
+/* Tree sitter syntax highlighting */
+.org-tree-sitter-hl-faceXkeyword, .org-tree-sitter-hl-faceXoperator {
+    color: #614C61;
+    background: #F1DDF1;
+}
+
+.org-tree-sitter-hl-faceXstring {
+    color: #525643;
+    background: #E2E9C1;
+}
+
+.org-tree-sitter-hl-faceXconstant {
+    color: #465953;
+    background: #D2EBE3;
+}
+
+.org-tree-sitter-hl-faceXfunctionXcall {
+    font-weight: bold;
+    color: #7382a0;
+}
+
+.org-tree-sitter-hl-faceXtype, .org-tree-sitter-hl-faceXconstructor {
+    color: #605A52;
+    background: #F7F3EE;
+    font-weight: normal;
+}
+
+.org-tree-sitter-hl-faceXmethodXcall {
+    color: #7382a0;
+    background: #D2EBE3;
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* Regular syntax highlighting */
+.org-keyword {
+    color: #614C61;
+    background: #F1DDF1;
+}
+
+.org-builtin {
+    font-style: italic;
+}
+
 .org-variable-name {
     color: #4C5361;
     background: #DDE4F2;
 }
 
-.org-string, .org-rust-string-interpolation {
+.org-string {
     color: #525643;
     background: #E2E9C1;
 }
