@@ -20,9 +20,9 @@ $ cargo add nom anyhow
 </pre>
 </div>
 
-<div id="outline-container-org19cf5e6" class="outline-2">
-<h2 id="org19cf5e6">Final code</h2>
-<div class="outline-text-2" id="text-org19cf5e6">
+<div id="outline-container-org5ecfa70" class="outline-2">
+<h2 id="org5ecfa70">Final code</h2>
+<div class="outline-text-2" id="text-org5ecfa70">
 <div class="org-src-container">
 <pre class="src src-rust"><span class="org-keyword">use</span> <span class="org-constant">anyhow</span>::<span class="org-rainbow-delimiters-depth-1">{</span>anyhow, <span class="org-type">Result</span><span class="org-rainbow-delimiters-depth-1">}</span>;
 <span class="org-keyword">use</span> <span class="org-constant">nom</span>::<span class="org-rainbow-delimiters-depth-1">{</span>
@@ -31,40 +31,32 @@ $ cargo add nom anyhow
     <span class="org-constant">character</span>::<span class="org-constant">complete</span>::<span class="org-rainbow-delimiters-depth-2">{</span>digit1, multispace0<span class="org-rainbow-delimiters-depth-2">}</span>,
     <span class="org-constant">combinator</span>::map,
     <span class="org-constant">multi</span>::many1,
-    <span class="org-constant">sequence</span>::<span class="org-rainbow-delimiters-depth-2">{</span>delimited, preceded<span class="org-rainbow-delimiters-depth-2">}</span>,
+    <span class="org-constant">sequence</span>::delimited,
     <span class="org-type">IResult</span>,
 <span class="org-rainbow-delimiters-depth-1">}</span>;
 <span class="org-keyword">use</span> <span class="org-constant">rustyline</span>::<span class="org-rainbow-delimiters-depth-1">{</span><span class="org-constant">error</span>::<span class="org-type">ReadlineError</span>, <span class="org-type">Editor</span><span class="org-rainbow-delimiters-depth-1">}</span>;
-<span class="org-keyword">use</span> <span class="org-constant">std</span>::<span class="org-constant">fmt</span>::<span class="org-type">Display</span>;
 
 <span class="org-comment-delimiter">// </span><span class="org-comment">Parser</span>
 <span class="org-preprocessor">#</span><span class="org-preprocessor"><span class="org-rainbow-delimiters-depth-1">[</span></span><span class="org-preprocessor">derive</span><span class="org-preprocessor"><span class="org-rainbow-delimiters-depth-2">(</span></span><span class="org-preprocessor">Debug</span><span class="org-preprocessor"><span class="org-rainbow-delimiters-depth-2">)</span></span><span class="org-preprocessor"><span class="org-rainbow-delimiters-depth-1">]</span></span>
-<span class="org-keyword">enum</span> <span class="org-type">Atom</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+<span class="org-keyword">enum</span> <span class="org-type">Operator</span> <span class="org-rainbow-delimiters-depth-1">{</span>
     <span class="org-type">Plus</span>,
     <span class="org-type">Minus</span>,
     <span class="org-type">Divide</span>,
     <span class="org-type">Multiply</span>,
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-preprocessor">#</span><span class="org-preprocessor"><span class="org-rainbow-delimiters-depth-1">[</span></span><span class="org-preprocessor">derive</span><span class="org-preprocessor"><span class="org-rainbow-delimiters-depth-2">(</span></span><span class="org-preprocessor">Debug</span><span class="org-preprocessor"><span class="org-rainbow-delimiters-depth-2">)</span></span><span class="org-preprocessor"><span class="org-rainbow-delimiters-depth-1">]</span></span>
+<span class="org-keyword">enum</span> <span class="org-type">Atom</span> <span class="org-rainbow-delimiters-depth-1">{</span>
     <span class="org-type">Number</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">isize</span><span class="org-rainbow-delimiters-depth-2">)</span>,
+    <span class="org-type">Operator</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">Operator</span><span class="org-rainbow-delimiters-depth-2">)</span>,
 <span class="org-rainbow-delimiters-depth-1">}</span>
 
-<span class="org-keyword">impl</span> <span class="org-type">Display</span> <span class="org-keyword">for</span> <span class="org-type">Atom</span> <span class="org-rainbow-delimiters-depth-1">{</span>
-    <span class="org-keyword">fn</span> <span class="org-function-name">fmt</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rust-ampersand">&amp;</span><span class="org-keyword">self</span>, <span class="org-variable-name">f</span>: <span class="org-rust-ampersand">&amp;</span><span class="org-keyword">mut</span> <span class="org-constant">std</span>::<span class="org-constant">fmt</span>::<span class="org-type">Formatter</span><span class="org-rainbow-delimiters-depth-3">&lt;</span>'<span class="org-variable-name">_</span><span class="org-rainbow-delimiters-depth-3">&gt;</span><span class="org-rainbow-delimiters-depth-2">)</span> -&gt; <span class="org-constant">std</span>::<span class="org-constant">fmt</span>::<span class="org-type">Result</span> <span class="org-rainbow-delimiters-depth-2">{</span>
-        <span class="org-keyword">match</span> <span class="org-keyword">self</span> <span class="org-rainbow-delimiters-depth-3">{</span>
-            <span class="org-type">Atom</span>::<span class="org-type">Plus</span> =&gt; f.write_str<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"-"</span><span class="org-rainbow-delimiters-depth-4">)</span>,
-            <span class="org-type">Atom</span>::<span class="org-type">Minus</span> =&gt; f.write_str<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"+"</span><span class="org-rainbow-delimiters-depth-4">)</span>,
-            <span class="org-type">Atom</span>::<span class="org-type">Divide</span> =&gt; f.write_str<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"/"</span><span class="org-rainbow-delimiters-depth-4">)</span>,
-            <span class="org-type">Atom</span>::<span class="org-type">Multiply</span> =&gt; f.write_str<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"*"</span><span class="org-rainbow-delimiters-depth-4">)</span>,
-            <span class="org-type">Atom</span>::<span class="org-type">Number</span><span class="org-rainbow-delimiters-depth-4">(</span>number<span class="org-rainbow-delimiters-depth-4">)</span> =&gt; f.write_fmt<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-preprocessor">format_args!</span><span class="org-rainbow-delimiters-depth-5">(</span><span class="org-string">"{number}"</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>,
-        <span class="org-rainbow-delimiters-depth-3">}</span>
-    <span class="org-rainbow-delimiters-depth-2">}</span>
-<span class="org-rainbow-delimiters-depth-1">}</span>
-
-<span class="org-keyword">fn</span> <span class="org-function-name">builtin</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">input</span>: <span class="org-rust-ampersand">&amp;</span><span class="org-type">str</span><span class="org-rainbow-delimiters-depth-1">)</span> -&gt; <span class="org-type">IResult</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-rust-ampersand">&amp;</span><span class="org-type">str</span>, <span class="org-type">Atom</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-rainbow-delimiters-depth-1">{</span>
-    <span class="org-keyword">let</span> <span class="org-variable-name">plus</span> = map<span class="org-rainbow-delimiters-depth-2">(</span>tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"+"</span><span class="org-rainbow-delimiters-depth-3">)</span>, |_| <span class="org-type">Atom</span>::<span class="org-type">Plus</span><span class="org-rainbow-delimiters-depth-2">)</span>;
-    <span class="org-keyword">let</span> <span class="org-variable-name">minus</span> = map<span class="org-rainbow-delimiters-depth-2">(</span>tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"-"</span><span class="org-rainbow-delimiters-depth-3">)</span>, |_| <span class="org-type">Atom</span>::<span class="org-type">Minus</span><span class="org-rainbow-delimiters-depth-2">)</span>;
-    <span class="org-keyword">let</span> <span class="org-variable-name">divide</span> = map<span class="org-rainbow-delimiters-depth-2">(</span>tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"/"</span><span class="org-rainbow-delimiters-depth-3">)</span>, |_| <span class="org-type">Atom</span>::<span class="org-type">Divide</span><span class="org-rainbow-delimiters-depth-2">)</span>;
-    <span class="org-keyword">let</span> <span class="org-variable-name">multiply</span> = map<span class="org-rainbow-delimiters-depth-2">(</span>tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"*"</span><span class="org-rainbow-delimiters-depth-3">)</span>, |_| <span class="org-type">Atom</span>::<span class="org-type">Multiply</span><span class="org-rainbow-delimiters-depth-2">)</span>;
-    alt<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">(</span>plus, minus, divide, multiply<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)(</span>input<span class="org-rainbow-delimiters-depth-2">)</span>
+<span class="org-keyword">fn</span> <span class="org-function-name">operator</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">input</span>: <span class="org-rust-ampersand">&amp;</span><span class="org-type">str</span><span class="org-rainbow-delimiters-depth-1">)</span> -&gt; <span class="org-type">IResult</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-rust-ampersand">&amp;</span><span class="org-type">str</span>, <span class="org-type">Atom</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">let</span> <span class="org-variable-name">plus</span> = map<span class="org-rainbow-delimiters-depth-2">(</span>tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"+"</span><span class="org-rainbow-delimiters-depth-3">)</span>, |_| <span class="org-type">Operator</span>::<span class="org-type">Plus</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">let</span> <span class="org-variable-name">minus</span> = map<span class="org-rainbow-delimiters-depth-2">(</span>tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"-"</span><span class="org-rainbow-delimiters-depth-3">)</span>, |_| <span class="org-type">Operator</span>::<span class="org-type">Minus</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">let</span> <span class="org-variable-name">divide</span> = map<span class="org-rainbow-delimiters-depth-2">(</span>tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"/"</span><span class="org-rainbow-delimiters-depth-3">)</span>, |_| <span class="org-type">Operator</span>::<span class="org-type">Divide</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">let</span> <span class="org-variable-name">multiply</span> = map<span class="org-rainbow-delimiters-depth-2">(</span>tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"*"</span><span class="org-rainbow-delimiters-depth-3">)</span>, |_| <span class="org-type">Operator</span>::<span class="org-type">Multiply</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    map<span class="org-rainbow-delimiters-depth-2">(</span>alt<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-rainbow-delimiters-depth-4">(</span>plus, minus, divide, multiply<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>, <span class="org-type">Atom</span>::<span class="org-type">Operator</span><span class="org-rainbow-delimiters-depth-2">)(</span>input<span class="org-rainbow-delimiters-depth-2">)</span>
 <span class="org-rainbow-delimiters-depth-1">}</span>
 
 <span class="org-keyword">fn</span> <span class="org-function-name">number</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">input</span>: <span class="org-rust-ampersand">&amp;</span><span class="org-type">str</span><span class="org-rainbow-delimiters-depth-1">)</span> -&gt; <span class="org-type">IResult</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-rust-ampersand">&amp;</span><span class="org-type">str</span>, <span class="org-type">Atom</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-rainbow-delimiters-depth-1">{</span>
@@ -74,12 +66,12 @@ $ cargo add nom anyhow
 <span class="org-rainbow-delimiters-depth-1">}</span>
 
 <span class="org-keyword">fn</span> <span class="org-function-name">atom</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">input</span>: <span class="org-rust-ampersand">&amp;</span><span class="org-type">str</span><span class="org-rainbow-delimiters-depth-1">)</span> -&gt; <span class="org-type">IResult</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-rust-ampersand">&amp;</span><span class="org-type">str</span>, <span class="org-type">Atom</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-rainbow-delimiters-depth-1">{</span>
-    <span class="org-keyword">let</span> <span class="org-variable-name">options</span> = alt<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">(</span>builtin, number<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">let</span> <span class="org-variable-name">options</span> = alt<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">(</span>operator, number<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>;
     delimited<span class="org-rainbow-delimiters-depth-2">(</span>multispace0, options, multispace0<span class="org-rainbow-delimiters-depth-2">)(</span>input<span class="org-rainbow-delimiters-depth-2">)</span>
 <span class="org-rainbow-delimiters-depth-1">}</span>
 
 <span class="org-keyword">fn</span> <span class="org-function-name">parse</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">input</span>: <span class="org-rust-ampersand">&amp;</span><span class="org-type">str</span><span class="org-rainbow-delimiters-depth-1">)</span> -&gt; <span class="org-type">IResult</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-rust-ampersand">&amp;</span><span class="org-type">str</span>, <span class="org-type">Vec</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">Atom</span><span class="org-rainbow-delimiters-depth-2">&gt;</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-rainbow-delimiters-depth-1">{</span>
-    delimited<span class="org-rainbow-delimiters-depth-2">(</span>tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"("</span><span class="org-rainbow-delimiters-depth-3">)</span>, preceded<span class="org-rainbow-delimiters-depth-3">(</span>multispace0, many1<span class="org-rainbow-delimiters-depth-4">(</span>atom<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>, tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">")"</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)(</span>input<span class="org-rainbow-delimiters-depth-2">)</span>
+    delimited<span class="org-rainbow-delimiters-depth-2">(</span>tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"("</span><span class="org-rainbow-delimiters-depth-3">)</span>, many1<span class="org-rainbow-delimiters-depth-3">(</span>atom<span class="org-rainbow-delimiters-depth-3">)</span>, tag<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">")"</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)(</span>input<span class="org-rainbow-delimiters-depth-2">)</span>
 <span class="org-rainbow-delimiters-depth-1">}</span>
 
 <span class="org-comment-delimiter">// </span><span class="org-comment">Helpers</span>
@@ -97,35 +89,16 @@ $ cargo add nom anyhow
 <span class="org-comment-delimiter">// </span><span class="org-comment">Evaluator</span>
 <span class="org-keyword">fn</span> <span class="org-function-name">eval</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">atoms</span>: <span class="org-rust-ampersand">&amp;</span><span class="org-rainbow-delimiters-depth-2">[</span><span class="org-type">Atom</span><span class="org-rainbow-delimiters-depth-2">]</span><span class="org-rainbow-delimiters-depth-1">)</span> -&gt; <span class="org-type">Result</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">Atom</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-rainbow-delimiters-depth-1">{</span>
     <span class="org-keyword">match</span> atoms <span class="org-rainbow-delimiters-depth-2">{</span>
-        <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-type">Atom</span>::<span class="org-type">Plus</span>, tail @ ..<span class="org-rainbow-delimiters-depth-3">]</span> =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
+        <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-type">Atom</span>::<span class="org-type">Operator</span><span class="org-rainbow-delimiters-depth-4">(</span>operator<span class="org-rainbow-delimiters-depth-4">)</span>, tail @ ..<span class="org-rainbow-delimiters-depth-3">]</span> =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
             <span class="org-keyword">let</span> <span class="org-variable-name">numbers</span> = atoms_to_numbers<span class="org-rainbow-delimiters-depth-4">(</span>tail<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rust-question-mark">?</span>;
             <span class="org-keyword">let</span> <span class="org-variable-name">total</span> = numbers
                 .into_iter<span class="org-rainbow-delimiters-depth-4">()</span>
-                .reduce<span class="org-rainbow-delimiters-depth-4">(</span>|acc, number| acc + number<span class="org-rainbow-delimiters-depth-4">)</span>
-                .ok_or_else<span class="org-rainbow-delimiters-depth-4">(</span>|| <span class="org-preprocessor">anyhow!</span><span class="org-rainbow-delimiters-depth-5">(</span><span class="org-string">"Tail is empty"</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rust-question-mark">?</span>;
-            <span class="org-type">Ok</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">Atom</span>::<span class="org-type">Number</span><span class="org-rainbow-delimiters-depth-5">(</span>total<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
-        <span class="org-rainbow-delimiters-depth-3">}</span>
-        <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-type">Atom</span>::<span class="org-type">Minus</span>, tail @ ..<span class="org-rainbow-delimiters-depth-3">]</span> =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
-            <span class="org-keyword">let</span> <span class="org-variable-name">numbers</span> = atoms_to_numbers<span class="org-rainbow-delimiters-depth-4">(</span>tail<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rust-question-mark">?</span>;
-            <span class="org-keyword">let</span> <span class="org-variable-name">total</span> = numbers
-                .into_iter<span class="org-rainbow-delimiters-depth-4">()</span>
-                .reduce<span class="org-rainbow-delimiters-depth-4">(</span>|acc, number| acc - number<span class="org-rainbow-delimiters-depth-4">)</span>
-                .ok_or_else<span class="org-rainbow-delimiters-depth-4">(</span>|| <span class="org-preprocessor">anyhow!</span><span class="org-rainbow-delimiters-depth-5">(</span><span class="org-string">"Tail is empty"</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rust-question-mark">?</span>;
-            <span class="org-type">Ok</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">Atom</span>::<span class="org-type">Number</span><span class="org-rainbow-delimiters-depth-5">(</span>total<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
-        <span class="org-rainbow-delimiters-depth-3">}</span>
-        <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-type">Atom</span>::<span class="org-type">Divide</span>, tail @ ..<span class="org-rainbow-delimiters-depth-3">]</span> =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
-            <span class="org-keyword">let</span> <span class="org-variable-name">numbers</span> = atoms_to_numbers<span class="org-rainbow-delimiters-depth-4">(</span>tail<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rust-question-mark">?</span>;
-            <span class="org-keyword">let</span> <span class="org-variable-name">total</span> = numbers
-                .into_iter<span class="org-rainbow-delimiters-depth-4">()</span>
-                .reduce<span class="org-rainbow-delimiters-depth-4">(</span>|acc, number| acc / number<span class="org-rainbow-delimiters-depth-4">)</span>
-                .ok_or_else<span class="org-rainbow-delimiters-depth-4">(</span>|| <span class="org-preprocessor">anyhow!</span><span class="org-rainbow-delimiters-depth-5">(</span><span class="org-string">"Tail is empty"</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rust-question-mark">?</span>;
-            <span class="org-type">Ok</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">Atom</span>::<span class="org-type">Number</span><span class="org-rainbow-delimiters-depth-5">(</span>total<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
-        <span class="org-rainbow-delimiters-depth-3">}</span>
-        <span class="org-rainbow-delimiters-depth-3">[</span><span class="org-type">Atom</span>::<span class="org-type">Multiply</span>, tail @ ..<span class="org-rainbow-delimiters-depth-3">]</span> =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
-            <span class="org-keyword">let</span> <span class="org-variable-name">numbers</span> = atoms_to_numbers<span class="org-rainbow-delimiters-depth-4">(</span>tail<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rust-question-mark">?</span>;
-            <span class="org-keyword">let</span> <span class="org-variable-name">total</span> = numbers
-                .into_iter<span class="org-rainbow-delimiters-depth-4">()</span>
-                .reduce<span class="org-rainbow-delimiters-depth-4">(</span>|acc, number| acc * number<span class="org-rainbow-delimiters-depth-4">)</span>
+                .reduce<span class="org-rainbow-delimiters-depth-4">(</span>|total, number| <span class="org-keyword">match</span> operator <span class="org-rainbow-delimiters-depth-5">{</span>
+                    <span class="org-type">Operator</span>::<span class="org-type">Plus</span> =&gt; total + number,
+                    <span class="org-type">Operator</span>::<span class="org-type">Minus</span> =&gt; total - number,
+                    <span class="org-type">Operator</span>::<span class="org-type">Divide</span> =&gt; total / number,
+                    <span class="org-type">Operator</span>::<span class="org-type">Multiply</span> =&gt; total * number,
+                <span class="org-rainbow-delimiters-depth-5">}</span><span class="org-rainbow-delimiters-depth-4">)</span>
                 .ok_or_else<span class="org-rainbow-delimiters-depth-4">(</span>|| <span class="org-preprocessor">anyhow!</span><span class="org-rainbow-delimiters-depth-5">(</span><span class="org-string">"Tail is empty"</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rust-question-mark">?</span>;
             <span class="org-type">Ok</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">Atom</span>::<span class="org-type">Number</span><span class="org-rainbow-delimiters-depth-5">(</span>total<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
         <span class="org-rainbow-delimiters-depth-3">}</span>
@@ -140,7 +113,7 @@ $ cargo add nom anyhow
             <span class="org-type">Ok</span><span class="org-rainbow-delimiters-depth-4">(</span>input<span class="org-rainbow-delimiters-depth-4">)</span> =&gt; <span class="org-keyword">match</span> parse<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-rust-ampersand">&amp;</span>input<span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span>
                 <span class="org-type">Ok</span><span class="org-rainbow-delimiters-depth-5">(</span><span class="org-rainbow-delimiters-depth-6">(</span>_, atoms<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span> =&gt; <span class="org-rainbow-delimiters-depth-5">{</span>
                     <span class="org-keyword">let</span> <span class="org-variable-name">output</span> = eval<span class="org-rainbow-delimiters-depth-6">(</span><span class="org-rust-ampersand">&amp;</span>atoms<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rust-question-mark">?</span>;
-                    <span class="org-rust-builtin-formatting-macro">println!</span><span class="org-rainbow-delimiters-depth-6">(</span><span class="org-string">"</span><span class="org-rust-string-interpolation">{output}</span><span class="org-string">"</span><span class="org-rainbow-delimiters-depth-6">)</span>;
+                    <span class="org-rust-builtin-formatting-macro">println!</span><span class="org-rainbow-delimiters-depth-6">(</span><span class="org-string">"</span><span class="org-rust-string-interpolation">{output:?}</span><span class="org-string">"</span><span class="org-rainbow-delimiters-depth-6">)</span>;
                 <span class="org-rainbow-delimiters-depth-5">}</span>
                 <span class="org-type">Err</span><span class="org-rainbow-delimiters-depth-5">(</span>error<span class="org-rainbow-delimiters-depth-5">)</span> =&gt; <span class="org-rust-builtin-formatting-macro">println!</span><span class="org-rainbow-delimiters-depth-5">(</span><span class="org-string">"</span><span class="org-rust-string-interpolation">{error}</span><span class="org-string">"</span><span class="org-rainbow-delimiters-depth-5">)</span>,
             <span class="org-rainbow-delimiters-depth-4">}</span>,
@@ -158,24 +131,32 @@ $ cargo add nom anyhow
 </div>
 </div>
 
-<div id="outline-container-org1cc2d31" class="outline-2">
-<h2 id="org1cc2d31">Result</h2>
-<div class="outline-text-2" id="text-org1cc2d31">
+<div id="outline-container-org822b518" class="outline-2">
+<h2 id="org822b518">Result</h2>
+<div class="outline-text-2" id="text-org822b518">
 <div class="org-src-container">
 <pre class="src src-shell">lisp &#10095; cargo run
     Finished dev <span class="org-rainbow-delimiters-depth-1">[</span>unoptimized + debuginfo<span class="org-rainbow-delimiters-depth-1">]</span> target<span class="org-rainbow-delimiters-depth-1">(</span>s<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">in</span> 0.02s
      Running <span class="org-sh-quoted-exec">`target/debug/lisp`</span>
 &gt;&gt; <span class="org-rainbow-delimiters-depth-1">(</span>+ 1 2 3 4 5<span class="org-rainbow-delimiters-depth-1">)</span>
-15
-&gt;&gt; <span class="org-rainbow-delimiters-depth-1">(</span>* 10 5 3 2<span class="org-rainbow-delimiters-depth-1">)</span>
-300
-&gt;&gt; <span class="org-rainbow-delimiters-depth-1">(</span>/ 10 5<span class="org-rainbow-delimiters-depth-1">)</span>
-2
+<span class="org-function-name">Number</span><span class="org-rainbow-delimiters-depth-1">(</span>15<span class="org-rainbow-delimiters-depth-1">)</span>
+&gt;&gt; <span class="org-rainbow-delimiters-depth-1">(</span>* 2 4 6 8<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-function-name">Number</span><span class="org-rainbow-delimiters-depth-1">(</span>384<span class="org-rainbow-delimiters-depth-1">)</span>
+&gt;&gt; <span class="org-rainbow-delimiters-depth-1">(</span>/ 100 25<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-function-name">Number</span><span class="org-rainbow-delimiters-depth-1">(</span>4<span class="org-rainbow-delimiters-depth-1">)</span>
 &gt;&gt; <span class="org-rainbow-delimiters-depth-1">(</span>- 10 5 3<span class="org-rainbow-delimiters-depth-1">)</span>
-2
+<span class="org-function-name">Number</span><span class="org-rainbow-delimiters-depth-1">(</span>2<span class="org-rainbow-delimiters-depth-1">)</span>
 &gt;&gt;
 </pre>
 </div>
+
+<pre>
+lisp
+├── src
+│   └── <a href="./lisp/src/main.rs">main.rs</a>
+├── <a href="./lisp/Cargo.lock">Cargo.lock</a>
+└── <a href="./lisp/Cargo.toml">Cargo.toml</a>
+</pre>
 </div>
 </div>
 </body></html>

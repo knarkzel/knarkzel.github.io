@@ -3,6 +3,10 @@ name = "lisp"
 version = "0.1.0"
 edition = "2021"
 
+[profile.release]
+lto = true
+strip = true
+
 [dependencies]
 nom = "7.1.2"
 anyhow = "1.0.68"
