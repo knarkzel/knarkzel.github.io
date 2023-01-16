@@ -5,3 +5,4 @@ language. Each post is a small tutorial and include all needed code with some th
 
 1. [[./hello-lisp][Hello, Lisp]]
 2. [[./variables-and-functions][Functions and variables]]
+3. [[./core-language-features][Implementing core language features]]
