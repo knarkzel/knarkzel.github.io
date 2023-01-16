@@ -1,6 +1,8 @@
 #+TITLE: Variables and functions
 
 In this article we implement variables and functions (also known as lambda).
+Before implementing this, we are gonna extend the editor with basic syntax
+highlighting and bracket validation.
 
 #+BEGIN_EXPORT html
 <pre>

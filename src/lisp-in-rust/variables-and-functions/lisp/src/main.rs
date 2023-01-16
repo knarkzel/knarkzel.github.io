@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use anyhow::{anyhow, Result};
 use nom::{
     branch::alt,
@@ -10,7 +8,14 @@ use nom::{
     sequence::delimited,
     IResult,
 };
-use rustyline::{error::ReadlineError, Editor};
+use platform_dirs::AppDirs;
+use rustyline::completion::FilenameCompleter;
+use rustyline::{
+    error::ReadlineError, highlight::MatchingBracketHighlighter,
+    validate::MatchingBracketValidator, Editor,
+};
+use rustyline_derive::{Completer, Helper, Highlighter, Hinter, Validator};
+use std::fmt::Display;
 
 // Parser
 #[derive(Debug)]
@@ -102,17 +107,48 @@ fn eval(atoms: &[Atom]) -> Result<Atom> {
     }
 }
 
+// Rustyline
+#[derive(Helper, Completer, Hinter, Validator, Highlighter)]
+struct Helper {
+    #[rustyline(Completer)]
+    completer: FilenameCompleter,
+    #[rustyline(Highlighter)]
+    highlighter: MatchingBracketHighlighter,
+    #[rustyline(Validator)]
+    validator: MatchingBracketValidator,
+}
+
 fn main() -> Result<()> {
-    let mut editor = Editor::<()>::new()?;
+    // Get platform specific directory for cache
+    let directory = AppDirs::new(Some("lisp"), false)
+        .ok_or(anyhow!("No path for history found"))?
+        .cache_dir;
+    std::fs::create_dir_all(&directory)?;
+    let history = directory.join("history.txt");
+
+    // Create rustyline editor
+    let mut editor = Editor::new()?;
+    let helper = Helper {
+        completer: FilenameCompleter::new(),
+        highlighter: MatchingBracketHighlighter::new(),
+        validator: MatchingBracketValidator::new(),
+    };
+    editor.set_helper(Some(helper));
+    let _ = editor.load_history(&history);
+
+    // Read lines and eval them
     loop {
         match editor.readline(">> ") {
-            Ok(input) => match parse(&input) {
-                Ok((_, atoms)) => {
-                    let output = eval(&atoms)?;
-                    println!("{output}");
+            Ok(input) => {
+                editor.add_history_entry(&input);
+                match parse(&input) {
+                    Ok((_, atoms)) => {
+                        let output = eval(&atoms)?;
+                        println!("{output}");
+                    }
+                    Err(error) => println!("{error}"),
                 }
-                Err(error) => println!("{error}"),
-            },
+            }
             Err(ReadlineError::Interrupted | ReadlineError::Eof) => break,
             Err(error) => {
                 println!("Error: {error}");
@@ -120,5 +156,9 @@ fn main() -> Result<()> {
             }
         }
     }
+
+    // Save candidates to history
+    editor.save_history(&history)?;
+    
     Ok(())
 }
