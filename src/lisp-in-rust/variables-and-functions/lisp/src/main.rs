@@ -1,18 +1,16 @@
-use std::collections::HashMap;
-
 use anyhow::{anyhow, Result};
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete::{alpha1, digit1, multispace0},
+    character::complete::{alpha1, digit1, multispace0, multispace1},
     combinator::map,
     multi::{many0, many1},
-    sequence::{delimited, pair, preceded},
+    sequence::{delimited, pair, preceded, separated_pair, terminated},
     IResult,
 };
-use rustyline::completion::FilenameCompleter;
 use rustyline::{error::ReadlineError, validate::MatchingBracketValidator, Editor};
 use rustyline_derive::{Completer, Helper, Highlighter, Hinter, Validator};
+use std::collections::HashMap;
 
 // Parser
 #[derive(Debug, Clone)]
@@ -59,7 +57,8 @@ fn atom(input: &str) -> IResult<&str, Atom> {
 enum Expr {
     Constant(Atom),
     Define(Atom, Box<Expr>),
-    Call(Atom, Vec<Expr>),
+    Call(Box<Expr>, Vec<Expr>),
+    Lambda(Vec<Atom>, Box<Expr>),
     Nil,
 }
 
@@ -68,8 +67,8 @@ fn constant(input: &str) -> IResult<&str, Expr> {
 }
 
 fn call(input: &str) -> IResult<&str, Expr> {
-    let form = pair(atom, many0(expr));
-    let call = map(form, |(head, tail)| Expr::Call(head, tail));
+    let form = pair(expr, many0(expr));
+    let call = map(form, |(head, tail)| Expr::Call(Box::new(head), tail));
     delimited(tag("("), call, tag(")"))(input)
 }
 
@@ -79,8 +78,18 @@ fn define(input: &str) -> IResult<&str, Expr> {
     delimited(tag("("), define, tag(")"))(input)
 }
 
+fn lambda(input: &str) -> IResult<&str, Expr> {
+    let args = delimited(tag("("), many0(atom), tag(")"));
+    let form = preceded(
+        terminated(tag("lambda"), multispace1),
+        separated_pair(args, multispace1, expr),
+    );
+    let lambda = map(form, |(args, body)| Expr::Lambda(args, Box::new(body)));
+    delimited(tag("("), lambda, tag(")"))(input)
+}
+
 fn expr(input: &str) -> IResult<&str, Expr> {
-    alt((define, call, constant))(input)
+    alt((define, call, lambda, constant))(input)
 }
 
 // Final parser
@@ -107,19 +116,19 @@ fn eval(expr: Expr, environment: &mut HashMap<String, Expr>) -> Result<Expr> {
             .get(&name)
             .ok_or_else(|| anyhow!("`{name}` is not defined"))?
             .clone(),
-        Expr::Constant(_) => expr,
         Expr::Define(Atom::Symbol(name), value) => {
             let value = eval(*value, environment)?;
             environment.insert(name, value);
             Expr::Nil
         }
         Expr::Call(head, tail) => {
+            let head = eval(*head, environment)?;
             let tail = tail
                 .into_iter()
                 .map(|expr| eval(expr, environment))
                 .collect::<Result<Vec<_>, _>>()?;
             match head {
-                Atom::Operator(operator) => {
+                Expr::Constant(Atom::Operator(operator)) => {
                     let numbers = exprs_to_numbers(&tail)?;
                     let total = numbers
                         .into_iter()
@@ -132,10 +141,24 @@ fn eval(expr: Expr, environment: &mut HashMap<String, Expr>) -> Result<Expr> {
                         .ok_or_else(|| anyhow!("Tail is empty"))?;
                     Expr::Constant(Atom::Number(total))
                 }
+                Expr::Lambda(args, body) => {
+                    let scope = environment.clone();
+                    for (arg, expr) in args.into_iter().zip(tail.into_iter()) {
+                        match arg {
+                            Atom::Symbol(name) => {
+                                environment.insert(name, expr);
+                            }
+                            _ => return Err(anyhow!("Invalid symbol: {arg:?}")),
+                        }
+                    }
+                    let output = eval(*body, environment)?;
+                    *environment = scope;
+                    output
+                }
                 _ => return Err(anyhow!("Invalid function: {head:?}")),
             }
         }
-        Expr::Nil => Expr::Nil,
+        Expr::Lambda(_, _) | Expr::Constant(_) | Expr::Nil => expr,
         _ => return Err(anyhow!("Invalid expression: {expr:?}")),
     };
     Ok(output)
@@ -144,8 +167,6 @@ fn eval(expr: Expr, environment: &mut HashMap<String, Expr>) -> Result<Expr> {
 // Rustyline
 #[derive(Helper, Completer, Hinter, Validator, Highlighter)]
 struct Helper {
-    #[rustyline(Completer)]
-    completer: FilenameCompleter,
     #[rustyline(Validator)]
     validator: MatchingBracketValidator,
 }
@@ -154,7 +175,6 @@ fn main() -> Result<()> {
     // Create rustyline editor
     let mut editor = Editor::new()?;
     let helper = Helper {
-        completer: FilenameCompleter::new(),
         validator: MatchingBracketValidator::new(),
     };
     editor.set_helper(Some(helper));

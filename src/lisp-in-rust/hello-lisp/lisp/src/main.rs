@@ -1,23 +1,3 @@
-#+TITLE: Hello, Lisp
-
-#+BEGIN_SRC shell
-$ cargo new lisp
-     Created binary (application) `lisp` package
-$ cd lisp
-$ cargo add nom anyhow
-    Updating crates.io index
-      Adding nom v7.1.2 to dependencies.
-             Features:
-             + alloc
-             + std
-             - docsrs
-      Adding anyhow v1.0.68 to dependencies.
-             Features:
-             + std
-             - backtrace
-#+END_SRC
-
-#+BEGIN_SRC rust
 use anyhow::{anyhow, Result};
 use nom::{
     branch::alt,
@@ -120,28 +100,3 @@ fn main() -> Result<()> {
     }
     Ok(())
 }
-#+END_SRC
-
-#+BEGIN_SRC shell
-$ cargo run
-    Finished dev [unoptimized + debuginfo] target(s) in 0.02s
-     Running `target/debug/lisp`
->> (+ 1 2 3 4 5)
-Number(15)
->> (* 2 4 6 8)
-Number(384)
->> (/ 100 25)
-Number(4)
->> (- 10 5 3)
-Number(2)
-#+END_SRC
-
-#+BEGIN_EXPORT html
-<pre>
-lisp
-├── src
-│   └── <a href="./lisp/src/main.rs">main.rs</a>
-├── <a href="./lisp/Cargo.lock">Cargo.lock</a>
-└── <a href="./lisp/Cargo.toml">Cargo.toml</a>
-</pre>
-#+END_EXPORT
