@@ -213,6 +213,23 @@
 </pre>
 </div>
 
+<div class="org-src-container">
+<pre class="src src-shell"><span class="org-tree-sitter-hl-faceXpunctuationXspecial">$</span> <span class="org-tree-sitter-hl-faceXproperty">cargo</span> run
+    <span class="org-tree-sitter-hl-faceXfunctionXcall">Finished</span> dev <span class="org-rainbow-delimiters-depth-1">[</span>unoptimized + debuginfo<span class="org-rainbow-delimiters-depth-1">]</span> target<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-tree-sitter-hl-faceXfunctionXcall">s</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-tree-sitter-hl-faceXkeyword">in</span> <span class="org-tree-sitter-hl-faceXfunctionXcall">0.37s</span>
+     <span class="org-tree-sitter-hl-faceXfunctionXcall">Running</span> <span class="org-tree-sitter-hl-faceXpunctuationXspecial">`</span><span class="org-tree-sitter-hl-faceXembedded"><span class="org-tree-sitter-hl-faceXfunctionXcall">target/debug/lisp</span></span><span class="org-tree-sitter-hl-faceXpunctuationXspecial">`</span>
+<span class="org-tree-sitter-hl-faceXoperator">&gt;&gt;</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-tree-sitter-hl-faceXfunctionXcall">define</span> x 10<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-tree-sitter-hl-faceXfunctionXcall">Nil</span>
+<span class="org-tree-sitter-hl-faceXoperator">&gt;&gt;</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-tree-sitter-hl-faceXfunctionXcall">+</span> x 20<span class="org-rainbow-delimiters-depth-1">)</span>
+Constant<span class="org-rainbow-delimiters-depth-1">(</span>Number<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-tree-sitter-hl-faceXfunctionXcall">30</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-tree-sitter-hl-faceXoperator">&gt;&gt;</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-tree-sitter-hl-faceXfunctionXcall">*</span> x x<span class="org-rainbow-delimiters-depth-1">)</span>
+Constant<span class="org-rainbow-delimiters-depth-1">(</span>Number<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-tree-sitter-hl-faceXfunctionXcall">100</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-tree-sitter-hl-faceXoperator">&gt;&gt;</span> <span class="org-rainbow-delimiters-depth-1">(</span>define <span class="org-tree-sitter-hl-faceXfunctionXcall">add</span> <span class="org-rainbow-delimiters-depth-2">(</span>lambda <span class="org-rainbow-delimiters-depth-3">(</span>x y<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-tree-sitter-hl-faceXfunctionXcall">+</span> x y<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-tree-sitter-hl-faceXfunctionXcall">Nil</span>
+<span class="org-tree-sitter-hl-faceXoperator">&gt;&gt;</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-tree-sitter-hl-faceXfunctionXcall">add</span> 5 10<span class="org-rainbow-delimiters-depth-1">)</span>
+Constant<span class="org-rainbow-delimiters-depth-1">(</span>Number<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-tree-sitter-hl-faceXfunctionXcall">15</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+
 <pre>
 lisp
 ├── src
