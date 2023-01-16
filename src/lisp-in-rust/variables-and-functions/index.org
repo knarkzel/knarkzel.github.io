@@ -213,6 +213,22 @@ fn main() -> Result<()> {
 }
 #+END_SRC
 
+#+BEGIN_SRC shell
+$ cargo run
+    Finished dev [unoptimized + debuginfo] target(s) in 0.37s
+     Running `target/debug/lisp`
+>> (define x 10)
+Nil
+>> (+ x 20)
+Constant(Number(30))
+>> (* x x)
+Constant(Number(100))
+>> (define add (lambda (x y) (+ x y)))
+Nil
+>> (add 5 10)
+Constant(Number(15))
+#+END_SRC
+
 #+BEGIN_EXPORT html
 <pre>
 lisp
