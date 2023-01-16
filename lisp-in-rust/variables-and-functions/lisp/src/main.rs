@@ -1,24 +1,21 @@
+use std::collections::HashMap;
+
 use anyhow::{anyhow, Result};
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete::{digit1, multispace0},
+    character::complete::{alpha1, digit1, multispace0},
     combinator::map,
-    multi::many1,
-    sequence::delimited,
+    multi::{many0, many1},
+    sequence::{delimited, pair, preceded},
     IResult,
 };
-use platform_dirs::AppDirs;
 use rustyline::completion::FilenameCompleter;
-use rustyline::{
-    error::ReadlineError, highlight::MatchingBracketHighlighter,
-    validate::MatchingBracketValidator, Editor,
-};
+use rustyline::{error::ReadlineError, validate::MatchingBracketValidator, Editor};
 use rustyline_derive::{Completer, Helper, Highlighter, Hinter, Validator};
-use std::fmt::Display;
 
 // Parser
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Operator {
     Plus,
     Minus,
@@ -26,32 +23,14 @@ enum Operator {
     Multiply,
 }
 
-impl Display for Operator {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Operator::Plus => f.write_str("+"),
-            Operator::Minus => f.write_str("-"),
-            Operator::Divide => f.write_str("/"),
-            Operator::Multiply => f.write_str("*"),
-        }
-    }
-}
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Atom {
     Number(isize),
     Operator(Operator),
+    Symbol(String),
 }
 
-impl Display for Atom {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Atom::Number(number) => number.fmt(f),
-            Atom::Operator(operator) => operator.fmt(f),
-        }
-    }
-}
-
+// Atom
 fn operator(input: &str) -> IResult<&str, Atom> {
     let plus = map(tag("+"), |_| Operator::Plus);
     let minus = map(tag("-"), |_| Operator::Minus);
@@ -66,21 +45,55 @@ fn number(input: &str) -> IResult<&str, Atom> {
     })(input)
 }
 
+fn symbol(input: &str) -> IResult<&str, Atom> {
+    map(alpha1, |name: &str| Atom::Symbol(name.to_string()))(input)
+}
+
 fn atom(input: &str) -> IResult<&str, Atom> {
-    let options = alt((operator, number));
+    let options = alt((symbol, operator, number));
     delimited(multispace0, options, multispace0)(input)
 }
 
-fn parse(input: &str) -> IResult<&str, Vec<Atom>> {
-    delimited(tag("("), many1(atom), tag(")"))(input)
+// Expr
+#[derive(Debug, Clone)]
+enum Expr {
+    Constant(Atom),
+    Define(Atom, Box<Expr>),
+    Call(Atom, Vec<Expr>),
+    Nil,
+}
+
+fn constant(input: &str) -> IResult<&str, Expr> {
+    map(atom, Expr::Constant)(input)
+}
+
+fn call(input: &str) -> IResult<&str, Expr> {
+    let form = pair(atom, many0(expr));
+    let call = map(form, |(head, tail)| Expr::Call(head, tail));
+    delimited(tag("("), call, tag(")"))(input)
+}
+
+fn define(input: &str) -> IResult<&str, Expr> {
+    let form = preceded(tag("define"), pair(atom, expr));
+    let define = map(form, |(name, value)| Expr::Define(name, Box::new(value)));
+    delimited(tag("("), define, tag(")"))(input)
+}
+
+fn expr(input: &str) -> IResult<&str, Expr> {
+    alt((define, call, constant))(input)
+}
+
+// Final parser
+fn parse(input: &str) -> IResult<&str, Vec<Expr>> {
+    many1(delimited(multispace0, expr, multispace0))(input)
 }
 
 // Helpers
-fn atoms_to_numbers(atoms: &[Atom]) -> Result<Vec<isize>> {
-    let numbers = atoms
+fn exprs_to_numbers(exprs: &[Expr]) -> Result<Vec<isize>> {
+    let numbers = exprs
         .iter()
-        .map(|atom| match atom {
-            Atom::Number(number) => Ok(*number),
+        .map(|expr| match expr {
+            Expr::Constant(Atom::Number(number)) => Ok(*number),
             atom => Err(anyhow!("Expected number, got {atom:?}")),
         })
         .collect::<Result<Vec<_>, _>>()?;
@@ -88,23 +101,44 @@ fn atoms_to_numbers(atoms: &[Atom]) -> Result<Vec<isize>> {
 }
 
 // Evaluator
-fn eval(atoms: &[Atom]) -> Result<Atom> {
-    match atoms {
-        [Atom::Operator(operator), tail @ ..] => {
-            let numbers = atoms_to_numbers(tail)?;
-            let total = numbers
-                .into_iter()
-                .reduce(|total, number| match operator {
-                    Operator::Plus => total + number,
-                    Operator::Minus => total - number,
-                    Operator::Divide => total / number,
-                    Operator::Multiply => total * number,
-                })
-                .ok_or_else(|| anyhow!("Tail is empty"))?;
-            Ok(Atom::Number(total))
+fn eval(expr: Expr, environment: &mut HashMap<String, Expr>) -> Result<Expr> {
+    let output = match expr {
+        Expr::Constant(Atom::Symbol(name)) => environment
+            .get(&name)
+            .ok_or_else(|| anyhow!("`{name}` is not defined"))?
+            .clone(),
+        Expr::Constant(_) => expr,
+        Expr::Define(Atom::Symbol(name), value) => {
+            let value = eval(*value, environment)?;
+            environment.insert(name, value);
+            Expr::Nil
         }
-        atoms => Err(anyhow!("Invalid input: {atoms:#?}")),
-    }
+        Expr::Call(head, tail) => {
+            let tail = tail
+                .into_iter()
+                .map(|expr| eval(expr, environment))
+                .collect::<Result<Vec<_>, _>>()?;
+            match head {
+                Atom::Operator(operator) => {
+                    let numbers = exprs_to_numbers(&tail)?;
+                    let total = numbers
+                        .into_iter()
+                        .reduce(|total, number| match operator {
+                            Operator::Plus => total + number,
+                            Operator::Minus => total - number,
+                            Operator::Divide => total / number,
+                            Operator::Multiply => total * number,
+                        })
+                        .ok_or_else(|| anyhow!("Tail is empty"))?;
+                    Expr::Constant(Atom::Number(total))
+                }
+                _ => return Err(anyhow!("Invalid function: {head:?}")),
+            }
+        }
+        Expr::Nil => Expr::Nil,
+        _ => return Err(anyhow!("Invalid expression: {expr:?}")),
+    };
+    Ok(output)
 }
 
 // Rustyline
@@ -112,43 +146,32 @@ fn eval(atoms: &[Atom]) -> Result<Atom> {
 struct Helper {
     #[rustyline(Completer)]
     completer: FilenameCompleter,
-    #[rustyline(Highlighter)]
-    highlighter: MatchingBracketHighlighter,
     #[rustyline(Validator)]
     validator: MatchingBracketValidator,
 }
 
 fn main() -> Result<()> {
-    // Get platform specific directory for cache
-    let directory = AppDirs::new(Some("lisp"), false)
-        .ok_or(anyhow!("No path for history found"))?
-        .cache_dir;
-    std::fs::create_dir_all(&directory)?;
-    let history = directory.join("history.txt");
-
     // Create rustyline editor
     let mut editor = Editor::new()?;
     let helper = Helper {
         completer: FilenameCompleter::new(),
-        highlighter: MatchingBracketHighlighter::new(),
         validator: MatchingBracketValidator::new(),
     };
     editor.set_helper(Some(helper));
-    let _ = editor.load_history(&history);
 
     // Read lines and eval them
+    let mut environment = HashMap::new();
     loop {
         match editor.readline(">> ") {
-            Ok(input) => {
-                editor.add_history_entry(&input);
-                match parse(&input) {
-                    Ok((_, atoms)) => {
-                        let output = eval(&atoms)?;
-                        println!("{output}");
+            Ok(input) => match parse(&input) {
+                Ok((_, exprs)) => {
+                    for expr in exprs {
+                        let output = eval(expr, &mut environment)?;
+                        println!("{output:?}");
                     }
-                    Err(error) => println!("{error}"),
                 }
-            }
+                Err(error) => println!("{error}"),
+            },
             Err(ReadlineError::Interrupted | ReadlineError::Eof) => break,
             Err(error) => {
                 println!("Error: {error}");
@@ -157,8 +180,5 @@ fn main() -> Result<()> {
         }
     }
 
-    // Save candidates to history
-    editor.save_history(&history)?;
-    
     Ok(())
 }
