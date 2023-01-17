@@ -1,0 +1,515 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Implementing opcodes</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Implementing opcodes</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://github.com/knarkzel">Knarkzel</a></td></table>
+<div id="outline-container-orgdcec703" class="outline-2">
+<h2 id="orgdcec703">main.zig</h2>
+<div class="outline-text-2" id="text-orgdcec703">
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">std</span> = <span class="org-builtin">@import</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"std"</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">const</span> <span class="org-variable-name">Emulator</span> = <span class="org-builtin">@import</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"Emulator.zig"</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">const</span> <span class="org-variable-name">Terminal</span> = <span class="org-builtin">@import</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"Terminal.zig"</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-keyword">const</span> <span class="org-variable-name">step</span> = 3 * std.time.ns_per_ms;
+<span class="org-keyword">var</span> <span class="org-variable-name">running</span> = <span class="org-constant">true</span>;
+<span class="org-keyword">var</span> <span class="org-variable-name">keys</span>: <span class="org-rainbow-delimiters-depth-1">[</span>16<span class="org-rainbow-delimiters-depth-1">]</span><span class="org-type">u1</span> = <span class="org-constant">undefined</span>;
+<span class="org-keyword">var</span> <span class="org-variable-name">screens</span>: <span class="org-rainbow-delimiters-depth-1">[</span>2<span class="org-rainbow-delimiters-depth-1">][</span>64 * 32<span class="org-rainbow-delimiters-depth-1">]</span><span class="org-type">u1</span> = <span class="org-constant">undefined</span>;
+<span class="org-keyword">var</span> <span class="org-variable-name">screen</span>: *<span class="org-rainbow-delimiters-depth-1">[</span>64 * 32<span class="org-rainbow-delimiters-depth-1">]</span><span class="org-type">u1</span> = &amp;screens<span class="org-rainbow-delimiters-depth-1">[</span>0<span class="org-rainbow-delimiters-depth-1">]</span>;
+<span class="org-keyword">var</span> <span class="org-variable-name">index</span>: <span class="org-type">usize</span> = 0;
+
+<span class="org-keyword">fn</span> <span class="org-function-name">drawDiff</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">allocator</span>: <span class="org-type">std</span>.mem.Allocator<span class="org-rainbow-delimiters-depth-1">)</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">var</span> <span class="org-variable-name">commands</span> = std.ArrayList<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">u8</span><span class="org-rainbow-delimiters-depth-2">)</span>.init<span class="org-rainbow-delimiters-depth-2">(</span>allocator<span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">defer</span> commands.deinit<span class="org-rainbow-delimiters-depth-2">()</span>;
+    <span class="org-keyword">const</span> <span class="org-variable-name">before</span> = screens<span class="org-rainbow-delimiters-depth-2">[</span><span class="org-rainbow-delimiters-depth-3">(</span>index + 1<span class="org-rainbow-delimiters-depth-3">)</span> % 2<span class="org-rainbow-delimiters-depth-2">]</span>;
+    <span class="org-keyword">const</span> <span class="org-variable-name">after</span> = screen.*;
+    <span class="org-keyword">var</span> <span class="org-variable-name">y</span>: <span class="org-type">usize</span> = 0;
+    <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-2">(</span>y &lt; 32<span class="org-rainbow-delimiters-depth-2">)</span> : <span class="org-rainbow-delimiters-depth-2">(</span>y += 1<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">var</span> <span class="org-variable-name">x</span>: <span class="org-type">usize</span> = 0;
+        <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-3">(</span>x &lt; 64<span class="org-rainbow-delimiters-depth-3">)</span> : <span class="org-rainbow-delimiters-depth-3">(</span>x += 1<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">const</span> <span class="org-variable-name">i</span> = y * 64 + x;
+            <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>after<span class="org-rainbow-delimiters-depth-5">[</span>i<span class="org-rainbow-delimiters-depth-5">]</span> != before<span class="org-rainbow-delimiters-depth-5">[</span>i<span class="org-rainbow-delimiters-depth-5">]</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">const</span> <span class="org-variable-name">output</span> = <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-5">(</span>after<span class="org-rainbow-delimiters-depth-6">[</span>i<span class="org-rainbow-delimiters-depth-6">]</span> &gt; 0<span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-string">"&#9608;"</span> <span class="org-keyword">else</span> <span class="org-string">" "</span>;
+                <span class="org-keyword">const</span> <span class="org-variable-name">command</span> = <span class="org-keyword">try</span> std.fmt.allocPrint<span class="org-rainbow-delimiters-depth-5">(</span>allocator, <span class="org-string">"\x1b[{d};{d}H{s}"</span>, .<span class="org-rainbow-delimiters-depth-6">{</span> y + 1, x + 1, output <span class="org-rainbow-delimiters-depth-6">}</span><span class="org-rainbow-delimiters-depth-5">)</span>;
+                <span class="org-keyword">defer</span> allocator.free<span class="org-rainbow-delimiters-depth-5">(</span>command<span class="org-rainbow-delimiters-depth-5">)</span>;
+                <span class="org-keyword">try</span> commands.appendSlice<span class="org-rainbow-delimiters-depth-5">(</span>command<span class="org-rainbow-delimiters-depth-5">)</span>;
+            <span class="org-rainbow-delimiters-depth-4">}</span>
+        <span class="org-rainbow-delimiters-depth-3">}</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+    <span class="org-keyword">try</span> Terminal.write<span class="org-rainbow-delimiters-depth-2">(</span>commands.items<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">fn</span> <span class="org-function-name">handleInput</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">const</span> <span class="org-variable-name">CTRL_C</span> = 3;
+    <span class="org-keyword">const</span> <span class="org-variable-name">CTRL_Z</span> = 26;
+    <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-2">(</span>running<span class="org-rainbow-delimiters-depth-2">)</span> : <span class="org-rainbow-delimiters-depth-2">(</span>std.time.sleep<span class="org-rainbow-delimiters-depth-3">(</span>step<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">const</span> <span class="org-variable-name">key</span> = <span class="org-keyword">try</span> Terminal.read<span class="org-rainbow-delimiters-depth-3">()</span>;
+        <span class="org-keyword">switch</span> <span class="org-rainbow-delimiters-depth-3">(</span>key<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            CTRL_C, CTRL_Z =&gt; running = <span class="org-constant">false</span>,
+            <span class="org-string">'1'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>0<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'2'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>1<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'3'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>2<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'4'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>3<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'q'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>4<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'w'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>5<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'f'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>6<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'p'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>7<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'a'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>8<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'r'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>9<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'s'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>10<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'t'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>11<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'z'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>12<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'x'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>13<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'c'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>14<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-string">'v'</span> =&gt; keys<span class="org-rainbow-delimiters-depth-4">[</span>15<span class="org-rainbow-delimiters-depth-4">]</span> = 1,
+            <span class="org-keyword">else</span> =&gt; <span class="org-keyword">continue</span>,
+        <span class="org-rainbow-delimiters-depth-3">}</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">main</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Allocator</span>
+    <span class="org-keyword">var</span> <span class="org-variable-name">buffer</span>: <span class="org-rainbow-delimiters-depth-2">[</span>64 * 32 * 15<span class="org-rainbow-delimiters-depth-2">]</span><span class="org-type">u8</span> = <span class="org-constant">undefined</span>;
+    <span class="org-keyword">var</span> <span class="org-variable-name">fba</span> = std.heap.FixedBufferAllocator.init<span class="org-rainbow-delimiters-depth-2">(</span>&amp;buffer<span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">const</span> <span class="org-variable-name">allocator</span> = fba.allocator<span class="org-rainbow-delimiters-depth-2">()</span>;
+
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Initialize emulator</span>
+    Emulator.init<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-builtin">@embedFile</span><span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"../roms/pong.ch8"</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Initialize terminal</span>
+    <span class="org-keyword">try</span> Terminal.init<span class="org-rainbow-delimiters-depth-2">()</span>;
+
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Input</span>
+    <span class="org-keyword">const</span> <span class="org-variable-name">input</span> = <span class="org-keyword">try</span> std.Thread.spawn<span class="org-rainbow-delimiters-depth-2">(</span>.<span class="org-rainbow-delimiters-depth-3">{}</span>, handleInput, .<span class="org-rainbow-delimiters-depth-3">{}</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    input.detach<span class="org-rainbow-delimiters-depth-2">()</span>;
+
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Main loop</span>
+    <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-2">(</span>running<span class="org-rainbow-delimiters-depth-2">)</span> : <span class="org-rainbow-delimiters-depth-2">(</span>std.time.sleep<span class="org-rainbow-delimiters-depth-3">(</span>step<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        Emulator.cycle<span class="org-rainbow-delimiters-depth-3">(</span>&amp;keys, screen<span class="org-rainbow-delimiters-depth-3">)</span>;
+        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>Emulator.update<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">try</span> drawDiff<span class="org-rainbow-delimiters-depth-4">(</span>allocator<span class="org-rainbow-delimiters-depth-4">)</span>;
+            fba.reset<span class="org-rainbow-delimiters-depth-4">()</span>;
+            index = <span class="org-rainbow-delimiters-depth-4">(</span>index + 1<span class="org-rainbow-delimiters-depth-4">)</span> % 2;
+            screens<span class="org-rainbow-delimiters-depth-4">[</span>index<span class="org-rainbow-delimiters-depth-4">]</span> = screen.*;
+            screen = &amp;screens<span class="org-rainbow-delimiters-depth-4">[</span>index<span class="org-rainbow-delimiters-depth-4">]</span>;
+            Emulator.update = <span class="org-constant">false</span>;
+        <span class="org-rainbow-delimiters-depth-3">}</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+    <span class="org-keyword">try</span> Terminal.deinit<span class="org-rainbow-delimiters-depth-2">()</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org212ccc9" class="outline-2">
+<h2 id="org212ccc9">Emulator.zig</h2>
+<div class="outline-text-2" id="text-org212ccc9">
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">std</span> = <span class="org-builtin">@import</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"std"</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-keyword">var</span> <span class="org-variable-name">ram</span>: <span class="org-rainbow-delimiters-depth-1">[</span>4096<span class="org-rainbow-delimiters-depth-1">]</span><span class="org-type">u16</span> = .<span class="org-rainbow-delimiters-depth-1">{</span>0<span class="org-rainbow-delimiters-depth-1">}</span> ** 4096;
+<span class="org-keyword">var</span> <span class="org-variable-name">stack</span>: <span class="org-rainbow-delimiters-depth-1">[</span>16<span class="org-rainbow-delimiters-depth-1">]</span><span class="org-type">u16</span> = .<span class="org-rainbow-delimiters-depth-1">{</span>0<span class="org-rainbow-delimiters-depth-1">}</span> ** 16;
+<span class="org-keyword">var</span> <span class="org-variable-name">v</span>: <span class="org-rainbow-delimiters-depth-1">[</span>16<span class="org-rainbow-delimiters-depth-1">]</span><span class="org-type">u16</span> = .<span class="org-rainbow-delimiters-depth-1">{</span>0<span class="org-rainbow-delimiters-depth-1">}</span> ** 16;
+<span class="org-keyword">var</span> <span class="org-variable-name">i</span>: <span class="org-type">u16</span> = 0;
+<span class="org-keyword">var</span> <span class="org-variable-name">dt</span>: <span class="org-type">u16</span> = 0;
+<span class="org-keyword">var</span> <span class="org-variable-name">st</span>: <span class="org-type">u16</span> = 0;
+<span class="org-keyword">var</span> <span class="org-variable-name">pc</span>: <span class="org-type">u16</span> = 0x200;
+<span class="org-keyword">var</span> <span class="org-variable-name">sp</span>: <span class="org-type">u16</span> = 0;
+<span class="org-keyword">pub</span> <span class="org-keyword">var</span> <span class="org-variable-name">update</span>: <span class="org-type">bool</span> = <span class="org-constant">false</span>;
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">init</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">bytes</span>: <span class="org-rainbow-delimiters-depth-2">[]</span><span class="org-keyword">const</span> <span class="org-type">u8</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Load font into memory</span>
+    <span class="org-keyword">const</span> <span class="org-variable-name">font</span>: <span class="org-rainbow-delimiters-depth-2">[</span>80<span class="org-rainbow-delimiters-depth-2">]</span><span class="org-type">u8</span> = .<span class="org-rainbow-delimiters-depth-2">{</span>
+        0xF0, 0x90, 0x90, 0x90, 0xF0, 0x20, 0x60, 0x20, 0x20, 0x70, 0xF0, 0x10, 0xF0, 0x80, 0xF0, 0xF0,
+        0x10, 0xF0, 0x10, 0xF0, 0x90, 0x90, 0xF0, 0x10, 0x10, 0xF0, 0x80, 0xF0, 0x10, 0xF0, 0xF0, 0x80,
+        0xF0, 0x90, 0xF0, 0xF0, 0x10, 0x20, 0x40, 0x40, 0xF0, 0x90, 0xF0, 0x90, 0xF0, 0xF0, 0x90, 0xF0,
+        0x10, 0xF0, 0xF0, 0x90, 0xF0, 0x90, 0x90, 0xE0, 0x90, 0xE0, 0x90, 0xE0, 0xF0, 0x80, 0x80, 0x80,
+        0xF0, 0xE0, 0x90, 0x90, 0x90, 0xE0, 0xF0, 0x80, 0xF0, 0x80, 0xF0, 0xF0, 0x80, 0xF0, 0x80, 0x80,
+    <span class="org-rainbow-delimiters-depth-2">}</span>;
+    <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span>font<span class="org-rainbow-delimiters-depth-2">)</span> |byte, index|
+        ram<span class="org-rainbow-delimiters-depth-2">[</span>index<span class="org-rainbow-delimiters-depth-2">]</span> = byte;
+
+    ram<span class="org-rainbow-delimiters-depth-2">[</span>0x1FF<span class="org-rainbow-delimiters-depth-2">]</span> = 2;
+
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Load bytes into memory</span>
+    <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-2">(</span>bytes<span class="org-rainbow-delimiters-depth-2">)</span> |byte, index|
+        ram<span class="org-rainbow-delimiters-depth-2">[</span>index + 0x200<span class="org-rainbow-delimiters-depth-2">]</span> = byte;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">cycle</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">keys</span>: *<span class="org-rainbow-delimiters-depth-2">[</span>16<span class="org-rainbow-delimiters-depth-2">]</span><span class="org-type">u1</span>, <span class="org-variable-name">screen</span>: *<span class="org-rainbow-delimiters-depth-2">[</span>64 * 32<span class="org-rainbow-delimiters-depth-2">]</span><span class="org-type">u1</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">Decrement timers</span>
+    <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-2">(</span>dt &gt; 0<span class="org-rainbow-delimiters-depth-2">)</span> dt -= 1;
+    <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-2">(</span>st &gt; 0<span class="org-rainbow-delimiters-depth-2">)</span> st -= 1;
+
+    <span class="org-keyword">const</span> <span class="org-variable-name">opcode</span> = <span class="org-rainbow-delimiters-depth-2">(</span>ram<span class="org-rainbow-delimiters-depth-3">[</span>pc<span class="org-rainbow-delimiters-depth-3">]</span> &lt;&lt; 8<span class="org-rainbow-delimiters-depth-2">)</span> | ram<span class="org-rainbow-delimiters-depth-2">[</span>pc + 1<span class="org-rainbow-delimiters-depth-2">]</span>;
+    <span class="org-keyword">const</span> <span class="org-variable-name">x</span> = <span class="org-rainbow-delimiters-depth-2">(</span>opcode &amp; 0x0F00<span class="org-rainbow-delimiters-depth-2">)</span> &gt;&gt; 8;
+    <span class="org-keyword">const</span> <span class="org-variable-name">y</span> = <span class="org-rainbow-delimiters-depth-2">(</span>opcode &amp; 0x00F0<span class="org-rainbow-delimiters-depth-2">)</span> &gt;&gt; 4;
+    <span class="org-keyword">const</span> <span class="org-variable-name">n</span> = <span class="org-rainbow-delimiters-depth-2">(</span>opcode &amp; 0x000F<span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">const</span> <span class="org-variable-name">nnn</span> = <span class="org-rainbow-delimiters-depth-2">(</span>opcode &amp; 0x0FFF<span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">const</span> <span class="org-variable-name">kk</span> = <span class="org-rainbow-delimiters-depth-2">(</span>opcode &amp; 0x00FF<span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">switch</span> <span class="org-rainbow-delimiters-depth-2">(</span>opcode &amp; 0xF000<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        0x0000 =&gt; <span class="org-keyword">switch</span> <span class="org-rainbow-delimiters-depth-3">(</span>opcode &amp; 0x0FF<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">00E0 - CLS: Clear the display.</span>
+            0x00E0 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-5">(</span>screen<span class="org-rainbow-delimiters-depth-5">)</span> |*byte|
+                    byte.* = 0;
+                update = <span class="org-constant">true</span>;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">00EE - RET: The interpreter sets the program counter to the address at</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">the top of the stack, then subtracts 1 from the stack pointer.</span>
+            0x00EE =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                pc = stack<span class="org-rainbow-delimiters-depth-5">[</span>sp<span class="org-rainbow-delimiters-depth-5">]</span> + 2;
+                sp -= 1;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-keyword">else</span> =&gt; <span class="org-builtin">@panic</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"Invalid opcode in 0x0000 branch"</span><span class="org-rainbow-delimiters-depth-4">)</span>,
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">1nnn - JP addr: The interpreter sets the program counter to nnn.</span>
+        0x1000 =&gt; pc = nnn,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">2nnn - CALL addr: The interpreter increments the stack pointer, then</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">puts the current PC on the top of the stack. The PC is then set</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">to nnn.</span>
+        0x2000 =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
+            sp += 1;
+            stack<span class="org-rainbow-delimiters-depth-4">[</span>sp<span class="org-rainbow-delimiters-depth-4">]</span> = pc;
+            pc = nnn;
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">3xkk - SE Vx, byte: The interpreter compares register Vx to kk,</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">and if they are equal, increments the program counter by 2.</span>
+        0x3000 =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> == kk<span class="org-rainbow-delimiters-depth-4">)</span>
+                pc += 4
+            <span class="org-keyword">else</span>
+                pc += 2;
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">4xkk - SNE Vx, byte: The interpreter compares register Vx to kk,</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">and if they are not equal, increments the program counter by 2.</span>
+        0x4000 =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> != kk<span class="org-rainbow-delimiters-depth-4">)</span>
+                pc += 4
+            <span class="org-keyword">else</span>
+                pc += 2;
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">5xy0 - SE Vx, Vy: The interpreter compares register Vx to register</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">Vy, and if they are equal, increments the program counter by 2.</span>
+        0x5000 =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> == v<span class="org-rainbow-delimiters-depth-5">[</span>y<span class="org-rainbow-delimiters-depth-5">]</span><span class="org-rainbow-delimiters-depth-4">)</span>
+                pc += 4
+            <span class="org-keyword">else</span>
+                pc += 2;
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">6xkk - LD Vx, byte: The interpreter puts the value kk into</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">register Vx.</span>
+        0x6000 =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
+            v<span class="org-rainbow-delimiters-depth-4">[</span>x<span class="org-rainbow-delimiters-depth-4">]</span> = kk;
+            pc += 2;
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">7xkk - ADD Vx, byte: Adds the value kk to the value of register</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">Vx, then stores the result in Vx.</span>
+        0x7000 =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
+            v<span class="org-rainbow-delimiters-depth-4">[</span>x<span class="org-rainbow-delimiters-depth-4">]</span> = <span class="org-rainbow-delimiters-depth-4">(</span>v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> + kk<span class="org-rainbow-delimiters-depth-4">)</span> % 256;
+            pc += 2;
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        0x8000 =&gt; <span class="org-keyword">switch</span> <span class="org-rainbow-delimiters-depth-3">(</span>opcode &amp; 0x000F<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">8xy0 - LD Vx, Vy: Stores the value of register Vy in register Vx.</span>
+            0x0000 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> = v<span class="org-rainbow-delimiters-depth-5">[</span>y<span class="org-rainbow-delimiters-depth-5">]</span>;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">8xy1 - OR Vx, Vy: Performs a bitwise OR on the values of Vx and</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Vy, then stores the result in Vx.</span>
+            0x0001 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> |= v<span class="org-rainbow-delimiters-depth-5">[</span>y<span class="org-rainbow-delimiters-depth-5">]</span>;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">8xy2 - AND Vx, Vy: Performs a bitwise AND on the values of Vx and</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Vy, then stores the result in Vx.</span>
+            0x0002 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> &amp;= v<span class="org-rainbow-delimiters-depth-5">[</span>y<span class="org-rainbow-delimiters-depth-5">]</span>;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">8xy3 - XOR Vx, Vy: Performs a bitwise exclusive OR on the values</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">of Vx and Vy, then stores the result in Vx.</span>
+            0x0003 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> ^= v<span class="org-rainbow-delimiters-depth-5">[</span>y<span class="org-rainbow-delimiters-depth-5">]</span>;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">8xy4 - ADD Vx, Vy: The values of Vx and Vy are added together. If</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">the result is greater than 8 bits (i.e., &gt; 255,) VF is set to 1,</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">otherwise 0.</span>
+            0x0004 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-5">(</span>v<span class="org-rainbow-delimiters-depth-6">[</span>x<span class="org-rainbow-delimiters-depth-6">]</span> + v<span class="org-rainbow-delimiters-depth-6">[</span>y<span class="org-rainbow-delimiters-depth-6">]</span> &gt; 255<span class="org-rainbow-delimiters-depth-5">)</span> v<span class="org-rainbow-delimiters-depth-5">[</span>0xF<span class="org-rainbow-delimiters-depth-5">]</span> = 1 <span class="org-keyword">else</span> v<span class="org-rainbow-delimiters-depth-5">[</span>0xF<span class="org-rainbow-delimiters-depth-5">]</span> = 0;
+                v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> = <span class="org-rainbow-delimiters-depth-5">(</span>v<span class="org-rainbow-delimiters-depth-6">[</span>x<span class="org-rainbow-delimiters-depth-6">]</span> + v<span class="org-rainbow-delimiters-depth-6">[</span>y<span class="org-rainbow-delimiters-depth-6">]</span><span class="org-rainbow-delimiters-depth-5">)</span> % 256;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">8xy5 - SUB Vx, Vy: If Vx &gt; Vy, then VF is set to 1, otherwise</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">0. Then Vy is subtracted from Vx, and the results stored in Vx.</span>
+            0x0005 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-5">(</span>v<span class="org-rainbow-delimiters-depth-6">[</span>x<span class="org-rainbow-delimiters-depth-6">]</span> &gt; v<span class="org-rainbow-delimiters-depth-6">[</span>y<span class="org-rainbow-delimiters-depth-6">]</span><span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-rainbow-delimiters-depth-5">{</span>
+                    v<span class="org-rainbow-delimiters-depth-6">[</span>0xF<span class="org-rainbow-delimiters-depth-6">]</span> = 1;
+                    v<span class="org-rainbow-delimiters-depth-6">[</span>x<span class="org-rainbow-delimiters-depth-6">]</span> -= v<span class="org-rainbow-delimiters-depth-6">[</span>y<span class="org-rainbow-delimiters-depth-6">]</span>;
+                <span class="org-rainbow-delimiters-depth-5">}</span> <span class="org-keyword">else</span> <span class="org-rainbow-delimiters-depth-5">{</span>
+                    v<span class="org-rainbow-delimiters-depth-6">[</span>0xF<span class="org-rainbow-delimiters-depth-6">]</span> = 0;
+                    v<span class="org-rainbow-delimiters-depth-6">[</span>x<span class="org-rainbow-delimiters-depth-6">]</span> = 256 - <span class="org-rainbow-delimiters-depth-6">(</span>v<span class="org-rainbow-delimiters-depth-7">[</span>y<span class="org-rainbow-delimiters-depth-7">]</span> - v<span class="org-rainbow-delimiters-depth-7">[</span>x<span class="org-rainbow-delimiters-depth-7">]</span><span class="org-rainbow-delimiters-depth-6">)</span>;
+                <span class="org-rainbow-delimiters-depth-5">}</span>
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">8xy6 - SHR Vx {, Vy}: If the least-significant bit of Vx is 1,</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">then VF is set to 1, otherwise 0. Then Vx is divided by 2.</span>
+            0x0006 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> = v<span class="org-rainbow-delimiters-depth-5">[</span>y<span class="org-rainbow-delimiters-depth-5">]</span> &gt;&gt; 1;
+                v<span class="org-rainbow-delimiters-depth-5">[</span>0xF<span class="org-rainbow-delimiters-depth-5">]</span> = v<span class="org-rainbow-delimiters-depth-5">[</span>y<span class="org-rainbow-delimiters-depth-5">]</span> &amp; 1;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">8xy7 - SUBN Vx, Vy: If Vy &gt; Vx, then VF is set to 1, otherwise</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">0. Then Vx is subtracted from Vy, and the results stored in Vx.</span>
+            0x0007 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-5">(</span>v<span class="org-rainbow-delimiters-depth-6">[</span>y<span class="org-rainbow-delimiters-depth-6">]</span> &gt; v<span class="org-rainbow-delimiters-depth-6">[</span>x<span class="org-rainbow-delimiters-depth-6">]</span><span class="org-rainbow-delimiters-depth-5">)</span> v<span class="org-rainbow-delimiters-depth-5">[</span>0xF<span class="org-rainbow-delimiters-depth-5">]</span> = 1 <span class="org-keyword">else</span> v<span class="org-rainbow-delimiters-depth-5">[</span>0xF<span class="org-rainbow-delimiters-depth-5">]</span> = 0;
+                v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> = v<span class="org-rainbow-delimiters-depth-5">[</span>y<span class="org-rainbow-delimiters-depth-5">]</span> - v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span>;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">8xyE - SHL Vx {, Vy}: If the most-significant bit of Vx is 1,</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.</span>
+            0x000E =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> = v<span class="org-rainbow-delimiters-depth-5">[</span>y<span class="org-rainbow-delimiters-depth-5">]</span> &lt;&lt; 1;
+                v<span class="org-rainbow-delimiters-depth-5">[</span>0xF<span class="org-rainbow-delimiters-depth-5">]</span> = v<span class="org-rainbow-delimiters-depth-5">[</span>y<span class="org-rainbow-delimiters-depth-5">]</span> &amp; 0b1000000;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-keyword">else</span> =&gt; <span class="org-builtin">@panic</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"Invalid opcode in 0x8000 branch"</span><span class="org-rainbow-delimiters-depth-4">)</span>,
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">9xy0 - SNE Vx, Vy: The values of Vx and Vy are compared, and if</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">they are not equal, the program counter is increased by 2.</span>
+        0x9000 =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> != v<span class="org-rainbow-delimiters-depth-5">[</span>y<span class="org-rainbow-delimiters-depth-5">]</span><span class="org-rainbow-delimiters-depth-4">)</span>
+                pc += 4
+            <span class="org-keyword">else</span>
+                pc += 2;
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">Annn - LD I, addr: The value of register I is set to nnn.</span>
+        0xA000 =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
+            i = nnn;
+            pc += 2;
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">Bnnn - JP V0, addr: The program counter is set to nnn plus the</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">value of V0.</span>
+        0xB000 =&gt; pc = nnn + v<span class="org-rainbow-delimiters-depth-3">[</span>0<span class="org-rainbow-delimiters-depth-3">]</span>,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">Cxkk - RND Vx, byte: The interpreter generates a random number</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">from 0 to 255, which is then ANDed with the value kk. The results</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">are stored in Vx.</span>
+        0xC000 =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">const</span> <span class="org-variable-name">rnd</span> = std.crypto.random.int<span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">u8</span><span class="org-rainbow-delimiters-depth-4">)</span>;
+            v<span class="org-rainbow-delimiters-depth-4">[</span>x<span class="org-rainbow-delimiters-depth-4">]</span> = rnd &amp; kk;
+            pc += 2;
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        <span class="org-comment-delimiter">// </span><span class="org-comment">Dxyn - DRW Vx, Vy, nibble: The interpreter reads n bytes from</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">memory, starting at the address stored in I. These bytes are</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">then displayed as sprites on screen at coordinates (Vx,</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">Vy). Sprites are XORed onto the existing screen. If this causes</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">any pixels to be erased, VF is set to 1, otherwise it is set to</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">0. If the sprite is positioned so part of it is outside the</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">coordinates of the display, it wraps around to the opposite side</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">of the screen.</span>
+        0xD000 =&gt; <span class="org-rainbow-delimiters-depth-3">{</span>
+            v<span class="org-rainbow-delimiters-depth-4">[</span>0xF<span class="org-rainbow-delimiters-depth-4">]</span> = 0;
+            <span class="org-keyword">var</span> <span class="org-variable-name">yline</span>: <span class="org-type">u8</span> = 0;
+            <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-4">(</span>yline &lt; n<span class="org-rainbow-delimiters-depth-4">)</span> : <span class="org-rainbow-delimiters-depth-4">(</span>yline += 1<span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">const</span> <span class="org-variable-name">pixel</span> = ram<span class="org-rainbow-delimiters-depth-5">[</span>i + yline<span class="org-rainbow-delimiters-depth-5">]</span>;
+                <span class="org-keyword">var</span> <span class="org-variable-name">xline</span>: <span class="org-type">u8</span> = 0;
+                <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-5">(</span>xline &lt; 8<span class="org-rainbow-delimiters-depth-5">)</span> : <span class="org-rainbow-delimiters-depth-5">(</span>xline += 1<span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-rainbow-delimiters-depth-5">{</span>
+                    <span class="org-keyword">const</span> <span class="org-variable-name">px</span> = v<span class="org-rainbow-delimiters-depth-6">[</span>x<span class="org-rainbow-delimiters-depth-6">]</span> + xline;
+                    <span class="org-keyword">const</span> <span class="org-variable-name">py</span> = v<span class="org-rainbow-delimiters-depth-6">[</span>y<span class="org-rainbow-delimiters-depth-6">]</span> + yline;
+                    <span class="org-keyword">const</span> <span class="org-variable-name">color</span> = &amp;screen<span class="org-rainbow-delimiters-depth-6">[</span>px % 64 + <span class="org-rainbow-delimiters-depth-7">(</span>py % 32<span class="org-rainbow-delimiters-depth-7">)</span> * 64<span class="org-rainbow-delimiters-depth-6">]</span>;
+                    <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-6">(</span><span class="org-rainbow-delimiters-depth-7">(</span>pixel &amp; <span class="org-rainbow-delimiters-depth-8">(</span><span class="org-builtin">@as</span><span class="org-rainbow-delimiters-depth-9">(</span><span class="org-type">u8</span>, 0x80<span class="org-rainbow-delimiters-depth-9">)</span> &gt;&gt; <span class="org-builtin">@intCast</span><span class="org-rainbow-delimiters-depth-9">(</span><span class="org-type">u3</span>, xline<span class="org-rainbow-delimiters-depth-9">)</span><span class="org-rainbow-delimiters-depth-8">)</span><span class="org-rainbow-delimiters-depth-7">)</span> != 0<span class="org-rainbow-delimiters-depth-6">)</span> <span class="org-rainbow-delimiters-depth-6">{</span>
+                        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-7">(</span>color.* == 1<span class="org-rainbow-delimiters-depth-7">)</span>
+                            v<span class="org-rainbow-delimiters-depth-7">[</span>0xF<span class="org-rainbow-delimiters-depth-7">]</span> = 1;
+                        color.* ^= 1;
+                    <span class="org-rainbow-delimiters-depth-6">}</span>
+                <span class="org-rainbow-delimiters-depth-5">}</span>
+            <span class="org-rainbow-delimiters-depth-4">}</span>
+            update = <span class="org-constant">true</span>;
+            pc += 2;
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        0xE000 =&gt; <span class="org-keyword">switch</span> <span class="org-rainbow-delimiters-depth-3">(</span>opcode &amp; 0x00F0<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Ex9E - SKP Vx: Checks the keyboard, and if the key corresponding</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">to the value of Vx is currently in the down position, PC is</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">increased by 2.</span>
+            0x0090 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-5">(</span>keys<span class="org-rainbow-delimiters-depth-6">[</span>v<span class="org-rainbow-delimiters-depth-7">[</span>x<span class="org-rainbow-delimiters-depth-7">]</span><span class="org-rainbow-delimiters-depth-6">]</span> &gt; 0<span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-rainbow-delimiters-depth-5">{</span>
+                    pc += 4;
+                    keys<span class="org-rainbow-delimiters-depth-6">[</span>v<span class="org-rainbow-delimiters-depth-7">[</span>x<span class="org-rainbow-delimiters-depth-7">]</span><span class="org-rainbow-delimiters-depth-6">]</span> = 0;
+                <span class="org-rainbow-delimiters-depth-5">}</span> <span class="org-keyword">else</span> pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">ExA1 - SKNP Vx: Checks the keyboard, and if the key corresponding</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">to the value of Vx is currently in the up position, PC is</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">increased by 2.</span>
+            0x00A0 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-5">(</span>keys<span class="org-rainbow-delimiters-depth-6">[</span>v<span class="org-rainbow-delimiters-depth-7">[</span>x<span class="org-rainbow-delimiters-depth-7">]</span><span class="org-rainbow-delimiters-depth-6">]</span> == 0<span class="org-rainbow-delimiters-depth-5">)</span>
+                    pc += 4
+                <span class="org-keyword">else</span> <span class="org-rainbow-delimiters-depth-5">{</span>
+                    keys<span class="org-rainbow-delimiters-depth-6">[</span>v<span class="org-rainbow-delimiters-depth-7">[</span>x<span class="org-rainbow-delimiters-depth-7">]</span><span class="org-rainbow-delimiters-depth-6">]</span> = 0;
+                    pc += 2;
+                <span class="org-rainbow-delimiters-depth-5">}</span>
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-keyword">else</span> =&gt; <span class="org-builtin">@panic</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"Invalid opcode in 0xE000 branch"</span><span class="org-rainbow-delimiters-depth-4">)</span>,
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        0xF000 =&gt; <span class="org-keyword">switch</span> <span class="org-rainbow-delimiters-depth-3">(</span>opcode &amp; 0x00FF<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Fx07 - Ld Vx, DT: The value of DT is placed into Vx.</span>
+            0x0007 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> = dt;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Fx0A - LD Vx, K: All execution stops until a key is pressed, then</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">the value of that key is stored in Vx.</span>
+            0x000A =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-5">(</span>keys<span class="org-rainbow-delimiters-depth-5">)</span> |key, index| <span class="org-rainbow-delimiters-depth-5">{</span>
+                    <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-6">(</span>key &gt; 0<span class="org-rainbow-delimiters-depth-6">)</span> <span class="org-rainbow-delimiters-depth-6">{</span>
+                        v<span class="org-rainbow-delimiters-depth-7">[</span>x<span class="org-rainbow-delimiters-depth-7">]</span> = <span class="org-builtin">@truncate</span><span class="org-rainbow-delimiters-depth-7">(</span><span class="org-type">u16</span>, index<span class="org-rainbow-delimiters-depth-7">)</span>;
+                        pc += 2;
+                        <span class="org-keyword">break</span>;
+                    <span class="org-rainbow-delimiters-depth-6">}</span>
+                <span class="org-rainbow-delimiters-depth-5">}</span>
+                keys<span class="org-rainbow-delimiters-depth-5">[</span>v<span class="org-rainbow-delimiters-depth-6">[</span>x<span class="org-rainbow-delimiters-depth-6">]</span><span class="org-rainbow-delimiters-depth-5">]</span> = 0;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Fx15 - LD DT, Vx: DT is set equal to the value of Vx.</span>
+            0x0015 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                dt = v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span>;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Fx18 - LD ST, Vx: ST is set equal to the value of Vx.</span>
+            0x0018 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                st = v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span>;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Fx1E - ADD I, Vx: The values of I and Vx are added, and the</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">results are stored in I.</span>
+            0x001E =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                i += v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span>;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Fx29 - LD F, Vx: The value of I is set to the location for the</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">hexadecimal sprite corresponding to the value of Vx.</span>
+            0x0029 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                i = v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> * 5;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Fx33 - LD B, Vx: The interpreter takes the decimal value of Vx,</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">and places the hundreds digit in memory at location in I, the</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">tens digit at location I+1, and the ones digit at location I+2.</span>
+            0x0033 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                ram<span class="org-rainbow-delimiters-depth-5">[</span>i<span class="org-rainbow-delimiters-depth-5">]</span> = v<span class="org-rainbow-delimiters-depth-5">[</span>x<span class="org-rainbow-delimiters-depth-5">]</span> / 100;
+                ram<span class="org-rainbow-delimiters-depth-5">[</span>i + 1<span class="org-rainbow-delimiters-depth-5">]</span> = <span class="org-rainbow-delimiters-depth-5">(</span>v<span class="org-rainbow-delimiters-depth-6">[</span>x<span class="org-rainbow-delimiters-depth-6">]</span> / 10<span class="org-rainbow-delimiters-depth-5">)</span> % 10;
+                ram<span class="org-rainbow-delimiters-depth-5">[</span>i + 2<span class="org-rainbow-delimiters-depth-5">]</span> = <span class="org-rainbow-delimiters-depth-5">(</span>v<span class="org-rainbow-delimiters-depth-6">[</span>x<span class="org-rainbow-delimiters-depth-6">]</span> % 100<span class="org-rainbow-delimiters-depth-5">)</span> % 10;
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Fx55 - LD [I], Vx: The interpreter copies the values of registers</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">V0 through Vx into memory, starting at the address in I. I is set</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">to I + X + 1 after operation.</span>
+            0x0055 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">var</span> <span class="org-variable-name">index</span>: <span class="org-type">u8</span> = 0;
+                <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-5">(</span>index &lt;= x<span class="org-rainbow-delimiters-depth-5">)</span> : <span class="org-rainbow-delimiters-depth-5">(</span>index += 1<span class="org-rainbow-delimiters-depth-5">)</span>
+                    ram<span class="org-rainbow-delimiters-depth-5">[</span>i + index<span class="org-rainbow-delimiters-depth-5">]</span> = v<span class="org-rainbow-delimiters-depth-5">[</span>index<span class="org-rainbow-delimiters-depth-5">]</span>;
+                <span class="org-comment-delimiter">// </span><span class="org-comment">i += x + 1;</span>
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-comment-delimiter">// </span><span class="org-comment">Fx65 - LD Vx, [I]: The interpreter reads values from memory</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">starting at location I into registers V0 through Vx. I is set to</span>
+            <span class="org-comment-delimiter">// </span><span class="org-comment">I + X + 1 after operation.</span>
+            0x0065 =&gt; <span class="org-rainbow-delimiters-depth-4">{</span>
+                <span class="org-keyword">var</span> <span class="org-variable-name">index</span>: <span class="org-type">u8</span> = 0;
+                <span class="org-keyword">while</span> <span class="org-rainbow-delimiters-depth-5">(</span>index &lt;= x<span class="org-rainbow-delimiters-depth-5">)</span> : <span class="org-rainbow-delimiters-depth-5">(</span>index += 1<span class="org-rainbow-delimiters-depth-5">)</span>
+                    v<span class="org-rainbow-delimiters-depth-5">[</span>index<span class="org-rainbow-delimiters-depth-5">]</span> = ram<span class="org-rainbow-delimiters-depth-5">[</span>i + index<span class="org-rainbow-delimiters-depth-5">]</span>;
+                <span class="org-comment-delimiter">// </span><span class="org-comment">i += x + 1;</span>
+                pc += 2;
+            <span class="org-rainbow-delimiters-depth-4">}</span>,
+            <span class="org-keyword">else</span> =&gt; <span class="org-builtin">@panic</span><span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"Invalid opcode in 0xF000 branch"</span><span class="org-rainbow-delimiters-depth-4">)</span>,
+        <span class="org-rainbow-delimiters-depth-3">}</span>,
+        <span class="org-keyword">else</span> =&gt; <span class="org-builtin">@panic</span><span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"Invalid opcode in main branch"</span><span class="org-rainbow-delimiters-depth-3">)</span>,
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgac222cc" class="outline-2">
+<h2 id="orgac222cc">Terminal.zig</h2>
+<div class="outline-text-2" id="text-orgac222cc">
+<div class="org-src-container">
+<pre class="src src-zig"><span class="org-keyword">const</span> <span class="org-variable-name">std</span> = <span class="org-builtin">@import</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"std"</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">const</span> <span class="org-variable-name">os</span> = std.os;
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">Flags</span>
+<span class="org-keyword">const</span> <span class="org-variable-name">ISIG</span>: <span class="org-type">u32</span> = 1 &lt;&lt; 0;
+<span class="org-keyword">const</span> <span class="org-variable-name">ICANON</span>: <span class="org-type">u32</span> = 1 &lt;&lt; 1;
+<span class="org-keyword">const</span> <span class="org-variable-name">ECHO</span>: <span class="org-type">u32</span> = 1 &lt;&lt; 3;
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">State</span>
+<span class="org-keyword">var</span> <span class="org-variable-name">termios</span>: ?<span class="org-type">os</span>.termios = <span class="org-constant">null</span>;
+<span class="org-keyword">const</span> <span class="org-variable-name">stdin</span> = std.io.getStdIn<span class="org-rainbow-delimiters-depth-1">()</span>.reader<span class="org-rainbow-delimiters-depth-1">()</span>;
+<span class="org-keyword">const</span> <span class="org-variable-name">stdout</span> = std.io.getStdOut<span class="org-rainbow-delimiters-depth-1">()</span>.writer<span class="org-rainbow-delimiters-depth-1">()</span>;
+
+<span class="org-keyword">fn</span> <span class="org-function-name">enableRawMode</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    termios = <span class="org-keyword">try</span> os.tcgetattr<span class="org-rainbow-delimiters-depth-2">(</span>os.STDIN_FILENO<span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">var</span> <span class="org-variable-name">raw</span> = termios.?;
+    raw.lflag &amp;= ~<span class="org-rainbow-delimiters-depth-2">(</span>ECHO | ICANON | ISIG<span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">try</span> os.tcsetattr<span class="org-rainbow-delimiters-depth-2">(</span>os.STDIN_FILENO, os.TCSA.FLUSH, raw<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">fn</span> <span class="org-function-name">disableRawMode</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-2">(</span>termios<span class="org-rainbow-delimiters-depth-2">)</span> |raw|
+        <span class="org-keyword">try</span> os.tcsetattr<span class="org-rainbow-delimiters-depth-2">(</span>os.STDIN_FILENO, os.TCSA.FLUSH, raw<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">fn</span> <span class="org-function-name">hideCursor</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> stdout.writeAll<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"\x1b[?25l"</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">fn</span> <span class="org-function-name">showCursor</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> stdout.writeAll<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"\x1b[?25h"</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">clear</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> stdout.writeAll<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"\x1B[2J\x1B[H"</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">init</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> enableRawMode<span class="org-rainbow-delimiters-depth-2">()</span>;
+    <span class="org-keyword">try</span> hideCursor<span class="org-rainbow-delimiters-depth-2">()</span>;
+    <span class="org-keyword">try</span> clear<span class="org-rainbow-delimiters-depth-2">()</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">deinit</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> disableRawMode<span class="org-rainbow-delimiters-depth-2">()</span>;
+    <span class="org-keyword">try</span> showCursor<span class="org-rainbow-delimiters-depth-2">()</span>;
+    <span class="org-keyword">try</span> clear<span class="org-rainbow-delimiters-depth-2">()</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">read</span><span class="org-rainbow-delimiters-depth-1">()</span> !<span class="org-type">u8</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">return</span> stdin.readByte<span class="org-rainbow-delimiters-depth-2">()</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">write</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">bytes</span>: <span class="org-rainbow-delimiters-depth-2">[]</span><span class="org-keyword">const</span> <span class="org-type">u8</span><span class="org-rainbow-delimiters-depth-1">)</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> stdout.writeAll<span class="org-rainbow-delimiters-depth-2">(</span>bytes<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-keyword">pub</span> <span class="org-keyword">fn</span> <span class="org-function-name">writeAt</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">bytes</span>: <span class="org-rainbow-delimiters-depth-2">[]</span><span class="org-keyword">const</span> <span class="org-type">u8</span>, <span class="org-variable-name">x</span>: <span class="org-type">usize</span>, <span class="org-variable-name">y</span>: <span class="org-type">usize</span><span class="org-rainbow-delimiters-depth-1">)</span> !<span class="org-type">void</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">const</span> <span class="org-variable-name">command</span> = <span class="org-keyword">try</span> std.fmt.allocPrint<span class="org-rainbow-delimiters-depth-2">(</span>std.heap.page_allocator, <span class="org-string">"\x1b[{d};{d}H{s}"</span>, .<span class="org-rainbow-delimiters-depth-3">{</span> y + 1, x + 1, bytes <span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">try</span> write<span class="org-rainbow-delimiters-depth-2">(</span>command<span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+
+<div id="org0e9066d" class="figure">
+<p><img src="./demo.webp" alt="demo.webp">
+</p>
+</div>
+
+<pre>
+os
+├── src
+│   ├── <a href="./chip8/src/Emulator.zig">Emulator.zig</a>
+│   ├── <a href="./chip8/src/main.zig">main.zig</a>
+│   └── <a href="./chip8/src/Terminal.zig">Terminal.zig</a>
+└── <a href="./chip8/build.zig">build.zig</a>
+</pre>
+</div>
+</div>
+</body></html>
