@@ -177,3 +177,8 @@ table {
     color: #465953;
     background: #D2EBE3;
 }
+
+.org-comment-delimiter, .org-comment {
+    color: #B9A992;
+}
+

@@ -487,6 +487,8 @@ pub fn writeAt(bytes: []const u8, x: usize, y: usize) !void {
 }
 #+END_SRC
 
+[[./demo.webp]]
+
 #+BEGIN_EXPORT html
 <pre>
 os
