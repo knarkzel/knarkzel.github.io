@@ -5,3 +5,6 @@ language. Each post is a small tutorial and include all needed code with some th
 
 1. [[./hello-world][Hello, world]]
 2. [[./console-graphics][Console graphics]]
+3. Interrupts and IDT
+4. IRQs and the PIT
+5. Paging and virtual memory

@@ -4,5 +4,6 @@ In this blog series we create a small Lisp interpreter in the Rust programming
 language. Each post is a small tutorial and include all needed code with some theory. 
 
 1. [[./hello-lisp][Hello, Lisp]]
-2. [[./variables-and-functions][Functions and variables]]
-3. [[./core-language-features][Implementing core language features]]
+2. Functions and variables
+3. Implementing core language features
+4. Creating Lisp in Lisp (meta-circular evaluator)
