@@ -7,6 +7,21 @@ ROM to aid us in implementing the opcodes. When emulating each opcode,
 we read two bytes at a time. Then we use pattern matching to see which
 opcode it is and execute some code.
 
+* CHIP-8 system
+
+This is a brief summary of the CHIP-8 system:
+
+- Chip-8 has 35 instructions. Every instruction is 2 bytes in size.
+- Chip-8 has 16 8-bit registers and one 16-bit address register.
+- The stack is limited to 16 levels and is used to store the return address of subrutine calls
+- The memory is 4096 bytes in size, but only addressed from 0x200h to 0xFFFh
+- The display is monochrome and has a resolution of 64x32 pixels
+- Chip-8 has 2 timers. A sound timer and a delay timer.
+- The sound is very simple, only a beep
+- Input is done on 16 keys
+
+* Goal for this article
+
 In this article, we'll implement following opcodes:
 
 | Instruction | Description                                                                                                                                                             |
