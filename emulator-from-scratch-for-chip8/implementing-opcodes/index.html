@@ -7,6 +7,29 @@ we read two bytes at a time. Then we use pattern matching to see which
 opcode it is and execute some code.
 </p>
 
+<div id="outline-container-orgab75412" class="outline-2">
+<h2 id="orgab75412">CHIP-8 system</h2>
+<div class="outline-text-2" id="text-orgab75412">
+<p>
+This is a brief summary of the CHIP-8 system:
+</p>
+
+<ul class="org-ul">
+<li>Chip-8 has 35 instructions. Every instruction is 2 bytes in size.</li>
+<li>Chip-8 has 16 8-bit registers and one 16-bit address register.</li>
+<li>The stack is limited to 16 levels and is used to store the return address of subrutine calls</li>
+<li>The memory is 4096 bytes in size, but only addressed from 0x200h to 0xFFFh</li>
+<li>The display is monochrome and has a resolution of 64x32 pixels</li>
+<li>Chip-8 has 2 timers. A sound timer and a delay timer.</li>
+<li>The sound is very simple, only a beep</li>
+<li>Input is done on 16 keys</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgb9577bd" class="outline-2">
+<h2 id="orgb9577bd">Goal for this article</h2>
+<div class="outline-text-2" id="text-orgb9577bd">
 <p>
 In this article, we'll implement following opcodes:
 </p>
@@ -54,7 +77,7 @@ ROM, which is displaying the initial splash screen:
 </p>
 
 
-<div id="org9bf8a69" class="figure">
+<div id="org0268a79" class="figure">
 <p><img src="./splash-screen.png" alt="splash-screen.png">
 </p>
 </div>
@@ -69,4 +92,6 @@ chip8
 │   └── <a href="./chip8/src/Terminal.zig">Terminal.zig</a>
 └── <a href="./chip8/build.zig">build.zig</a>
 </pre>
+</div>
+</div>
 </body></html>
