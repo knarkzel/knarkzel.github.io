@@ -2,10 +2,10 @@
 
 After we have set up the screen, it's time to implement [[https://github.com/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Instruction-Set][all
 the opcodes]] that CHIP-8 uses. It's also necessary to set up [[https://github.com/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Technical-Reference][registers
-and memory]], which we'll be doing whenever needed. We will be using the
-[[./chip8-test-suite.ch8][chip8-test-suite]] ROM to aid us in implementing
-the opcodes. When emulating each opcode, we read two bytes at a time. Then
-we use pattern matching to see which opcode it is and execute some code.
+and memory]]. We will be using the [[./chip8/roms/chip8-test-suite.ch8][chip8-test-suite]]
+ROM to aid us in implementing the opcodes. When emulating each opcode,
+we read two bytes at a time. Then we use pattern matching to see which
+opcode it is and execute some code.
 
 In this article, we'll implement following opcodes:
 
@@ -15,6 +15,11 @@ In this article, we'll implement following opcodes:
 | 6XNN        | Store number NN in register VX                                                                                                                                          |
 | ANNN        | Store memory address NNN in register I                                                                                                                                  |
 | DXYN        | Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I. Set VF to 01 if any set pixels are changed to unset, and 00 otherwise |
+
+This is enough for us to get to the first stage of the chip8-test-suite
+ROM, which is displaying the initial splash screen.
+
+[[./splash-screen.png]]
 
 #+BEGIN_EXPORT html
 <pre>
