@@ -1,24 +1,29 @@
 const Terminal = @import("Terminal.zig");
-
-var screen: [64 * 32]u1 = undefined;
+const Emulator = @import("Emulator.zig");
 
 pub fn main() !void {
+    // Initialize emulator
+    const rom = @embedFile("../roms/chip8-test-suite.ch8");
+    Emulator.init(rom);
+
+    // Initialize terminal
     try Terminal.init();
     try Terminal.hideCursor();
-
-    // Clear the terminal
     try Terminal.clear();
 
-    // Modify screen
-    for (screen) |*bit, i| {
-        if ((i + 1) % 2 == 0) bit.* = 1;
-    }
+    // Main loop
+    while (true) {
+        // Emulate current opcode
+        Emulator.cycle();
 
-    // Show in terminal
-    for (screen) |bit, i| {
-        if (bit == 1) try Terminal.write("█") else try Terminal.write(" ");
-        if ((i + 1) % 64 == 0) try Terminal.write("\n");
+        if (Emulator.update) {
+            // Update terminal
+            try Terminal.clear();
+            for (Emulator.screen) |bit, i| {
+                if (bit == 1) try Terminal.write("█") else try Terminal.write(" ");
+                if ((i + 1) % 64 == 0) try Terminal.write("\n");
+            }
+            Emulator.update = false;
+        }
     }
-
-    while (true) {}
 }

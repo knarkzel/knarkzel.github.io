@@ -1,10 +1,10 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Implementing opcodes</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Implementing opcodes</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://github.com/knarkzel">Knarkzel</a></td></table><p>
 After we have set up the screen, it's time to implement <a href="https://github.com/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Instruction-Set">all
 the opcodes</a> that CHIP-8 uses. It's also necessary to set up <a href="https://github.com/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Technical-Reference">registers
-and memory</a>, which we'll be doing whenever needed. We will be using the
-<a href="./chip8-test-suite.ch8">chip8-test-suite</a> ROM to aid us in implementing
-the opcodes. When emulating each opcode, we read two bytes at a time. Then
-we use pattern matching to see which opcode it is and execute some code.
+and memory</a>. We will be using the <a href="./chip8/roms/chip8-test-suite.ch8">chip8-test-suite</a>
+ROM to aid us in implementing the opcodes. When emulating each opcode,
+we read two bytes at a time. Then we use pattern matching to see which
+opcode it is and execute some code.
 </p>
 
 <p>
@@ -48,8 +48,21 @@ In this article, we'll implement following opcodes:
 </tbody>
 </table>
 
+<p>
+This is enough for us to get to the first stage of the chip8-test-suite
+ROM, which is displaying the initial splash screen:
+</p>
+
+
+<div id="org9bf8a69" class="figure">
+<p><img src="./splash-screen.png" alt="splash-screen.png">
+</p>
+</div>
+
 <pre>
-os
+chip8
+├── roms
+│   └── <a href="./chip8/roms/chip8-test-suite.ch8">chip8-test-suite.ch8</a>
 ├── src
 │   ├── <a href="./chip8/src/Emulator.zig">Emulator.zig</a>
 │   ├── <a href="./chip8/src/main.zig">main.zig</a>
