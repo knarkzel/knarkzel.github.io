@@ -17,13 +17,15 @@ In this article, we'll implement following opcodes:
 | DXYN        | Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I. Set VF to 01 if any set pixels are changed to unset, and 00 otherwise |
 
 This is enough for us to get to the first stage of the chip8-test-suite
-ROM, which is displaying the initial splash screen.
+ROM, which is displaying the initial splash screen:
 
 [[./splash-screen.png]]
 
 #+BEGIN_EXPORT html
 <pre>
 os
+├── roms
+│   └── <a href="./chip8/roms/chip8-test-suite.ch8">chip8-test-suite.ch8</a>
 ├── src
 │   ├── <a href="./chip8/src/Emulator.zig">Emulator.zig</a>
 │   ├── <a href="./chip8/src/main.zig">main.zig</a>
