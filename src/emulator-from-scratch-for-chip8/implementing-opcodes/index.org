@@ -23,7 +23,7 @@ ROM, which is displaying the initial splash screen:
 
 #+BEGIN_EXPORT html
 <pre>
-os
+chip8
 ├── roms
 │   └── <a href="./chip8/roms/chip8-test-suite.ch8">chip8-test-suite.ch8</a>
 ├── src

@@ -151,7 +151,7 @@ pub fn main() !void {
 
 #+BEGIN_EXPORT html
 <pre>
-os
+chip8
 ├── src
 │   ├── <a href="./chip8/src/main.zig">main.zig</a>
 │   └── <a href="./chip8/src/Terminal.zig">Terminal.zig</a>
