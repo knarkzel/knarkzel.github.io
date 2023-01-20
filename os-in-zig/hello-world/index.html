@@ -3,9 +3,9 @@ To get started, we need two dependencies: zig (0.9.1) for building the
 OS and qemu (7.0.0) for emulating it.
 </p>
 
-<div id="outline-container-org46dfdf3" class="outline-2">
-<h2 id="org46dfdf3">Initialize project</h2>
-<div class="outline-text-2" id="text-org46dfdf3">
+<div id="outline-container-org582d16a" class="outline-2">
+<h2 id="org582d16a">Initialize project</h2>
+<div class="outline-text-2" id="text-org582d16a">
 <p>
 Create a new directory called os, enter it and initialize the project with zig:
 </p>
@@ -22,9 +22,9 @@ Create a new directory called os, enter it and initialize the project with zig:
 </div>
 </div>
 
-<div id="outline-container-org0820cd4" class="outline-2">
-<h2 id="org0820cd4">The boot code</h2>
-<div class="outline-text-2" id="text-org0820cd4">
+<div id="outline-container-org5eb4ee2" class="outline-2">
+<h2 id="org5eb4ee2">The boot code</h2>
+<div class="outline-text-2" id="text-org5eb4ee2">
 <p>
 To be able to run our kernel, we must make it freestanding and compatible
 with multiboot. We will use a custom linker script with some code in build.zig
@@ -75,9 +75,9 @@ static data.
 </div>
 </div>
 
-<div id="outline-container-org27be4f2" class="outline-2">
-<h2 id="org27be4f2">Build system</h2>
-<div class="outline-text-2" id="text-org27be4f2">
+<div id="outline-container-org80a35e4" class="outline-2">
+<h2 id="org80a35e4">Build system</h2>
+<div class="outline-text-2" id="text-org80a35e4">
 <p>
 Inside our build.zig we need to specify target (x86), make the binary
 freestanding and enable our custom linker script. We will also create a
@@ -116,9 +116,9 @@ run command to start qemu with "zig build run":
 </div>
 </div>
 
-<div id="outline-container-org7a2e834" class="outline-2">
-<h2 id="org7a2e834">Multiboot</h2>
-<div class="outline-text-2" id="text-org7a2e834">
+<div id="outline-container-orgaa12f60" class="outline-2">
+<h2 id="orgaa12f60">Multiboot</h2>
+<div class="outline-text-2" id="text-orgaa12f60">
 <p>
 Multiboot is a standard describing how a bootloader can load an x86 operating
 system kernel. It is a way for the bootloader to:
@@ -169,7 +169,7 @@ We can finally run the kernel with "zig build run":
 </p>
 
 
-<div id="org0588b74" class="figure">
+<div id="org18535af" class="figure">
 <p><img src="./blank.webp" alt="blank.webp">
 </p>
 </div>
@@ -194,7 +194,7 @@ I will explain how this works in the next part of this series. For now, take a l
 </p>
 
 
-<div id="orgaba81d8" class="figure">
+<div id="org15de9da" class="figure">
 <p><img src="./hello-world.webp" alt="hello-world.webp">
 </p>
 </div>
