@@ -2,7 +2,7 @@
 
 After we have set up the screen, it's time to implement [[https://github.com/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Instruction-Set][all
 the opcodes]] that CHIP-8 uses. It's also necessary to set up [[https://github.com/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Technical-Reference][registers
-and memory]]. We will be using the [[./chip8/roms/chip8-test-suite.ch8][chip8-test-suite]]
+and memory]]. We will be using the [[https://github.com/Timendus/chip8-test-suite][chip8-test-suite]]
 ROM to aid us in implementing the opcodes. When emulating each opcode,
 we read two bytes at a time. Then we use pattern matching to see which
 opcode it is and execute some code.
