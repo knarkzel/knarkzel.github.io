@@ -1,15 +1,15 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Implementing opcodes</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Implementing opcodes</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://github.com/knarkzel">Knarkzel</a></td></table><p>
 After we have set up the screen, it's time to implement <a href="https://github.com/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Instruction-Set">all
 the opcodes</a> that CHIP-8 uses. It's also necessary to set up <a href="https://github.com/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Technical-Reference">registers
-and memory</a>. We will be using the <a href="./chip8/roms/chip8-test-suite.ch8">chip8-test-suite</a>
+and memory</a>. We will be using the <a href="https://github.com/Timendus/chip8-test-suite">chip8-test-suite</a>
 ROM to aid us in implementing the opcodes. When emulating each opcode,
 we read two bytes at a time. Then we use pattern matching to see which
 opcode it is and execute some code.
 </p>
 
-<div id="outline-container-orgab75412" class="outline-2">
-<h2 id="orgab75412">CHIP-8 system</h2>
-<div class="outline-text-2" id="text-orgab75412">
+<div id="outline-container-org106a4a2" class="outline-2">
+<h2 id="org106a4a2">CHIP-8 system</h2>
+<div class="outline-text-2" id="text-org106a4a2">
 <p>
 This is a brief summary of the CHIP-8 system:
 </p>
@@ -27,9 +27,9 @@ This is a brief summary of the CHIP-8 system:
 </div>
 </div>
 
-<div id="outline-container-orgb9577bd" class="outline-2">
-<h2 id="orgb9577bd">Goal for this article</h2>
-<div class="outline-text-2" id="text-orgb9577bd">
+<div id="outline-container-org890f661" class="outline-2">
+<h2 id="org890f661">Goal for this article</h2>
+<div class="outline-text-2" id="text-org890f661">
 <p>
 In this article, we'll implement following opcodes:
 </p>
@@ -77,7 +77,7 @@ ROM, which is displaying the initial splash screen:
 </p>
 
 
-<div id="org0268a79" class="figure">
+<div id="org3deea02" class="figure">
 <p><img src="./splash-screen.png" alt="splash-screen.png">
 </p>
 </div>
