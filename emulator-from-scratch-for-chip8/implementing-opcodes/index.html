@@ -1,8 +1,52 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Implementing opcodes</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Implementing opcodes</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://github.com/knarkzel">Knarkzel</a></td></table>
-<div id="orgb0ead92" class="figure">
-<p><img src="./demo.webp" alt="demo.webp">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Implementing opcodes</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>Implementing opcodes</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://github.com/knarkzel">Knarkzel</a></td></table><p>
+After we have set up the screen, it's time to implement <a href="https://github.com/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Instruction-Set">all
+the opcodes</a> that CHIP-8 uses. It's also necessary to set up <a href="https://github.com/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Technical-Reference">registers
+and memory</a>, which we'll be doing whenever needed. We will be using the
+<a href="./chip8-test-suite.ch8">chip8-test-suite</a> ROM to aid us in implementing
+the opcodes. When emulating each opcode, we read two bytes at a time. Then
+we use pattern matching to see which opcode it is and execute some code.
 </p>
-</div>
+
+<p>
+In this article, we'll implement following opcodes:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Instruction</th>
+<th scope="col" class="org-left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">00E0</td>
+<td class="org-left">Clear the screen</td>
+</tr>
+
+<tr>
+<td class="org-left">6XNN</td>
+<td class="org-left">Store number NN in register VX</td>
+</tr>
+
+<tr>
+<td class="org-left">ANNN</td>
+<td class="org-left">Store memory address NNN in register I</td>
+</tr>
+
+<tr>
+<td class="org-left">DXYN</td>
+<td class="org-left">Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I. Set VF to 01 if any set pixels are changed to unset, and 00 otherwise</td>
+</tr>
+</tbody>
+</table>
 
 <pre>
 os
