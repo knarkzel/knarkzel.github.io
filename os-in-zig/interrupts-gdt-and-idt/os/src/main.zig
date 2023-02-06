@@ -20,9 +20,11 @@ export var stack_bytes: [16 * 1024]u8 align(16) linksection(".bss") = undefined;
 export fn _start() callconv(.Naked) noreturn {
     init();
     @call(.{ .stack = &stack_bytes }, main, .{});
-    while (true) asm volatile ("hlt");
+    while (true)
+        asm volatile ("hlt");
 }
 
+const gdt = @import("gdt.zig");
 const idt = @import("idt.zig");
 const utils = @import("utils.zig");
 const Console = @import("Console.zig");
@@ -33,6 +35,7 @@ export fn isrHandler(registers: utils.Registers) void {
 }
 
 fn init() void {
+    gdt.init();
     idt.init();
     Console.init();
 }
