@@ -5,10 +5,8 @@ pub fn build(b: *std.build.Builder) void {
     const target = .{ .cpu_arch = .i386, .os_tag = .freestanding };
 
     const os = b.addExecutable("os.elf", "src/main.zig");
-    os.addAssemblyFile("src/interrupt.s");
+    os.addAssemblyFile("src/interrupts.s");
     os.setLinkerScriptPath(.{ .path = "linker.ld" });
-    os.code_model = .kernel;
-    os.want_lto = false;
     os.setBuildMode(mode);
     os.setTarget(target);
     os.install();
