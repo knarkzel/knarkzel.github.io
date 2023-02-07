@@ -11,13 +11,18 @@ as well as archiving useful information.
 
 * Alphabets
 
+- [X] Latin
+- [X] Arabic
+- [X] Cyrillic
+- [ ] Korean
 - [ ] Greek
 - [ ] Hebrew
-- [ ] Korean
-- [ ] Turkish
 - [ ] Chinese
-- [ ] Russian
-- [X] Arabic
+
+* Language-specific alphabets
+
+- [ ] Turkish
 - [X] German
 - [X] English
 - [X] Norwegian
+- [X] Classical Arabic
