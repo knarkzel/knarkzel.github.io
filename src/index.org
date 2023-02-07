@@ -3,6 +3,21 @@
 Welcome to my site! On this website I write tutorials for Zig and Rust,
 as well as archiving useful information.
 
+* Tutorials
+
 - [[./os-in-zig][Writing an OS in Zig]]
 - [[./lisp-in-rust][Lisp interpreter in Rust]]
 - [[./emulator-from-scratch-for-chip8][Emulator from scratch for Chip8]]
+
+* Alphabets
+
+- [ ] Greek
+- [ ] Hebrew
+- [ ] Korean
+- [ ] Turkish
+- [ ] Chinese
+- [ ] Russian
+- [X] Arabic
+- [X] German
+- [X] English
+- [X] Norwegian
