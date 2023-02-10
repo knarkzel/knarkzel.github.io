@@ -1,0 +1,152 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>ESP32</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>ESP32</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://github.com/knarkzel">Knarkzel</a></td></table><blockquote>
+<p>
+A feature-rich MCU with integrated Wi-Fi and Bluetooth connectivity for
+a wide-range of applications.
+</p>
+</blockquote>
+
+<p>
+The ESP32 is essentially a more powerful version of the ESP32-C3 (except
+for Bluetooth). It features a dual-core CPU instead of single-core, with
+more RAM and ROM. One major downside for me at least is that it uses the
+Xtensa architecture instead of ARM or RISC-V. Since LLVM doesn't have Xtensa
+support yet, and Rust depends on LLVM, I can't use Rust for programming
+the ESP32 as easily as the ESP32-C3. There are however forks of LLVM with
+Xtensa support, and it seems like Xtensa support will come soon.
+</p>
+
+
+<div id="orgad328b7" class="figure">
+<p><img src="./xtensa.png" alt="xtensa.png">
+</p>
+</div>
+
+<p>
+Nevertheless, this is also a great microcontroller <a href="https://web.archive.org/web/20230210110857/https://www.aliexpress.us/item/3256804810550191.html?gatewayAdapt=glo2usa4itemAdapt&amp;_randl_shipto=US">that's very cheap</a>. On
+AliExpress it costs 3.54 USD each. With shipping it's probably around 4-5
+USD.
+</p>
+
+
+<div id="org4957561" class="figure">
+<p><img src="./esp32.png" alt="esp32.png">
+</p>
+</div>
+
+<div id="outline-container-orgb8be39d" class="outline-2">
+<h2 id="orgb8be39d">Features</h2>
+<div class="outline-text-2" id="text-orgb8be39d">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">CPU</td>
+<td class="org-left">Tensilica Xtensa LX6 32 bit Dual-Core @ 160 / 240Mhz</td>
+</tr>
+
+<tr>
+<td class="org-left">RAM</td>
+<td class="org-left">520 KB</td>
+</tr>
+
+<tr>
+<td class="org-left">ROM (flash)</td>
+<td class="org-left">448 KB</td>
+</tr>
+
+<tr>
+<td class="org-left">RTC Memory</td>
+<td class="org-left">16 KB</td>
+</tr>
+
+<tr>
+<td class="org-left">External SRAM</td>
+<td class="org-left">8 MB up to</td>
+</tr>
+
+<tr>
+<td class="org-left">External Flash</td>
+<td class="org-left">16 MB up to</td>
+</tr>
+
+<tr>
+<td class="org-left">UART</td>
+<td class="org-left">3</td>
+</tr>
+
+<tr>
+<td class="org-left">SPI</td>
+<td class="org-left">4</td>
+</tr>
+
+<tr>
+<td class="org-left">Ethernet</td>
+<td class="org-left">10/100Mbps</td>
+</tr>
+
+<tr>
+<td class="org-left">Wi-Fi</td>
+<td class="org-left">802.11b/g/n</td>
+</tr>
+
+<tr>
+<td class="org-left">Bluetooth</td>
+<td class="org-left">4.2 BR/EDR + BLE</td>
+</tr>
+
+<tr>
+<td class="org-left">ESP-MESH</td>
+<td class="org-left">✅</td>
+</tr>
+
+<tr>
+<td class="org-left">Temperature sensor</td>
+<td class="org-left">✅</td>
+</tr>
+
+<tr>
+<td class="org-left">GPIO</td>
+<td class="org-left">34</td>
+</tr>
+
+<tr>
+<td class="org-left">I2S</td>
+<td class="org-left">1</td>
+</tr>
+
+<tr>
+<td class="org-left">I²C</td>
+<td class="org-left">Up to 2</td>
+</tr>
+
+<tr>
+<td class="org-left">PWM</td>
+<td class="org-left">Up to 8</td>
+</tr>
+
+<tr>
+<td class="org-left">ADC</td>
+<td class="org-left">12 bit SAR ADC up to 18 channels</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org95a5b3b" class="outline-2">
+<h2 id="org95a5b3b">Resources</h2>
+<div class="outline-text-2" id="text-org95a5b3b">
+<ul class="org-ul">
+<li><a href="https://web.archive.org/web/20230210110421/https://github.com/esp-rs">esp-rs</a></li>
+<li><a href="https://web.archive.org/web/20230210110214/https://kerkour.com/rust-on-esp32">Rust on ESP32</a></li>
+<li><a href="./esp32-datasheet.pdf">ESP32 Series Datasheet</a></li>
+</ul>
+</div>
+</div>
+</body></html>
