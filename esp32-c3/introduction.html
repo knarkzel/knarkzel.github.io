@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>ESP32-C3 Introduction</title><link rel="stylesheet" href="/styles.css"/></head><body><table width="100%" cellpadding="0" cellspacing="0" border="0" id="header"><td align="left"><b>ESP32-C3 Introduction</b> | <a href=../>Go back</a></td><td align="right">Written by <a href="https://github.com/knarkzel">Knarkzel</a></td></table><blockquote>
+<p>
+ESP32-C3 is a single-core, 32-bit, RISC-V-based MCU with 400KB of SRAM,
+which is capable of running at 160MHz. It has integrated 2.4 GHz Wi-Fi
+and Bluetooth 5 (LE) with a long-range support. It has 22 programmable
+GPIOs with support for ADC, SPI, UART, I2C, I2S, RMT, TWAI, and PWM.
+</p>
+</blockquote>
+
+<p>
+The greatest thing about this microcontroller is <a href="https://www.aliexpress.com/item/1005004994621831.html">how cheap it is</a>. On AliExpress
+it costs a mere 2.65 USD each. I bought two of these which in total cost
+8.07 USD with shipping included, which is 4.035 USD each. It's also quite
+nice that the ESP32-C3 uses a RISC-V architecture. LLVM currently doesn't
+support Xtensa by default (which the ESP32 uses), and Rust depends on LLVM.
+I'd much rather use Rust than C for programming microcontrollers. 
+</p>
+
+
+<div id="orge608165" class="figure">
+<p><img src="./esp32-c3.png" alt="esp32-c3.png">
+</p>
+</div>
+
+<div id="outline-container-org51330cf" class="outline-2">
+<h2 id="org51330cf">Features</h2>
+<div class="outline-text-2" id="text-org51330cf">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">CPU</td>
+<td class="org-left">RISC-V 32-bit Single-Core @ 160 MHz</td>
+</tr>
+
+<tr>
+<td class="org-left">RAM</td>
+<td class="org-left">400 KB</td>
+</tr>
+
+<tr>
+<td class="org-left">ROM (flash)</td>
+<td class="org-left">384 KB</td>
+</tr>
+
+<tr>
+<td class="org-left">RTC Memory</td>
+<td class="org-left">8 KB</td>
+</tr>
+
+<tr>
+<td class="org-left">UART</td>
+<td class="org-left">2</td>
+</tr>
+
+<tr>
+<td class="org-left">SPI</td>
+<td class="org-left">3</td>
+</tr>
+
+<tr>
+<td class="org-left">Wi-Fi</td>
+<td class="org-left">802.11b/g/n</td>
+</tr>
+
+<tr>
+<td class="org-left">Bluetooth</td>
+<td class="org-left">5.0 + BLE</td>
+</tr>
+
+<tr>
+<td class="org-left">ESP-MESH</td>
+<td class="org-left">✅</td>
+</tr>
+
+<tr>
+<td class="org-left">Temperature sensor</td>
+<td class="org-left">✅</td>
+</tr>
+
+<tr>
+<td class="org-left">I²C</td>
+<td class="org-left">1</td>
+</tr>
+
+<tr>
+<td class="org-left">I2S</td>
+<td class="org-left">1</td>
+</tr>
+
+<tr>
+<td class="org-left">PWM</td>
+<td class="org-left">Up to 6</td>
+</tr>
+
+<tr>
+<td class="org-left">ADC</td>
+<td class="org-left">2 × 12-bit SAR ADCs, up to 6 channels</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org6408ed8" class="outline-2">
+<h2 id="org6408ed8">Resources</h2>
+<div class="outline-text-2" id="text-org6408ed8">
+<ul class="org-ul">
+<li><a href="./esp32-c3-datasheet.pdf">ESP32-C3 Series Datasheet</a></li>
+<li><a href="./esp32-c3-embedded-rust.pdf">Embedded Rust on Espressif</a></li>
+<li><a href="https://web.archive.org/web/20230210093625/https://www.espressif.com/en/media_overview/news/risc-v-with-esp32-c3">Get Hands-On Experience with RISC-V, Using ESP32-C3!</a></li>
+</ul>
+</div>
+</div>
+</body></html>
