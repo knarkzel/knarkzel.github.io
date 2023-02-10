@@ -7,7 +7,7 @@ and Bluetooth 5 (LE) with a long-range support. It has 22 programmable
 GPIOs with support for ADC, SPI, UART, I2C, I2S, RMT, TWAI, and PWM.
 #+END_QUOTE
 
-The greatest thing about this microcontroller is [[https://www.aliexpress.com/item/1005004994621831.html][how cheap it is]]. On AliExpress
+The greatest thing about this microcontroller is [[https://web.archive.org/web/20230210094703/https://www.aliexpress.us/item/3256804808307079.html?gatewayAdapt=glo2usa4itemAdapt&_randl_shipto=US][how cheap it is]]. On AliExpress
 it costs a mere 2.65 USD each. I bought two of these which in total cost
 8.07 USD with shipping included, which is 4.035 USD each. It's also quite
 nice that the ESP32-C3 uses a RISC-V architecture. LLVM currently doesn't
