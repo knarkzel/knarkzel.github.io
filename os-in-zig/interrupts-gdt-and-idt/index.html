@@ -5,9 +5,9 @@ to initialize the <a href="https://wiki.osdev.org/Interrupt_Descriptor_Table">In
 to set up the <a href="https://wiki.osdev.org/Global_Descriptor_Table">Global Descriptor Table</a>, but GRUB does this for us.
 </p>
 
-<div id="outline-container-org3b5f866" class="outline-2">
-<h2 id="org3b5f866">Theory</h2>
-<div class="outline-text-2" id="text-org3b5f866">
+<div id="outline-container-org2eaa49a" class="outline-2">
+<h2 id="org2eaa49a">Theory</h2>
+<div class="outline-text-2" id="text-org2eaa49a">
 <p>
 There are times when we want to interrupt the processor. We want to stop
 the processor doing what it's doing, and force it to do something different,
@@ -61,9 +61,9 @@ layout:
 </pre>
 </div>
 
-<div id="outline-container-org285306d" class="outline-3">
-<h3 id="org285306d">Faults, traps and exceptions</h3>
-<div class="outline-text-3" id="text-org285306d">
+<div id="outline-container-org20c0e1e" class="outline-3">
+<h3 id="org20c0e1e">Faults, traps and exceptions</h3>
+<div class="outline-text-3" id="text-org20c0e1e">
 <p>
 The processor will sometimes need to send interrupts to our kernel. Something
 major may have happened, such as divide-by-zero. To do this, it uses the first
@@ -195,9 +195,9 @@ The special, CPU-dedicated interrupts are following:
 </div>
 </div>
 
-<div id="outline-container-orgaf777b5" class="outline-2">
-<h2 id="orgaf777b5">Practice</h2>
-<div class="outline-text-2" id="text-orgaf777b5">
+<div id="outline-container-orgb01a4fb" class="outline-2">
+<h2 id="orgb01a4fb">Practice</h2>
+<div class="outline-text-2" id="text-orgb01a4fb">
 <p>
 The first thing we should do is to define the layout for the idt entry and create the array of
 256 entries. Create a new file in src/idt.zig with following:
