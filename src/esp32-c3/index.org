@@ -18,20 +18,21 @@ I'd much rather use Rust than C for programming microcontrollers.
 
 * Features
 
-| CPU                  | RISC-V 32-bit Single-Core @ 160 MHz                                                |
-| RAM                  | 400 KB                                                                             |
-| ROM (flash)          | 384 KB                                                                             |
-| RTC Memory           | 8 KB                                                                               |
-| UART                 | 2                                                                                  |
-| SPI                  | 3                                                                                  |
-| Wi-Fi                | 802.11b/g/n                                                                        |
-| Bluetooth            | 5.0 + BLE                                                                          |
-| ESP-MESH             | ✅                                                                                 |
-| Temperature sensor   | ✅                                                                                 |
-| I²C                  | 1                                                                                  |
-| I2S                  | 1                                                                                  |
-| PWM                  | Up to 6                                                                            |
-| ADC                  | 2 × 12-bit SAR ADCs, up to 6 channels                                              |
+| CPU                | RISC-V 32-bit Single-Core @ 160 MHz   |
+| RAM                | 400 KB                                |
+| ROM (flash)        | 384 KB                                |
+| RTC Memory         | 8 KB                                  |
+| UART               | 2                                     |
+| SPI                | 3                                     |
+| Wi-Fi              | 802.11b/g/n                           |
+| Bluetooth          | 5.0 + BLE                             |
+| ESP-MESH           | ✅                                    |
+| Temperature sensor | ✅                                    |
+| GPIO               | 22 (up to)                            |
+| I2S                | 1                                     |
+| I²C                | Up to 1                               |
+| PWM                | Up to 6                               |
+| ADC                | 2 × 12-bit SAR ADCs, up to 6 channels |
 
 * Resources
 

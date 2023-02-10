@@ -11,5 +11,5 @@ as well as archiving useful information.
 
 * Microcontrollers
 
+- [[./esp32][ESP32]]
 - [[./esp32-c3][ESP32-C3]]
-
