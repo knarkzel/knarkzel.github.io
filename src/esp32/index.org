@@ -15,6 +15,12 @@ Xtensa support, and it seems like Xtensa support will come soon.
 
 [[./xtensa.png]]
 
+It seems like a new Xtensa backend has been merged upstream to LLVM on master.
+According to [[https://web.archive.org/web/20230210161631/https://www.phoronix.com/news/LLVM-Xtensa-Backend][this article]], LLVM 16 will include this Xtensa backend that Espressif
+has been working on for several years. This is great news, since it seems
+like ESP32 is better than ESP32-C3 in basically everything except for Bluetooth.
+Two cores is definitely better than one.
+
 Nevertheless, this is also a great microcontroller [[https://web.archive.org/web/20230210110857/https://www.aliexpress.us/item/3256804810550191.html?gatewayAdapt=glo2usa4itemAdapt&_randl_shipto=US][that's very cheap]]. On
 AliExpress it costs 3.54 USD each. With shipping it's probably around 4-5
 USD.
