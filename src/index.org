@@ -9,20 +9,7 @@ as well as archiving useful information.
 - [[./lisp-in-rust][Lisp interpreter in Rust]]
 - [[./emulator-from-scratch-for-chip8][Emulator from scratch for Chip8]]
 
-* Alphabets
+* ESP32-C3
 
-- [X] Latin
-- [X] Arabic
-- [X] Cyrillic
-- [ ] Korean
-- [ ] Greek
-- [ ] Hebrew
-- [ ] Chinese
+- [[./esp32-c3/introduction.org][Introduction]]
 
-* Language-specific alphabets
-
-- [ ] Turkish
-- [X] German
-- [X] English
-- [X] Norwegian
-- [X] Classical Arabic

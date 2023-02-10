@@ -9,7 +9,7 @@ the screen.
 The kernel gets booted by GRUB in text mode. In this mode, we have access
 to a framebuffer (area of memory) that controls a screen of characters
 which is 80 wide and 25 high. This is also known as "VGA mode 3". There
-are other video modes we can enter with [[https://wiki.osdev.org/VESA_Video_Modes][VESA]], which we might use later
+are other video modes we can enter with [[https://web.archive.org/web/20230210093941/https://wiki.osdev.org/VESA_Video_Modes][VESA]], which we might use later
 on.
 
 The area of memory known as the framebuffer is accessible just like normal

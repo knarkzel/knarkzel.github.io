@@ -1,0 +1,40 @@
+#+TITLE: ESP32-C3 Introduction
+
+#+BEGIN_QUOTE
+ESP32-C3 is a single-core, 32-bit, RISC-V-based MCU with 400KB of SRAM,
+which is capable of running at 160MHz. It has integrated 2.4 GHz Wi-Fi
+and Bluetooth 5 (LE) with a long-range support. It has 22 programmable
+GPIOs with support for ADC, SPI, UART, I2C, I2S, RMT, TWAI, and PWM.
+#+END_QUOTE
+
+The greatest thing about this microcontroller is [[https://www.aliexpress.com/item/1005004994621831.html][how cheap it is]]. On AliExpress
+it costs a mere 2.65 USD each. I bought two of these which in total cost
+8.07 USD with shipping included, which is 4.035 USD each. It's also quite
+nice that the ESP32-C3 uses a RISC-V architecture. LLVM currently doesn't
+support Xtensa by default (which the ESP32 uses), and Rust depends on LLVM.
+I'd much rather use Rust than C for programming microcontrollers. 
+
+[[./esp32-c3.png]]
+
+* Features
+
+| CPU                  | RISC-V 32-bit Single-Core @ 160 MHz                                                |
+| RAM                  | 400 KB                                                                             |
+| ROM (flash)          | 384 KB                                                                             |
+| RTC Memory           | 8 KB                                                                               |
+| UART                 | 2                                                                                  |
+| SPI                  | 3                                                                                  |
+| Wi-Fi                | 802.11b/g/n                                                                        |
+| Bluetooth            | 5.0 + BLE                                                                          |
+| ESP-MESH             | ✅                                                                                 |
+| Temperature sensor   | ✅                                                                                 |
+| I²C                  | 1                                                                                  |
+| I2S                  | 1                                                                                  |
+| PWM                  | Up to 6                                                                            |
+| ADC                  | 2 × 12-bit SAR ADCs, up to 6 channels                                              |
+
+* Resources
+
+- [[./esp32-c3-datasheet.pdf][ESP32-C3 Series Datasheet]]
+- [[./esp32-c3-embedded-rust.pdf][Embedded Rust on Espressif]]
+- [[https://web.archive.org/web/20230210093625/https://www.espressif.com/en/media_overview/news/risc-v-with-esp32-c3][Get Hands-On Experience with RISC-V, Using ESP32-C3!]]

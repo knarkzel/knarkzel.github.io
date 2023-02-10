@@ -138,7 +138,7 @@ We can finally run the kernel with "zig build run":
 
 The fact that qemu is not crashing is a sign that our kernel is working!
 Since a blank screen is quite boring to look at, lets add some text by
-[[https://wiki.osdev.org/Printing_To_Screen][writing directly to video memory]]:
+[[https://web.archive.org/web/20230210093822/https://wiki.osdev.org/Printing_To_Screen][writing directly to video memory]]:
 
 #+BEGIN_SRC zig
 fn main() void {
