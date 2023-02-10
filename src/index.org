@@ -9,7 +9,7 @@ as well as archiving useful information.
 - [[./lisp-in-rust][Lisp interpreter in Rust]]
 - [[./emulator-from-scratch-for-chip8][Emulator from scratch for Chip8]]
 
-* ESP32-C3
+* Microcontrollers
 
-- [[./esp32-c3/introduction.org][Introduction]]
+- [[./esp32-c3][ESP32-C3]]
 

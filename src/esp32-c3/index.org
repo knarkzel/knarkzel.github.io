@@ -1,4 +1,4 @@
-#+TITLE: ESP32-C3 Introduction
+#+TITLE: ESP32-C3
 
 #+BEGIN_QUOTE
 ESP32-C3 is a single-core, 32-bit, RISC-V-based MCU with 400KB of SRAM,
