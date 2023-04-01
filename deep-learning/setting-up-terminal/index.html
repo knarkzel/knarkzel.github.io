@@ -4,9 +4,9 @@ use the terminal for this since it's lightweight and a good way to learn
 how terminals work.
 </p>
 
-<div id="outline-container-org318e0ad" class="outline-2">
-<h2 id="org318e0ad">Initialize project</h2>
-<div class="outline-text-2" id="text-org318e0ad">
+<div id="outline-container-org727fe47" class="outline-2">
+<h2 id="org727fe47">Initialize project</h2>
+<div class="outline-text-2" id="text-org727fe47">
 <p>
 Create a new directory called chip8, enter it and initialize the project with zig:
 </p>
@@ -23,9 +23,9 @@ Create a new directory called chip8, enter it and initialize the project with zi
 </div>
 </div>
 
-<div id="outline-container-orge83c322" class="outline-2">
-<h2 id="orge83c322">Terminal abstraction</h2>
-<div class="outline-text-2" id="text-orge83c322">
+<div id="outline-container-orga9b0aea" class="outline-2">
+<h2 id="orga9b0aea">Terminal abstraction</h2>
+<div class="outline-text-2" id="text-orga9b0aea">
 <p>
 To be able to manipulate the terminal, we need to modify some attributes
 like turning off echoing, canonical mode. This is done by using std.os.tcgetattr
@@ -35,9 +35,9 @@ to byte-by-byte.
 </p>
 </div>
 
-<div id="outline-container-org28cd906" class="outline-3">
-<h3 id="org28cd906">Disable echoing and reading line-by-line</h3>
-<div class="outline-text-3" id="text-org28cd906">
+<div id="outline-container-org076ba91" class="outline-3">
+<h3 id="org076ba91">Disable echoing and reading line-by-line</h3>
+<div class="outline-text-3" id="text-org076ba91">
 <p>
 Create a file in src/Terminal.zig. We'll start by creating a init function
 to turn off echoing and canonical mode:
@@ -80,9 +80,9 @@ Lets replace src/main.zig to see this in action:
 </div>
 </div>
 
-<div id="outline-container-org7ca51f4" class="outline-3">
-<h3 id="org7ca51f4">Clearing and writing to the screen</h3>
-<div class="outline-text-3" id="text-org7ca51f4">
+<div id="outline-container-orgdcf7dbb" class="outline-3">
+<h3 id="orgdcf7dbb">Clearing and writing to the screen</h3>
+<div class="outline-text-3" id="text-orgdcf7dbb">
 <p>
 After running with zig build run, we see that keypresses aren't displayed anymore. This is not quite
 interesting however, so lets create a 64x32 screen that we can write to the terminal. We need a clear
@@ -169,9 +169,9 @@ terminal, modify the screen then show it:
 </div>
 </div>
 
-<div id="outline-container-org73da574" class="outline-3">
-<h3 id="org73da574">Hiding the cursor</h3>
-<div class="outline-text-3" id="text-org73da574">
+<div id="outline-container-org7568200" class="outline-3">
+<h3 id="org7568200">Hiding the cursor</h3>
+<div class="outline-text-3" id="text-org7568200">
 <p>
 After running this, you should see the columns alternating between █ and space. However, we can still
 see the cursor. Lets add this last thing to src/Terminal.zig:
@@ -196,7 +196,7 @@ Call this function after Terminal.init() to finish this part:
 </div>
 
 
-<div id="org124eab2" class="figure">
+<div id="org6a42c7a" class="figure">
 <p><img src="./terminal.webp" alt="terminal.webp">
 </p>
 </div>
