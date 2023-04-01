@@ -4,3 +4,8 @@ In this blog series we create a simple game that utilizes deep learning
 for AI, using the Zig programming language.
 
 1. Setting up the terminal
+2. Game logic
+3. Implementing deep learning
+4. (optional) Add support for running in browser with Web Assembly
+   
+ 
