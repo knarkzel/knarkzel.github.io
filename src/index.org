@@ -5,10 +5,11 @@ as well as archiving useful information.
 
 * Tutorials
 
+- [[./deep-learning][Deep learning]]
 - [[./os-in-zig][Writing an OS in Zig]]
 - [[./lisp-in-rust][Lisp interpreter in Rust]]
 - [[./emulator-from-scratch-for-chip8][Emulator from scratch for Chip8]]
-
+  
 * Microcontrollers
 
 - [[./esp32][ESP32]]

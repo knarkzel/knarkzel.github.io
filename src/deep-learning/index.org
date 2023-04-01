@@ -1,0 +1,6 @@
+#+TITLE: Deep learning
+
+In this blog series we create a simple game that utilizes deep learning
+for AI, using the Zig programming language.
+
+1. Setting up the terminal

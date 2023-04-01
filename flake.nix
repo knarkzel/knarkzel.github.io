@@ -1,7 +1,7 @@
 {
   inputs = {
     nixpkgs = {
-      url = "github:NixOS/nixpkgs/nixos-unstable";
+      url = "github:NixOS/nixpkgs/nixos-22.11";
     };
     flake-utils = {
       url = "github:numtide/flake-utils";
@@ -21,6 +21,9 @@
         buildInputs = [
           pkgs.just
           pkgs.entr
+          pkgs.zig
+          pkgs.zls
+          pkgs.qemu
           pkgs.emacs-nox
         ];
       };
